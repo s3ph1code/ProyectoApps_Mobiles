@@ -46,6 +46,12 @@ app.*.map.json
 
 # Variables de entorno
 .env
+.env.*
+!.env.example
 
 # La documentacion del proyecto se comparte aparte, no por el repo
 docs/
+doulapp-docs/
+doulapp-docs.zip
+CLAUDE.md
+.claude/

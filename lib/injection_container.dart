@@ -9,6 +9,12 @@ import 'features/auth/domain/usecases/get_current_user.dart';
 import 'features/auth/domain/usecases/sign_in_with_email.dart';
 import 'features/auth/domain/usecases/sign_out.dart';
 import 'features/auth/domain/usecases/sign_up_with_email.dart';
+import 'features/profile/data/datasources/profile_remote_datasource.dart';
+import 'features/profile/data/repositories/profile_repository_impl.dart';
+import 'features/profile/domain/repositories/profile_repository.dart';
+import 'features/profile/domain/usecases/create_profile.dart';
+import 'features/profile/domain/usecases/get_profile.dart';
+import 'features/profile/presentation/bloc/profile_bloc.dart';
 
 final sl = GetIt.instance;
 
@@ -16,6 +22,7 @@ Future<void> initDependencies() async {
   sl.registerLazySingleton<SupabaseClient>(() => SupabaseConfig.client);
 
   _registerAuth();
+  _registerProfile();
 }
 
 void _registerAuth() {
@@ -30,4 +37,24 @@ void _registerAuth() {
   sl.registerLazySingleton(() => SignInWithEmail(sl()));
   sl.registerLazySingleton(() => SignOut(sl()));
   sl.registerLazySingleton(() => GetCurrentUser(sl()));
+}
+
+void _registerProfile() {
+  sl.registerLazySingleton<ProfileRemoteDataSource>(
+    () => ProfileRemoteDataSourceImpl(client: sl()),
+  );
+  sl.registerLazySingleton<ProfileRepository>(
+    () => ProfileRepositoryImpl(remoteDataSource: sl()),
+  );
+
+  sl.registerLazySingleton(() => CreateProfile(sl()));
+  sl.registerLazySingleton(() => GetProfile(sl()));
+
+  sl.registerFactory(
+    () => ProfileBloc(
+      getCurrentUser: sl(),
+      getProfile: sl(),
+      signOut: sl(),
+    ),
+  );
 }

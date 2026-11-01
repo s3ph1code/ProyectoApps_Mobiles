@@ -74,14 +74,26 @@ lib/
 ├── core/
 │   ├── config/supabase_config.dart   # init del cliente, lee .env
 │   ├── error/                        # exceptions.dart y failures.dart
+│   ├── router/app_router.dart        # rutas con GoRouter y provisión de BLoC
 │   ├── usecase/usecase.dart          # UseCase<T, Params>
 │   └── theme/                        # colores, tipografía, radios, tema
 │
 └── features/
     ├── auth/                         # registro, login, logout
-    ├── profile/                      # entidad Profile y su repositorio
+    ├── profile/                      # entidad Profile, repositorio, ProfileBloc y ProfilePage
     └── onboarding/                   # captura de datos iniciales
 ```
+
+### Rutas y navegación
+
+Configuradas en `lib/core/router/app_router.dart` mediante `GoRouter`:
+
+| Ruta | Propósito |
+|---|---|
+| `/login` | Inicio de sesión → navega a `/profile` |
+| `/register` | Creación de cuenta → navega a `/onboarding` |
+| `/onboarding` | Captura inicial del nombre del perfil → navega a `/profile` |
+| `/profile` | Resumen visual del perfil provisto con `BlocProvider<ProfileBloc>` |
 
 Cada feature se divide en `data/` (datasources, models, repositories),
 `domain/` (entities, repositories, usecases) y `presentation/` (bloc, pages,

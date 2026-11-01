@@ -1,0 +1,57 @@
+import 'package:dartz/dartz.dart';
+
+import '../../../../core/error/exceptions.dart';
+import '../../../../core/error/failures.dart';
+import '../../domain/entities/profile.dart';
+import '../../domain/repositories/profile_repository.dart';
+import '../datasources/profile_remote_datasource.dart';
+import '../models/profile_model.dart';
+
+class ProfileRepositoryImpl implements ProfileRepository {
+  final ProfileRemoteDataSource remoteDataSource;
+
+  ProfileRepositoryImpl({required this.remoteDataSource});
+
+  @override
+  Future<Either<Failure, Profile>> createProfile({
+    required String userId,
+    required String displayName,
+  }) {
+    return _run(
+      () => remoteDataSource.createProfile(
+        userId: userId,
+        displayName: displayName,
+      ),
+    );
+  }
+
+  @override
+  Future<Either<Failure, Profile>> getProfile(String userId) {
+    return _run(() => remoteDataSource.getProfile(userId));
+  }
+
+  @override
+  Future<Either<Failure, Profile>> updateProfile(Profile profile) {
+    return _run(
+      () => remoteDataSource.updateProfile(ProfileModel.fromEntity(profile)),
+    );
+  }
+
+  Future<Either<Failure, Profile>> _run(
+    Future<ProfileModel> Function() action,
+  ) async {
+    try {
+      return Right(await action());
+    } on UnauthenticatedException {
+      return const Left(UnauthenticatedFailure());
+    } on AuthException {
+      return const Left(UnauthenticatedFailure());
+    } on NetworkException {
+      return const Left(NetworkFailure());
+    } on ServerException {
+      return const Left(ServerFailure());
+    } catch (_) {
+      return const Left(UnexpectedFailure());
+    }
+  }
+}
