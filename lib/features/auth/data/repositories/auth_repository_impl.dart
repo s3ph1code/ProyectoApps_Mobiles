@@ -15,8 +15,15 @@ class AuthRepositoryImpl implements AuthRepository {
   Future<Either<Failure, AuthUser>> signUp({
     required String email,
     required String password,
+    String? displayName,
   }) {
-    return _run(() => remoteDataSource.signUp(email: email, password: password));
+    return _run(
+      () => remoteDataSource.signUp(
+        email: email,
+        password: password,
+        displayName: displayName,
+      ),
+    );
   }
 
   @override

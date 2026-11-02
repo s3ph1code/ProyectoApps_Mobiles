@@ -24,17 +24,17 @@ void main() {
 
   group('signUp', () {
     test('devuelve el usuario cuando el registro funciona', () async {
-      when(() => dataSource.signUp(email: email, password: password))
+      when(() => dataSource.signUp(email: email, password: password, displayName: null))
           .thenAnswer((_) async => user);
 
       final result = await repository.signUp(email: email, password: password);
 
       expect(result, const Right<Failure, AuthUserModel>(user));
-      verify(() => dataSource.signUp(email: email, password: password)).called(1);
+      verify(() => dataSource.signUp(email: email, password: password, displayName: null)).called(1);
     });
 
     test('traduce un correo ya registrado', () async {
-      when(() => dataSource.signUp(email: email, password: password)).thenThrow(
+      when(() => dataSource.signUp(email: email, password: password, displayName: null)).thenThrow(
         const AuthException('User already registered', code: 'email_exists'),
       );
 
@@ -44,7 +44,7 @@ void main() {
     });
 
     test('traduce una contraseña demasiado corta', () async {
-      when(() => dataSource.signUp(email: email, password: '123')).thenThrow(
+      when(() => dataSource.signUp(email: email, password: '123', displayName: null)).thenThrow(
         const AuthException('Password is too short', code: 'weak_password'),
       );
 

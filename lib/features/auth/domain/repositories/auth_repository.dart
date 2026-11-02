@@ -4,9 +4,13 @@ import '../../../../core/error/failures.dart';
 import '../entities/auth_user.dart';
 
 abstract class AuthRepository {
+  /// [displayName] viaja con el registro: el trigger `handle_new_user` lo usa
+  /// como nombre del perfil, así el perfil nace completo y no depende de que
+  /// la sesión ya esté activa (por ejemplo, si se exige confirmar el correo).
   Future<Either<Failure, AuthUser>> signUp({
     required String email,
     required String password,
+    String? displayName,
   });
 
   Future<Either<Failure, AuthUser>> signIn({

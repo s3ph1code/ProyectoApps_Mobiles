@@ -23,14 +23,27 @@ void main() {
 
   setUp(() => repository = MockAuthRepository());
 
-  test('SignUpWithEmail delega en el repositorio', () async {
-    when(() => repository.signUp(email: email, password: password))
-        .thenAnswer((_) async => const Right(user));
+  test('SignUpWithEmail delega en el repositorio con el nombre', () async {
+    when(
+      () => repository.signUp(
+        email: email,
+        password: password,
+        displayName: 'Ana',
+      ),
+    ).thenAnswer((_) async => const Right(user));
 
-    final result = await SignUpWithEmail(repository)(params);
+    final result = await SignUpWithEmail(repository)(
+      const SignUpParams(email: email, password: password, displayName: 'Ana'),
+    );
 
     expect(result, const Right<Failure, AuthUser>(user));
-    verify(() => repository.signUp(email: email, password: password)).called(1);
+    verify(
+      () => repository.signUp(
+        email: email,
+        password: password,
+        displayName: 'Ana',
+      ),
+    ).called(1);
   });
 
   test('SignInWithEmail propaga el fallo sin reescribirlo', () async {

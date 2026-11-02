@@ -10,6 +10,7 @@ abstract class AuthRemoteDataSource {
   Future<AuthUserModel> signUp({
     required String email,
     required String password,
+    String? displayName,
   });
 
   Future<AuthUserModel> signIn({
@@ -35,14 +36,20 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
   Future<AuthUserModel> signUp({
     required String email,
     required String password,
+    String? displayName,
   }) {
     return _guard(() async {
-      // El trigger `handle_new_user` crea el perfil con un nombre provisional
-      // tomado del correo. El onboarding lo reemplaza más adelante.
-      final response = await _auth.signUp(
-        email: email.trim(),
-        password: password,
-      );
+      // El trigger `handle_new_user` crea el perfil al registrarse y toma el
+      // nombre de `display_name` en la metadata. Sin nombre usa uno
+      // provisional tomado del correo.
+      final name = displayName?.trim();
+      final response = name == null || name.isEmpty
+          ? await _auth.signUp(email: email.trim(), password: password)
+          : await _auth.signUp(
+              email: email.trim(),
+              password: password,
+              data: {'display_name': name},
+            );
 
       final user = response.user;
       if (user == null) {

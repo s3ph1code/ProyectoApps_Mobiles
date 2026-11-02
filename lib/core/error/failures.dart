@@ -43,6 +43,11 @@ class TooManyAttemptsFailure extends Failure {
       : super('Hubo demasiados intentos seguidos. Espera un momento y vuelve a probar.');
 }
 
+class MissingNameFailure extends Failure {
+  const MissingNameFailure()
+      : super('Escribe cómo te gustaría que te llamemos.');
+}
+
 class UnauthenticatedFailure extends Failure {
   const UnauthenticatedFailure()
       : super('Tu sesión terminó. Inicia sesión para continuar.');
