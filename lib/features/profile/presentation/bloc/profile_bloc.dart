@@ -5,17 +5,20 @@ import '../../../../core/usecase/usecase.dart';
 import '../../../auth/domain/usecases/get_current_user.dart';
 import '../../../auth/domain/usecases/sign_out.dart';
 import '../../domain/usecases/get_profile.dart';
+import '../../domain/usecases/get_user_roles.dart';
 import 'profile_event.dart';
 import 'profile_state.dart';
 
 class ProfileBloc extends Bloc<ProfileEvent, ProfileState> {
   final GetCurrentUser getCurrentUser;
   final GetProfile getProfile;
+  final GetUserRoles getUserRoles;
   final SignOut signOut;
 
   ProfileBloc({
     required this.getCurrentUser,
     required this.getProfile,
+    required this.getUserRoles,
     required this.signOut,
   }) : super(const ProfileInitial()) {
     on<ProfileLoadRequested>(_onLoadRequested);
@@ -40,14 +43,21 @@ class ProfileBloc extends Bloc<ProfileEvent, ProfileState> {
         final profileResult = await getProfile(
           GetProfileParams(userId: user.id),
         );
-        profileResult.fold(
-          (failure) => emit(ProfileFailure(failure.message)),
-          (profile) => emit(
-            ProfileLoaded(
-              profile: profile,
-              email: user.email,
-            ),
-          ),
+        await profileResult.fold(
+          (failure) async => emit(ProfileFailure(failure.message)),
+          (profile) async {
+            // Si los roles no se pueden consultar, el resumen se muestra igual.
+            final rolesResult = await getUserRoles(
+              GetUserRolesParams(userId: user.id),
+            );
+            emit(
+              ProfileLoaded(
+                profile: profile,
+                email: user.email,
+                roles: rolesResult.fold((_) => const [], (roles) => roles),
+              ),
+            );
+          },
         );
       },
     );

@@ -44,6 +44,12 @@ void main() {
           ),
         ),
         GoRoute(
+          path: AppRoutes.forgotPassword,
+          builder: (_, _) => const Scaffold(
+            body: Center(child: Text('Pantalla Recuperar')),
+          ),
+        ),
+        GoRoute(
           path: AppRoutes.profile,
           builder: (_, _) => const Scaffold(
             body: Center(child: Text('Pantalla Perfil')),
@@ -134,4 +140,16 @@ void main() {
       expect(find.text('Pantalla Registro'), findsOneWidget);
     },
   );
+
+  testWidgets('ofrece recuperar el acceso desde el inicio de sesión', (
+    tester,
+  ) async {
+    when(() => bloc.state).thenReturn(const LoginInitial());
+
+    await tester.pumpWidget(buildTestablePage(bloc));
+    await tester.tap(find.byKey(const Key('login_to_forgot_button')));
+    await tester.pumpAndSettle();
+
+    expect(find.text('Pantalla Recuperar'), findsOneWidget);
+  });
 }

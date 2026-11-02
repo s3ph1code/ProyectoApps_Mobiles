@@ -8,6 +8,12 @@ abstract class UseCase<T, Params> {
   Future<Either<Failure, T>> call(Params params);
 }
 
+/// Caso de uso que emite valores a lo largo del tiempo, por ejemplo los
+/// cambios de sesión.
+abstract class StreamUseCase<T, Params> {
+  Stream<T> call(Params params);
+}
+
 class NoParams extends Equatable {
   const NoParams();
 

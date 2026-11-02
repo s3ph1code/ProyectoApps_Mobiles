@@ -22,9 +22,46 @@ void main() {
 
   const user = AuthUser(id: 'uuid-1', email: 'camila@icesi.edu.co');
 
+  setUpAll(() {
+    registerFallbackValue(
+      const RegisterSubmitted(email: '', password: ''),
+    );
+  });
+
   setUp(() {
     bloc = MockRegisterBloc();
   });
+
+  /// El formulario es más alto que la pantalla de prueba por defecto.
+  void useTallScreen(WidgetTester tester) {
+    tester.view.physicalSize = const Size(800, 1800);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.reset);
+  }
+
+  Future<void> fillForm(
+    WidgetTester tester, {
+    String name = 'Camila',
+    String password = 'password123',
+    String confirmPassword = 'password123',
+  }) async {
+    await tester.enterText(
+      find.byKey(const Key('register_name_field')),
+      name,
+    );
+    await tester.enterText(
+      find.byKey(const Key('register_email_field')),
+      'camila@icesi.edu.co',
+    );
+    await tester.enterText(
+      find.byKey(const Key('register_password_field')),
+      password,
+    );
+    await tester.enterText(
+      find.byKey(const Key('register_confirm_password_field')),
+      confirmPassword,
+    );
+  }
 
   Widget buildTestablePage(RegisterBloc registerBloc) {
     final router = GoRouter(
@@ -56,8 +93,9 @@ void main() {
   }
 
   testWidgets(
-    'renderiza el formulario de registro y envía RegisterSubmitted',
+    'renderiza el formulario de registro y envía RegisterSubmitted con el nombre',
     (tester) async {
+      useTallScreen(tester);
       when(() => bloc.state).thenReturn(const RegisterInitial());
 
       await tester.pumpWidget(buildTestablePage(bloc));
@@ -65,25 +103,16 @@ void main() {
       expect(find.text('Crear tu cuenta'), findsOneWidget);
       expect(find.text('Crear mi cuenta'), findsOneWidget);
 
-      await tester.enterText(
-        find.byKey(const Key('register_email_field')),
-        'camila@icesi.edu.co',
-      );
-      await tester.enterText(
-        find.byKey(const Key('register_password_field')),
-        'password123',
-      );
-      await tester.enterText(
-        find.byKey(const Key('register_confirm_password_field')),
-        'password123',
-      );
-
+      await fillForm(tester);
+      await tester.tap(find.byKey(const Key('register_terms_checkbox')));
+      await tester.pump();
       await tester.tap(find.byKey(const Key('register_submit_button')));
       await tester.pump();
 
       verify(
         () => bloc.add(
           const RegisterSubmitted(
+            displayName: 'Camila',
             email: 'camila@icesi.edu.co',
             password: 'password123',
           ),
@@ -95,23 +124,12 @@ void main() {
   testWidgets(
     'muestra advertencia comprensible si las contraseñas no coinciden',
     (tester) async {
+      useTallScreen(tester);
       when(() => bloc.state).thenReturn(const RegisterInitial());
 
       await tester.pumpWidget(buildTestablePage(bloc));
 
-      await tester.enterText(
-        find.byKey(const Key('register_email_field')),
-        'camila@icesi.edu.co',
-      );
-      await tester.enterText(
-        find.byKey(const Key('register_password_field')),
-        'password123',
-      );
-      await tester.enterText(
-        find.byKey(const Key('register_confirm_password_field')),
-        'otraClave999',
-      );
-
+      await fillForm(tester, confirmPassword: 'otraClave999');
       await tester.tap(find.byKey(const Key('register_submit_button')));
       await tester.pump();
 
@@ -121,6 +139,53 @@ void main() {
         ),
         findsOneWidget,
       );
+      verifyNever(() => bloc.add(any()));
+    },
+  );
+
+  testWidgets(
+    'no permite registrarse sin repetir la contraseña',
+    (tester) async {
+      useTallScreen(tester);
+      when(() => bloc.state).thenReturn(const RegisterInitial());
+
+      await tester.pumpWidget(buildTestablePage(bloc));
+
+      await fillForm(tester, confirmPassword: '');
+      await tester.tap(find.byKey(const Key('register_terms_checkbox')));
+      await tester.pump();
+      await tester.tap(find.byKey(const Key('register_submit_button')));
+      await tester.pump();
+
+      expect(
+        find.text(
+          'Las contraseñas no coinciden. Revisa que ambas sean iguales.',
+        ),
+        findsOneWidget,
+      );
+      verifyNever(() => bloc.add(any()));
+    },
+  );
+
+  testWidgets(
+    'pide aceptar los términos antes de crear la cuenta',
+    (tester) async {
+      useTallScreen(tester);
+      when(() => bloc.state).thenReturn(const RegisterInitial());
+
+      await tester.pumpWidget(buildTestablePage(bloc));
+
+      await fillForm(tester);
+      await tester.tap(find.byKey(const Key('register_submit_button')));
+      await tester.pump();
+
+      expect(
+        find.text(
+          'Para crear tu cuenta, acepta los términos y la política de privacidad.',
+        ),
+        findsOneWidget,
+      );
+      verifyNever(() => bloc.add(any()));
     },
   );
 

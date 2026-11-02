@@ -17,8 +17,14 @@ class RegisterBloc extends Bloc<RegisterEvent, RegisterState> {
     RegisterSubmitted event,
     Emitter<RegisterState> emit,
   ) async {
+    final displayName = event.displayName.trim();
     final email = event.email.trim();
     final password = event.password;
+
+    if (displayName.isEmpty) {
+      emit(RegisterFailure(const MissingNameFailure().message));
+      return;
+    }
 
     if (email.isEmpty || !email.contains('@')) {
       emit(RegisterFailure(const InvalidEmailFailure().message));
@@ -33,7 +39,7 @@ class RegisterBloc extends Bloc<RegisterEvent, RegisterState> {
     emit(const RegisterLoading());
 
     final result = await signUp(
-      EmailPasswordParams(email: email, password: password),
+      SignUpParams(email: email, password: password, displayName: displayName),
     );
 
     result.fold(

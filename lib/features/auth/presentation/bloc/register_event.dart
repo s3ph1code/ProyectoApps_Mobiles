@@ -10,12 +10,14 @@ sealed class RegisterEvent extends Equatable {
 class RegisterSubmitted extends RegisterEvent {
   final String email;
   final String password;
+  final String displayName;
 
   const RegisterSubmitted({
     required this.email,
     required this.password,
+    this.displayName = '',
   });
 
   @override
-  List<Object?> get props => [email, password];
+  List<Object?> get props => [email, password, displayName];
 }

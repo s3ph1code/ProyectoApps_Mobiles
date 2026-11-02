@@ -10,6 +10,7 @@ abstract class AuthRemoteDataSource {
   Future<AuthUserModel> signUp({
     required String email,
     required String password,
+    String? displayName,
   });
 
   Future<AuthUserModel> signIn({
@@ -19,7 +20,11 @@ abstract class AuthRemoteDataSource {
 
   Future<void> signOut();
 
+  Future<void> sendPasswordReset(String email);
+
   Future<AuthUserModel?> getCurrentUser();
+
+  Stream<AuthUserModel?> authStateChanges();
 }
 
 class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
@@ -33,14 +38,20 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
   Future<AuthUserModel> signUp({
     required String email,
     required String password,
+    String? displayName,
   }) {
     return _guard(() async {
-      // El trigger `handle_new_user` crea el perfil con un nombre provisional
-      // tomado del correo. El onboarding lo reemplaza más adelante.
-      final response = await _auth.signUp(
-        email: email.trim(),
-        password: password,
-      );
+      // El trigger `handle_new_user` crea el perfil al registrarse y toma el
+      // nombre de `display_name` en la metadata. Sin nombre usa uno
+      // provisional tomado del correo.
+      final name = displayName?.trim();
+      final response = name == null || name.isEmpty
+          ? await _auth.signUp(email: email.trim(), password: password)
+          : await _auth.signUp(
+              email: email.trim(),
+              password: password,
+              data: {'display_name': name},
+            );
 
       final user = response.user;
       if (user == null) {
@@ -63,7 +74,9 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
 
       final user = response.user;
       if (user == null) {
-        throw const AuthException('El inicio de sesión no devolvió un usuario.');
+        throw const AuthException(
+          'El inicio de sesión no devolvió un usuario.',
+        );
       }
       return AuthUserModel.fromSupabaseUser(user);
     });
@@ -73,10 +86,29 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
   Future<void> signOut() => _guard(() => _auth.signOut());
 
   @override
+  Future<void> sendPasswordReset(String email) {
+    return _guard(() => _auth.resetPasswordForEmail(email.trim()));
+  }
+
+  @override
   Future<AuthUserModel?> getCurrentUser() {
     return _guard(() async {
       final user = _auth.currentUser;
       return user == null ? null : AuthUserModel.fromSupabaseUser(user);
+    });
+  }
+
+  @override
+  Stream<AuthUserModel?> authStateChanges() {
+    return _auth.onAuthStateChange.map((state) {
+      final user = state.session?.user;
+      if (user == null) return null;
+      try {
+        return AuthUserModel.fromSupabaseUser(user);
+      } on FormatException {
+        // Una sesión sin correo no se puede usar en la app.
+        return null;
+      }
     });
   }
 

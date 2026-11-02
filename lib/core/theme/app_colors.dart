@@ -14,4 +14,15 @@ class AppColors {
   static const success = Color(0xFF6F9B72);
   static const warning = Color(0xFFD8B36A);
   static const error = Color(0xFFB85C5C);
+
+  /// Verde más profundo del degradado de las tarjetas destacadas.
+  static const sageDeep = Color(0xFF4A7350);
+  static const sageMid = Color(0xFF5E8A5C);
+
+  /// Texto desactivado y pestañas sin seleccionar.
+  static const inkMuted = Color(0xFF9AA39C);
+
+  /// Líneas finas sobre fondo claro (ink al 9 % y 5,5 %).
+  static const line = Color(0x1726382D);
+  static const lineSoft = Color(0x0E26382D);
 }

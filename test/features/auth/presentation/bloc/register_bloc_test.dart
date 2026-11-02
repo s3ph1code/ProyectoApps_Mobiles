@@ -19,9 +19,10 @@ void main() {
 
   setUpAll(() {
     registerFallbackValue(
-      const EmailPasswordParams(
+      const SignUpParams(
         email: 'ana@icesi.edu.co',
         password: 'password123',
+        displayName: 'Ana',
       ),
     );
   });
@@ -38,9 +39,10 @@ void main() {
       build: () {
         when(
           () => signUp(
-            const EmailPasswordParams(
+            const SignUpParams(
               email: 'ana@icesi.edu.co',
               password: 'password123',
+              displayName: 'Ana',
             ),
           ),
         ).thenAnswer((_) async => const Right(user));
@@ -48,6 +50,7 @@ void main() {
       },
       act: (bloc) => bloc.add(
         const RegisterSubmitted(
+          displayName: '  Ana  ',
           email: '  ana@icesi.edu.co  ',
           password: 'password123',
         ),
@@ -59,10 +62,32 @@ void main() {
     );
 
     blocTest<RegisterBloc, RegisterState>(
+      'emite [RegisterFailure] sin llamar al caso de uso si falta el nombre',
+      build: buildBloc,
+      act: (bloc) => bloc.add(
+        const RegisterSubmitted(
+          displayName: '   ',
+          email: 'ana@icesi.edu.co',
+          password: 'password123',
+        ),
+      ),
+      expect: () => [
+        RegisterFailure(const MissingNameFailure().message),
+      ],
+      verify: (_) {
+        verifyNever(() => signUp(any()));
+      },
+    );
+
+    blocTest<RegisterBloc, RegisterState>(
       'emite [RegisterFailure] sin llamar al caso de uso si el correo es inválido',
       build: buildBloc,
       act: (bloc) => bloc.add(
-        const RegisterSubmitted(email: 'sin-arroba', password: 'password123'),
+        const RegisterSubmitted(
+          displayName: 'Ana',
+          email: 'sin-arroba',
+          password: 'password123',
+        ),
       ),
       expect: () => [
         RegisterFailure(const InvalidEmailFailure().message),
@@ -76,7 +101,11 @@ void main() {
       'emite [RegisterFailure] sin llamar al caso de uso si la contraseña tiene menos de 8 caracteres',
       build: buildBloc,
       act: (bloc) => bloc.add(
-        const RegisterSubmitted(email: 'ana@icesi.edu.co', password: '1234567'),
+        const RegisterSubmitted(
+          displayName: 'Ana',
+          email: 'ana@icesi.edu.co',
+          password: '1234567',
+        ),
       ),
       expect: () => [
         RegisterFailure(const WeakPasswordFailure().message),
@@ -96,6 +125,7 @@ void main() {
       },
       act: (bloc) => bloc.add(
         const RegisterSubmitted(
+          displayName: 'Ana',
           email: 'ana@icesi.edu.co',
           password: 'password123',
         ),

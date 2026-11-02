@@ -1,124 +1,80 @@
-import 'dart:async';
-
-import 'package:bloc_test/bloc_test.dart';
 import 'package:doulapp/core/router/app_router.dart';
-import 'package:doulapp/features/onboarding/presentation/bloc/onboarding_bloc.dart';
-import 'package:doulapp/features/onboarding/presentation/bloc/onboarding_event.dart';
-import 'package:doulapp/features/onboarding/presentation/bloc/onboarding_state.dart';
 import 'package:doulapp/features/onboarding/presentation/pages/onboarding_page.dart';
-import 'package:doulapp/features/profile/domain/entities/account_status.dart';
-import 'package:doulapp/features/profile/domain/entities/profile.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:go_router/go_router.dart';
-import 'package:mocktail/mocktail.dart';
-
-class MockOnboardingBloc extends MockBloc<OnboardingEvent, OnboardingState>
-    implements OnboardingBloc {}
 
 void main() {
-  late MockOnboardingBloc bloc;
-
-  final sampleProfile = Profile(
-    id: 'uuid-1',
-    displayName: 'Camila',
-    accountStatus: AccountStatus.active,
-    createdAt: DateTime.utc(2026, 2, 1),
-    updatedAt: DateTime.utc(2026, 2, 1),
-  );
-
-  setUp(() {
-    bloc = MockOnboardingBloc();
-  });
-
-  Widget buildTestablePage(OnboardingBloc onboardingBloc) {
+  Widget buildPage() {
     final router = GoRouter(
       initialLocation: AppRoutes.onboarding,
       routes: [
         GoRoute(
           path: AppRoutes.onboarding,
-          builder: (_, _) => BlocProvider<OnboardingBloc>.value(
-            value: onboardingBloc,
-            child: const OnboardingPage(),
-          ),
+          builder: (_, _) => const OnboardingPage(),
         ),
         GoRoute(
-          path: AppRoutes.profile,
-          builder: (_, _) => const Scaffold(
-            body: Center(child: Text('Pantalla Perfil')),
-          ),
-        ),
-        GoRoute(
-          path: AppRoutes.login,
-          builder: (_, _) => const Scaffold(
-            body: Center(child: Text('Pantalla Login')),
-          ),
+          path: AppRoutes.postAuth,
+          builder: (_, _) => const Scaffold(body: Text('Pantalla Perfil')),
         ),
       ],
     );
-
     return MaterialApp.router(routerConfig: router);
   }
 
-  testWidgets(
-    'renderiza el onboarding, permite cambiar diapositiva y envía OnboardingSubmitted',
-    (tester) async {
-      when(() => bloc.state).thenReturn(const OnboardingInitial());
+  Future<void> next(WidgetTester tester) async {
+    await tester.tap(find.byKey(const Key('onboarding_next_button')));
+    await tester.pumpAndSettle();
+  }
 
-      await tester.pumpWidget(buildTestablePage(bloc));
+  testWidgets('empieza en el primer paso con el botón Continuar', (tester) async {
+    await tester.pumpWidget(buildPage());
 
-      expect(find.text('Aquí también estás tú.'), findsOneWidget);
-      expect(find.text('¿Cómo quieres que te llamemos?'), findsOneWidget);
+    expect(find.text('Aquí también\nestás tú.'), findsOneWidget);
+    expect(
+      find.text(
+        'Un espacio para acompañarte durante una etapa llena de cambios.',
+      ),
+      findsOneWidget,
+    );
+    expect(find.text('Continuar'), findsOneWidget);
+    expect(find.text('Saltar'), findsOneWidget);
+  });
 
-      await tester.tap(find.byKey(const Key('onboarding_slide_card')));
-      await tester.pumpAndSettle();
+  testWidgets('avanza por los tres pasos y termina con Comenzar', (tester) async {
+    await tester.pumpWidget(buildPage());
 
-      expect(find.text('Pequeños momentos también cuentan.'), findsOneWidget);
+    await next(tester);
+    expect(find.text('Pequeños momentos\ntambién cuentan.'), findsOneWidget);
+    expect(find.text('Continuar'), findsOneWidget);
 
-      await tester.enterText(
-        find.byKey(const Key('onboarding_name_field')),
-        'Camila',
-      );
-      await tester.tap(find.byKey(const Key('onboarding_submit_button')));
-      await tester.pump();
+    await next(tester);
+    expect(find.text('No tienes que pedir\nayuda sola.'), findsOneWidget);
+    expect(find.text('Comenzar'), findsOneWidget);
+    expect(find.text('Continuar'), findsNothing);
 
-      verify(
-        () => bloc.add(const OnboardingSubmitted(displayName: 'Camila')),
-      ).called(1);
-    },
-  );
+    await next(tester);
+    expect(find.text('Pantalla Perfil'), findsOneWidget);
+  });
 
-  testWidgets(
-    'muestra el mensaje de error cuando el estado es OnboardingFailure',
-    (tester) async {
-      const errorMessage = 'Escribe cómo te gustaría que te llamemos.';
-      when(() => bloc.state).thenReturn(const OnboardingFailure(errorMessage));
+  testWidgets('también se puede avanzar deslizando', (tester) async {
+    await tester.pumpWidget(buildPage());
 
-      await tester.pumpWidget(buildTestablePage(bloc));
+    await tester.drag(
+      find.byKey(const Key('onboarding_pages')),
+      const Offset(-600, 0),
+    );
+    await tester.pumpAndSettle();
 
-      expect(find.text(errorMessage), findsOneWidget);
-    },
-  );
+    expect(find.text('Pequeños momentos\ntambién cuentan.'), findsOneWidget);
+  });
 
-  testWidgets(
-    'navega a /profile cuando se emite OnboardingSuccess',
-    (tester) async {
-      final controller = StreamController<OnboardingState>.broadcast();
-      addTearDown(controller.close);
+  testWidgets('Saltar lleva directo al resumen del perfil', (tester) async {
+    await tester.pumpWidget(buildPage());
 
-      whenListen(
-        bloc,
-        controller.stream,
-        initialState: const OnboardingInitial(),
-      );
+    await tester.tap(find.byKey(const Key('onboarding_skip_button')));
+    await tester.pumpAndSettle();
 
-      await tester.pumpWidget(buildTestablePage(bloc));
-
-      controller.add(OnboardingSuccess(sampleProfile));
-      await tester.pumpAndSettle();
-
-      expect(find.text('Pantalla Perfil'), findsOneWidget);
-    },
-  );
+    expect(find.text('Pantalla Perfil'), findsOneWidget);
+  });
 }

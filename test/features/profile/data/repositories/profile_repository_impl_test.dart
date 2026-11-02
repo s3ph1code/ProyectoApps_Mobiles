@@ -5,6 +5,7 @@ import 'package:doulapp/features/profile/data/datasources/profile_remote_datasou
 import 'package:doulapp/features/profile/data/models/profile_model.dart';
 import 'package:doulapp/features/profile/data/repositories/profile_repository_impl.dart';
 import 'package:doulapp/features/profile/domain/entities/account_status.dart';
+import 'package:doulapp/features/profile/domain/entities/app_role.dart';
 import 'package:doulapp/features/profile/domain/entities/profile.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
@@ -107,6 +108,38 @@ void main() {
 
       expect(result, Right<Failure, Profile>(model));
       verify(() => dataSource.updateProfile(model)).called(1);
+    });
+  });
+
+  group('getRoles', () {
+    test('devuelve los roles de la cuenta', () async {
+      when(() => dataSource.getRoles('uuid-1'))
+          .thenAnswer((_) async => [AppRole.user, AppRole.admin]);
+
+      final result = await repository.getRoles('uuid-1');
+
+      expect(
+        result.getOrElse(() => const []),
+        [AppRole.user, AppRole.admin],
+      );
+    });
+
+    test('traduce un fallo de red', () async {
+      when(() => dataSource.getRoles('uuid-1'))
+          .thenThrow(const NetworkException('sin conexión'));
+
+      final result = await repository.getRoles('uuid-1');
+
+      expect(result, const Left<Failure, List<AppRole>>(NetworkFailure()));
+    });
+
+    test('traduce un error del backend', () async {
+      when(() => dataSource.getRoles('uuid-1'))
+          .thenThrow(const ServerException('500'));
+
+      final result = await repository.getRoles('uuid-1');
+
+      expect(result, const Left<Failure, List<AppRole>>(ServerFailure()));
     });
   });
 }

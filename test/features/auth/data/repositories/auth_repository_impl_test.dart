@@ -24,17 +24,17 @@ void main() {
 
   group('signUp', () {
     test('devuelve el usuario cuando el registro funciona', () async {
-      when(() => dataSource.signUp(email: email, password: password))
+      when(() => dataSource.signUp(email: email, password: password, displayName: null))
           .thenAnswer((_) async => user);
 
       final result = await repository.signUp(email: email, password: password);
 
       expect(result, const Right<Failure, AuthUserModel>(user));
-      verify(() => dataSource.signUp(email: email, password: password)).called(1);
+      verify(() => dataSource.signUp(email: email, password: password, displayName: null)).called(1);
     });
 
     test('traduce un correo ya registrado', () async {
-      when(() => dataSource.signUp(email: email, password: password)).thenThrow(
+      when(() => dataSource.signUp(email: email, password: password, displayName: null)).thenThrow(
         const AuthException('User already registered', code: 'email_exists'),
       );
 
@@ -44,7 +44,7 @@ void main() {
     });
 
     test('traduce una contraseña demasiado corta', () async {
-      when(() => dataSource.signUp(email: email, password: '123')).thenThrow(
+      when(() => dataSource.signUp(email: email, password: '123', displayName: null)).thenThrow(
         const AuthException('Password is too short', code: 'weak_password'),
       );
 
@@ -138,6 +138,36 @@ void main() {
       final result = await repository.getCurrentUser();
 
       expect(result, const Right<Failure, AuthUserModel?>(null));
+    });
+  });
+
+  group('sendPasswordReset', () {
+    test('devuelve Right cuando el enlace se envía', () async {
+      when(() => dataSource.sendPasswordReset(email)).thenAnswer((_) async {});
+
+      final result = await repository.sendPasswordReset(email);
+
+      expect(result.isRight(), isTrue);
+      verify(() => dataSource.sendPasswordReset(email)).called(1);
+    });
+
+    test('traduce el límite de intentos', () async {
+      when(() => dataSource.sendPasswordReset(email)).thenThrow(
+        const AuthException('rate limit', code: 'over_email_send_rate_limit'),
+      );
+
+      final result = await repository.sendPasswordReset(email);
+
+      expect(result, const Left<Failure, void>(TooManyAttemptsFailure()));
+    });
+
+    test('traduce la falta de conexión', () async {
+      when(() => dataSource.sendPasswordReset(email))
+          .thenThrow(const NetworkException('sin red'));
+
+      final result = await repository.sendPasswordReset(email);
+
+      expect(result, const Left<Failure, void>(NetworkFailure()));
     });
   });
 }

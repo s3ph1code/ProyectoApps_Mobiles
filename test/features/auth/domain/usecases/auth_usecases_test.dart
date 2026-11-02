@@ -8,6 +8,7 @@ import 'package:doulapp/features/auth/domain/usecases/get_current_user.dart';
 import 'package:doulapp/features/auth/domain/usecases/sign_in_with_email.dart';
 import 'package:doulapp/features/auth/domain/usecases/sign_out.dart';
 import 'package:doulapp/features/auth/domain/usecases/sign_up_with_email.dart';
+import 'package:doulapp/features/auth/domain/usecases/send_password_reset.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 
@@ -23,14 +24,27 @@ void main() {
 
   setUp(() => repository = MockAuthRepository());
 
-  test('SignUpWithEmail delega en el repositorio', () async {
-    when(() => repository.signUp(email: email, password: password))
-        .thenAnswer((_) async => const Right(user));
+  test('SignUpWithEmail delega en el repositorio con el nombre', () async {
+    when(
+      () => repository.signUp(
+        email: email,
+        password: password,
+        displayName: 'Ana',
+      ),
+    ).thenAnswer((_) async => const Right(user));
 
-    final result = await SignUpWithEmail(repository)(params);
+    final result = await SignUpWithEmail(repository)(
+      const SignUpParams(email: email, password: password, displayName: 'Ana'),
+    );
 
     expect(result, const Right<Failure, AuthUser>(user));
-    verify(() => repository.signUp(email: email, password: password)).called(1);
+    verify(
+      () => repository.signUp(
+        email: email,
+        password: password,
+        displayName: 'Ana',
+      ),
+    ).called(1);
   });
 
   test('SignInWithEmail propaga el fallo sin reescribirlo', () async {
@@ -58,5 +72,17 @@ void main() {
     final result = await GetCurrentUser(repository)(const NoParams());
 
     expect(result, const Right<Failure, AuthUser?>(null));
+  });
+
+  test('SendPasswordReset delega en el repositorio con el correo', () async {
+    when(() => repository.sendPasswordReset(email))
+        .thenAnswer((_) async => const Right(null));
+
+    final result = await SendPasswordReset(repository)(
+      const EmailParams(email: email),
+    );
+
+    expect(result.isRight(), isTrue);
+    verify(() => repository.sendPasswordReset(email)).called(1);
   });
 }

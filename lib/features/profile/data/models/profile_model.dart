@@ -39,8 +39,8 @@ class ProfileModel extends Profile {
   }
 
   Map<String, dynamic> toJson() => {
-        'display_name': displayName,
-        'avatar_url': avatarUrl,
-        'bio': bio,
-      };
+    'display_name': displayName,
+    'avatar_url': avatarUrl,
+    'bio': bio,
+  };
 }

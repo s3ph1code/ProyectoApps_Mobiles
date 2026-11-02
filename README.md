@@ -79,39 +79,57 @@ lib/
 │   └── theme/                        # colores, tipografía, radios, tema
 │
 └── features/
-    ├── auth/                         # registro, login, logout
+    ├── auth/                         # registro, login, logout, recuperar acceso, sesión
     ├── profile/                      # entidad Profile, repositorio, ProfileBloc y ProfilePage
-    └── onboarding/                   # captura de datos iniciales
+    ├── onboarding/                   # carrusel de bienvenida
+    ├── home/                         # inicio
+    └── splash/                       # pantalla de bienvenida
 ```
 
 ### Rutas y navegación
 
-Configuradas en `lib/core/router/app_router.dart` mediante `GoRouter`:
+Configuradas en `lib/core/router/app_router.dart` con `GoRouter`. Un
+`SessionNotifier` escucha los cambios de sesión de Supabase y el router
+redirige: sin sesión solo se ven las rutas públicas; con sesión, entrar a
+`/login` lleva al resumen del perfil.
 
-| Ruta | Propósito |
-|---|---|
-| `/login` | Inicio de sesión (`LoginPage` + `LoginBloc`) → navega a `/profile` |
-| `/register` | Creación de cuenta (`RegisterPage` + `RegisterBloc`) → navega a `/onboarding` |
-| `/onboarding` | Bienvenida y captura inicial del nombre (`OnboardingPage` + `OnboardingBloc`) → navega a `/profile` |
-| `/profile` | Resumen visual del perfil (`ProfilePage` + `ProfileBloc`) |
+| Ruta | Acceso | Propósito |
+|---|---|---|
+| `/splash` | público | Pantalla de bienvenida de la marca |
+| `/login` | público | Inicio de sesión → `/profile` |
+| `/register` | público | Cuenta nueva (nombre, correo, contraseña, términos) → `/onboarding` |
+| `/forgot-password` | público | Envía el enlace para recuperar el acceso |
+| `/onboarding` | privado | Carrusel informativo de tres pasos → `/profile` |
+| `/home` | privado | Inicio con las seis secciones (las que aún no existen abren «Próximamente») |
+| `/for-me`, `/support` | privado | Pestañas «Para mí» y «Apoyo» (próximamente) |
+| `/profile` | privado | Resumen del perfil: nombre, rol, correo, privacidad y cierre de sesión |
 
-## Cómo navegar por los flujos (Guía de prueba)
+La barra inferior tiene cuatro pestañas: Inicio, Para mí, Apoyo y Perfil.
 
-1. **Flujo de Registro y Onboarding mínimo:**
-   - Al abrir la aplicación se presenta la pantalla de bienvenida e inicio de sesión (`/login`).
-   - En la parte inferior, pulsa **«¿No tienes una cuenta? Crear cuenta»** para ir a `/register`.
-   - Ingresa un **Correo electrónico** válido, una **Contraseña** (mínimo 8 caracteres) y repítela en **Confirmar contraseña**.
-   - Pulsa **«Crear mi cuenta»**. Al registrarse en Supabase Auth, la aplicación redirige automáticamente al onboarding (`/onboarding`).
-   - En `/onboarding`, puedes pulsar la tarjeta superior para recorrer los tres mensajes de bienvenida (*«Aquí también estás tú»*, *«Pequeños momentos también cuentan»*, *«No tienes que pedir ayuda sola»*), escribir tu nombre o apodo en el campo **Nombre** y pulsar **«Comenzar»**.
-   - Se guardan los datos iniciales del perfil y se navega automáticamente al resumen del perfil (`/profile`).
+### Recorrido para probar el flujo
 
-2. **Flujo de Resumen del Perfil y Cierre de Sesión:**
-   - En `/profile` (*«Tu espacio»*) se visualiza la inicial, el nombre elegido en el onboarding, el correo electrónico de la cuenta y los módulos de acompañamiento marcados como **«Próximamente»** (que no navegan fuera de alcance).
-   - Para cerrar la sesión activa y probar con otra cuenta, pulsa **«Cerrar sesión»** en la parte inferior: la aplicación finaliza la sesión en Supabase y redirige a `/login`.
+1. Abrir la app y pulsar **Crear cuenta**. Escribir nombre, correo, contraseña
+   (dos veces) y aceptar los términos.
+2. Pasar el carrusel de bienvenida (o **Omitir**). Se llega al **resumen del
+   perfil** con el nombre escrito y el rol «Usuaria».
+3. Pulsar **Cerrar sesión**; se vuelve al inicio de sesión.
+4. Iniciar sesión con la misma cuenta: se llega de nuevo al resumen del perfil.
+5. En el inicio de sesión, **¿Olvidaste tu contraseña?** abre la pantalla de
+   recuperación.
 
-3. **Flujo de Inicio de Sesión (cuenta existente):**
-   - Desde `/login`, ingresa el **Correo electrónico** y la **Contraseña** de una cuenta previamente registrada.
-   - Pulsa **«Iniciar sesión»**: la aplicación valida las credenciales contra Supabase Auth y dirige directamente al resumen del perfil (`/profile`) con los datos guardados de esa usuaria.
+### Roles
+
+Hay tres roles: **usuaria**, **moderadora** y **administradora**. Toda cuenta
+nueva nace como usuaria (lo asigna el trigger `handle_new_user`). Para probar
+los otros dos:
+
+1. Crear desde la app las cuentas `moderadora@doulapp.test` y
+   `admin@doulapp.test`.
+2. Ejecutar [`supabase/seed_demo_roles.sql`](supabase/seed_demo_roles.sql) en el
+   **SQL Editor**; asigna el rol correspondiente y termina con una consulta de
+   verificación.
+
+El rol aparece como una etiqueta en el resumen del perfil.
 
 Cada feature se divide en `data/` (datasources, models, repositories),
 `domain/` (entities, repositories, usecases) y `presentation/` (bloc, pages,
@@ -168,9 +186,11 @@ flutter analyze
 
 ## Notas para el equipo
 
-**El perfil ya existe cuando termina el registro.** El trigger
-`handle_new_user` inserta la fila de `profiles` con un nombre provisional
-tomado de la parte local del correo. Por eso `ProfileRepository.createProfile`
+**El perfil ya existe cuando termina el registro.** El nombre que escribe la
+usuaria viaja como metadato en el registro y el trigger `handle_new_user` lo
+usa al insertar la fila de `profiles` (si falta, usa la parte local del
+correo). El caso de uso `CreateProfile` se conserva en el dominio, pero el flujo
+actual ya no lo invoca. Por eso `ProfileRepository.createProfile`
 debe escribirse como un `update` (o un `upsert`) sobre la fila existente, no
 como un `insert`: `profiles` solo tiene políticas de RLS de `select` y `update`,
 así que un `insert` desde el cliente sería rechazado.
@@ -178,6 +198,10 @@ así que un `insert` desde el cliente sería rechazado.
 **`user_preferences` se crea sola.** El mismo trigger la inserta con los valores
 por defecto (`community`, notificaciones activas, `es`). El onboarding solo
 necesita actualizarla.
+
+**La pantalla de inicio es provisional.** `AuthSandboxPage` existe para
+comprobar registro, inicio y cierre de sesión contra Supabase mientras no haya
+pantallas definitivas ni router. Se reemplaza al integrar.
 
 **Ruta del SDK con espacios.** `pubspec.yaml` fija
 `path_provider_foundation: 2.4.1` mediante `dependency_overrides`. Las versiones

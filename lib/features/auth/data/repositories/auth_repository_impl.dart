@@ -15,8 +15,15 @@ class AuthRepositoryImpl implements AuthRepository {
   Future<Either<Failure, AuthUser>> signUp({
     required String email,
     required String password,
+    String? displayName,
   }) {
-    return _run(() => remoteDataSource.signUp(email: email, password: password));
+    return _run(
+      () => remoteDataSource.signUp(
+        email: email,
+        password: password,
+        displayName: displayName,
+      ),
+    );
   }
 
   @override
@@ -24,15 +31,24 @@ class AuthRepositoryImpl implements AuthRepository {
     required String email,
     required String password,
   }) {
-    return _run(() => remoteDataSource.signIn(email: email, password: password));
+    return _run(
+      () => remoteDataSource.signIn(email: email, password: password),
+    );
   }
 
   @override
   Future<Either<Failure, void>> signOut() => _run(remoteDataSource.signOut);
 
   @override
+  Future<Either<Failure, void>> sendPasswordReset(String email) =>
+      _run(() => remoteDataSource.sendPasswordReset(email));
+
+  @override
   Future<Either<Failure, AuthUser?>> getCurrentUser() =>
       _run(remoteDataSource.getCurrentUser);
+
+  @override
+  Stream<AuthUser?> authStateChanges() => remoteDataSource.authStateChanges();
 
   Future<Either<Failure, T>> _run<T>(Future<T> Function() action) async {
     try {
