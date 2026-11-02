@@ -90,10 +90,28 @@ Configuradas en `lib/core/router/app_router.dart` mediante `GoRouter`:
 
 | Ruta | Propósito |
 |---|---|
-| `/login` | Inicio de sesión → navega a `/profile` |
-| `/register` | Creación de cuenta → navega a `/onboarding` |
-| `/onboarding` | Captura inicial del nombre del perfil → navega a `/profile` |
-| `/profile` | Resumen visual del perfil provisto con `BlocProvider<ProfileBloc>` |
+| `/login` | Inicio de sesión (`LoginPage` + `LoginBloc`) → navega a `/profile` |
+| `/register` | Creación de cuenta (`RegisterPage` + `RegisterBloc`) → navega a `/onboarding` |
+| `/onboarding` | Bienvenida y captura inicial del nombre (`OnboardingPage` + `OnboardingBloc`) → navega a `/profile` |
+| `/profile` | Resumen visual del perfil (`ProfilePage` + `ProfileBloc`) |
+
+## Cómo navegar por los flujos (Guía de prueba)
+
+1. **Flujo de Registro y Onboarding mínimo:**
+   - Al abrir la aplicación se presenta la pantalla de bienvenida e inicio de sesión (`/login`).
+   - En la parte inferior, pulsa **«¿No tienes una cuenta? Crear cuenta»** para ir a `/register`.
+   - Ingresa un **Correo electrónico** válido, una **Contraseña** (mínimo 8 caracteres) y repítela en **Confirmar contraseña**.
+   - Pulsa **«Crear mi cuenta»**. Al registrarse en Supabase Auth, la aplicación redirige automáticamente al onboarding (`/onboarding`).
+   - En `/onboarding`, puedes pulsar la tarjeta superior para recorrer los tres mensajes de bienvenida (*«Aquí también estás tú»*, *«Pequeños momentos también cuentan»*, *«No tienes que pedir ayuda sola»*), escribir tu nombre o apodo en el campo **Nombre** y pulsar **«Comenzar»**.
+   - Se guardan los datos iniciales del perfil y se navega automáticamente al resumen del perfil (`/profile`).
+
+2. **Flujo de Resumen del Perfil y Cierre de Sesión:**
+   - En `/profile` (*«Tu espacio»*) se visualiza la inicial, el nombre elegido en el onboarding, el correo electrónico de la cuenta y los módulos de acompañamiento marcados como **«Próximamente»** (que no navegan fuera de alcance).
+   - Para cerrar la sesión activa y probar con otra cuenta, pulsa **«Cerrar sesión»** en la parte inferior: la aplicación finaliza la sesión en Supabase y redirige a `/login`.
+
+3. **Flujo de Inicio de Sesión (cuenta existente):**
+   - Desde `/login`, ingresa el **Correo electrónico** y la **Contraseña** de una cuenta previamente registrada.
+   - Pulsa **«Iniciar sesión»**: la aplicación valida las credenciales contra Supabase Auth y dirige directamente al resumen del perfil (`/profile`) con los datos guardados de esa usuaria.
 
 Cada feature se divide en `data/` (datasources, models, repositories),
 `domain/` (entities, repositories, usecases) y `presentation/` (bloc, pages,
@@ -160,10 +178,6 @@ así que un `insert` desde el cliente sería rechazado.
 **`user_preferences` se crea sola.** El mismo trigger la inserta con los valores
 por defecto (`community`, notificaciones activas, `es`). El onboarding solo
 necesita actualizarla.
-
-**La pantalla de inicio es provisional.** `AuthSandboxPage` existe para
-comprobar registro, inicio y cierre de sesión contra Supabase mientras no haya
-pantallas definitivas ni router. Se reemplaza al integrar.
 
 **Ruta del SDK con espacios.** `pubspec.yaml` fija
 `path_provider_foundation: 2.4.1` mediante `dependency_overrides`. Las versiones
