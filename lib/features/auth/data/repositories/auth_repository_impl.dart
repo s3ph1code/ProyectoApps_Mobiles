@@ -34,6 +34,9 @@ class AuthRepositoryImpl implements AuthRepository {
   Future<Either<Failure, AuthUser?>> getCurrentUser() =>
       _run(remoteDataSource.getCurrentUser);
 
+  @override
+  Stream<AuthUser?> authStateChanges() => remoteDataSource.authStateChanges();
+
   Future<Either<Failure, T>> _run<T>(Future<T> Function() action) async {
     try {
       return Right(await action());

@@ -20,6 +20,8 @@ abstract class AuthRemoteDataSource {
   Future<void> signOut();
 
   Future<AuthUserModel?> getCurrentUser();
+
+  Stream<AuthUserModel?> authStateChanges();
 }
 
 class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
@@ -77,6 +79,20 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
     return _guard(() async {
       final user = _auth.currentUser;
       return user == null ? null : AuthUserModel.fromSupabaseUser(user);
+    });
+  }
+
+  @override
+  Stream<AuthUserModel?> authStateChanges() {
+    return _auth.onAuthStateChange.map((state) {
+      final user = state.session?.user;
+      if (user == null) return null;
+      try {
+        return AuthUserModel.fromSupabaseUser(user);
+      } on FormatException {
+        // Una sesión sin correo no se puede usar en la app.
+        return null;
+      }
     });
   }
 

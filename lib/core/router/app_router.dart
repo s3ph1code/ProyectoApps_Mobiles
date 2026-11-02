@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 
@@ -11,6 +12,7 @@ import '../../features/profile/presentation/bloc/profile_bloc.dart';
 import '../../features/profile/presentation/bloc/profile_event.dart';
 import '../../features/profile/presentation/pages/profile_page.dart';
 import '../../injection_container.dart';
+import 'session_notifier.dart';
 
 class AppRoutes {
   AppRoutes._();
@@ -24,9 +26,23 @@ class AppRoutes {
 class AppRouter {
   AppRouter._();
 
-  static GoRouter createRouter({String initialLocation = AppRoutes.login}) {
+  /// Rutas a las que puede entrar quien aún no inició sesión.
+  static const _publicRoutes = {AppRoutes.login, AppRoutes.register};
+
+  /// [session] activa el control de acceso: sin sesión solo se ven las rutas
+  /// públicas, y con sesión iniciada no se vuelve a la pantalla de inicio de
+  /// sesión. Sin [session] el router no restringe nada (útil en pruebas).
+  static GoRouter createRouter({
+    String initialLocation = AppRoutes.login,
+    SessionNotifier? session,
+  }) {
     return GoRouter(
       initialLocation: initialLocation,
+      refreshListenable: session,
+      redirect: session == null ? null : (context, state) => redirectFor(
+            isAuthenticated: session.isAuthenticated,
+            location: state.matchedLocation,
+          ),
       routes: [
         GoRoute(
           path: AppRoutes.login,
@@ -60,5 +76,20 @@ class AppRouter {
     );
   }
 
-  static final GoRouter router = createRouter();
+  /// Decide a dónde redirigir según la sesión; `null` deja pasar.
+  @visibleForTesting
+  static String? redirectFor({
+    required bool isAuthenticated,
+    required String location,
+  }) {
+    final isPublic = _publicRoutes.contains(location);
+
+    if (!isAuthenticated && !isPublic) return AppRoutes.login;
+    if (isAuthenticated && location == AppRoutes.login) {
+      return AppRoutes.profile;
+    }
+    return null;
+  }
+
+  static final GoRouter router = createRouter(session: sl<SessionNotifier>());
 }

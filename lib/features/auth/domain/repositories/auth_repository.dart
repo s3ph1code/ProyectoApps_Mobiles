@@ -18,4 +18,8 @@ abstract class AuthRepository {
 
   /// `Right(null)` cuando no hay sesión activa: no tener sesión no es un error.
   Future<Either<Failure, AuthUser?>> getCurrentUser();
+
+  /// Emite el usuario cada vez que la sesión cambia: `null` cuando no hay
+  /// sesión activa.
+  Stream<AuthUser?> authStateChanges();
 }
