@@ -8,21 +8,24 @@ class AppTypography {
 
   static TextTheme get textTheme => TextTheme(
         displaySmall: GoogleFonts.fraunces(
-          fontSize: 34,
+          fontSize: 31,
           fontWeight: FontWeight.w600,
-          height: 1.15,
+          letterSpacing: -0.55,
+          height: 1.17,
           color: AppColors.ink,
         ),
         headlineMedium: GoogleFonts.fraunces(
-          fontSize: 28,
+          fontSize: 26,
           fontWeight: FontWeight.w600,
-          height: 1.2,
+          letterSpacing: -0.4,
+          height: 1.22,
           color: AppColors.ink,
         ),
         headlineSmall: GoogleFonts.fraunces(
-          fontSize: 22,
+          fontSize: 21,
           fontWeight: FontWeight.w600,
-          height: 1.25,
+          letterSpacing: -0.25,
+          height: 1.28,
           color: AppColors.ink,
         ),
         titleMedium: GoogleFonts.inter(
