@@ -14,7 +14,6 @@ import 'features/auth/domain/usecases/sign_up_with_email.dart';
 import 'features/auth/domain/usecases/watch_auth_state.dart';
 import 'features/auth/presentation/bloc/login_bloc.dart';
 import 'features/auth/presentation/bloc/register_bloc.dart';
-import 'features/onboarding/presentation/bloc/onboarding_bloc.dart';
 import 'features/profile/data/datasources/profile_remote_datasource.dart';
 import 'features/profile/data/repositories/profile_repository_impl.dart';
 import 'features/profile/domain/repositories/profile_repository.dart';
@@ -30,7 +29,6 @@ Future<void> initDependencies() async {
 
   _registerAuth();
   _registerProfile();
-  _registerOnboarding();
 
   // La sesión que Supabase restauró al arrancar decide la primera pantalla.
   final current = await sl<GetCurrentUser>()(const NoParams());
@@ -58,15 +56,6 @@ void _registerAuth() {
 
   sl.registerFactory(() => LoginBloc(signIn: sl()));
   sl.registerFactory(() => RegisterBloc(signUp: sl()));
-}
-
-void _registerOnboarding() {
-  sl.registerFactory(
-    () => OnboardingBloc(
-      getCurrentUser: sl(),
-      createProfile: sl(),
-    ),
-  );
 }
 
 void _registerProfile() {
