@@ -131,6 +131,18 @@ los otros dos:
 
 El rol aparece como una etiqueta en el resumen del perfil.
 
+### Recorrido por cada usuaria (para el video)
+
+| Cuenta | Cómo se obtiene | Qué se ve al iniciar sesión |
+|---|---|---|
+| Usuaria (cualquier correo) | Registro normal desde la app | Resumen del perfil con la etiqueta «Usuaria» |
+| `moderadora@doulapp.test` | Registro + `seed_demo_roles.sql` | Resumen del perfil con la etiqueta «Moderadora» |
+| `admin@doulapp.test` | Registro + `seed_demo_roles.sql` | Resumen del perfil con la etiqueta «Administradora» |
+
+En las tres, el flujo es el mismo: **Crear cuenta → carrusel → resumen del
+perfil → Cerrar sesión → Iniciar sesión → resumen del perfil**. Para probar sin
+revisar el correo, desactivar «Confirm email» en Supabase.
+
 Cada feature se divide en `data/` (datasources, models, repositories),
 `domain/` (entities, repositories, usecases) y `presentation/` (bloc, pages,
 widgets).
@@ -189,19 +201,13 @@ flutter analyze
 **El perfil ya existe cuando termina el registro.** El nombre que escribe la
 usuaria viaja como metadato en el registro y el trigger `handle_new_user` lo
 usa al insertar la fila de `profiles` (si falta, usa la parte local del
-correo). El caso de uso `CreateProfile` se conserva en el dominio, pero el flujo
-actual ya no lo invoca. Por eso `ProfileRepository.createProfile`
-debe escribirse como un `update` (o un `upsert`) sobre la fila existente, no
-como un `insert`: `profiles` solo tiene políticas de RLS de `select` y `update`,
-así que un `insert` desde el cliente sería rechazado.
+correo). `profiles` solo tiene políticas de RLS de `select` y `update`, así que
+cualquier escritura desde el cliente debe ser un `update` sobre la fila
+existente, no un `insert`. El caso de uso `CreateProfile` se conserva en el
+dominio, pero el flujo actual ya no lo invoca.
 
 **`user_preferences` se crea sola.** El mismo trigger la inserta con los valores
-por defecto (`community`, notificaciones activas, `es`). El onboarding solo
-necesita actualizarla.
-
-**La pantalla de inicio es provisional.** `AuthSandboxPage` existe para
-comprobar registro, inicio y cierre de sesión contra Supabase mientras no haya
-pantallas definitivas ni router. Se reemplaza al integrar.
+por defecto (`community`, notificaciones activas, `es`).
 
 **Ruta del SDK con espacios.** `pubspec.yaml` fija
 `path_provider_foundation: 2.4.1` mediante `dependency_overrides`. Las versiones
