@@ -1,10 +1,12 @@
 import 'package:dartz/dartz.dart';
 import 'package:doulapp/core/error/failures.dart';
 import 'package:doulapp/features/profile/domain/entities/account_status.dart';
+import 'package:doulapp/features/profile/domain/entities/app_role.dart';
 import 'package:doulapp/features/profile/domain/entities/profile.dart';
 import 'package:doulapp/features/profile/domain/repositories/profile_repository.dart';
 import 'package:doulapp/features/profile/domain/usecases/create_profile.dart';
 import 'package:doulapp/features/profile/domain/usecases/get_profile.dart';
+import 'package:doulapp/features/profile/domain/usecases/get_user_roles.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 
@@ -76,6 +78,34 @@ void main() {
       );
 
       expect(result, const Left<Failure, Profile>(ServerFailure()));
+    });
+  });
+
+  group('GetUserRoles', () {
+    test('delega en el repositorio con el id de la usuaria', () async {
+      when(() => repository.getRoles('uuid-1')).thenAnswer(
+        (_) async => const Right([AppRole.user, AppRole.moderator]),
+      );
+
+      final result = await GetUserRoles(repository)(
+        const GetUserRolesParams(userId: 'uuid-1'),
+      );
+
+      expect(
+        result,
+        const Right<Failure, List<AppRole>>([AppRole.user, AppRole.moderator]),
+      );
+    });
+
+    test('devuelve el Failure del repositorio sin modificarlo', () async {
+      when(() => repository.getRoles('uuid-1'))
+          .thenAnswer((_) async => const Left(ServerFailure()));
+
+      final result = await GetUserRoles(repository)(
+        const GetUserRolesParams(userId: 'uuid-1'),
+      );
+
+      expect(result, const Left<Failure, List<AppRole>>(ServerFailure()));
     });
   });
 }

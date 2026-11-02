@@ -5,6 +5,7 @@ import 'package:doulapp/core/error/exceptions.dart' as app;
 import 'package:doulapp/features/profile/data/datasources/profile_remote_datasource.dart';
 import 'package:doulapp/features/profile/data/models/profile_model.dart';
 import 'package:doulapp/features/profile/domain/entities/account_status.dart';
+import 'package:doulapp/features/profile/domain/entities/app_role.dart';
 import 'package:flutter_test/flutter_test.dart';
 // El cliente de Supabase recibe un `http.Client`; el paquete llega como
 // dependencia de supabase_flutter y aquí solo se usa para simularlo en pruebas.
@@ -144,6 +145,36 @@ void main() {
         'bio': 'Un día a la vez.',
       });
       expect(profile.bio, 'Un día a la vez.');
+    });
+  });
+
+  group('getRoles', () {
+    test('consulta user_roles y devuelve los roles conocidos', () async {
+      useResponse([
+        {
+          'roles': {'code': 'user'},
+        },
+        {
+          'roles': {'code': 'moderator'},
+        },
+        {
+          'roles': {'code': 'otro'},
+        },
+      ]);
+
+      final roles = await dataSource.getRoles(userId);
+
+      expect(lastRequest!.method, 'GET');
+      expect(lastRequest!.url.path, '/rest/v1/user_roles');
+      expect(lastRequest!.url.queryParameters['select'], 'roles(code)');
+      expect(lastRequest!.url.queryParameters['user_id'], 'eq.$userId');
+      expect(roles, [AppRole.user, AppRole.moderator]);
+    });
+
+    test('devuelve una lista vacía cuando la cuenta no tiene filas', () async {
+      useResponse(<Object>[]);
+
+      expect(await dataSource.getRoles(userId), isEmpty);
     });
   });
 }

@@ -4,6 +4,7 @@ import 'dart:io';
 import 'package:supabase_flutter/supabase_flutter.dart' as supabase;
 
 import '../../../../core/error/exceptions.dart';
+import '../../domain/entities/app_role.dart';
 import '../models/profile_model.dart';
 
 abstract class ProfileRemoteDataSource {
@@ -15,6 +16,8 @@ abstract class ProfileRemoteDataSource {
   Future<ProfileModel> getProfile(String userId);
 
   Future<ProfileModel> updateProfile(ProfileModel profile);
+
+  Future<List<AppRole>> getRoles(String userId);
 }
 
 class ProfileRemoteDataSourceImpl implements ProfileRemoteDataSource {
@@ -65,6 +68,25 @@ class ProfileRemoteDataSourceImpl implements ProfileRemoteDataSource {
           .single();
 
       return ProfileModel.fromJson(json);
+    });
+  }
+
+  @override
+  Future<List<AppRole>> getRoles(String userId) {
+    return _guard(() async {
+      // `roles(code)` trae el código del rol enlazado por user_roles.role_id.
+      final rows = await client
+          .from('user_roles')
+          .select('roles(code)')
+          .eq('user_id', userId);
+
+      final roles = <AppRole>[];
+      for (final row in rows) {
+        final code = (row['roles'] as Map<String, dynamic>?)?['code'];
+        final role = code is String ? AppRole.fromCode(code) : null;
+        if (role != null) roles.add(role);
+      }
+      return roles;
     });
   }
 
