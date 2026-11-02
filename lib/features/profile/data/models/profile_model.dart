@@ -42,6 +42,5 @@ class ProfileModel extends Profile {
         'display_name': displayName,
         'avatar_url': avatarUrl,
         'bio': bio,
-        'account_status': accountStatus.code,
       };
 }
