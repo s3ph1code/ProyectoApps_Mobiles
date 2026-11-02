@@ -6,8 +6,10 @@ import 'package:doulapp/features/auth/domain/entities/auth_user.dart';
 import 'package:doulapp/features/auth/domain/usecases/get_current_user.dart';
 import 'package:doulapp/features/auth/domain/usecases/sign_out.dart';
 import 'package:doulapp/features/profile/domain/entities/account_status.dart';
+import 'package:doulapp/features/profile/domain/entities/app_role.dart';
 import 'package:doulapp/features/profile/domain/entities/profile.dart';
 import 'package:doulapp/features/profile/domain/usecases/get_profile.dart';
+import 'package:doulapp/features/profile/domain/usecases/get_user_roles.dart';
 import 'package:doulapp/features/profile/presentation/bloc/profile_bloc.dart';
 import 'package:doulapp/features/profile/presentation/bloc/profile_event.dart';
 import 'package:doulapp/features/profile/presentation/bloc/profile_state.dart';
@@ -18,11 +20,14 @@ class MockGetCurrentUser extends Mock implements GetCurrentUser {}
 
 class MockGetProfile extends Mock implements GetProfile {}
 
+class MockGetUserRoles extends Mock implements GetUserRoles {}
+
 class MockSignOut extends Mock implements SignOut {}
 
 void main() {
   late MockGetCurrentUser getCurrentUser;
   late MockGetProfile getProfile;
+  late MockGetUserRoles getUserRoles;
   late MockSignOut signOut;
 
   const user = AuthUser(id: 'uuid-1', email: 'ana@icesi.edu.co');
@@ -38,17 +43,22 @@ void main() {
   setUpAll(() {
     registerFallbackValue(const NoParams());
     registerFallbackValue(const GetProfileParams(userId: 'uuid-1'));
+    registerFallbackValue(const GetUserRolesParams(userId: 'uuid-1'));
   });
 
   setUp(() {
     getCurrentUser = MockGetCurrentUser();
     getProfile = MockGetProfile();
+    getUserRoles = MockGetUserRoles();
+    when(() => getUserRoles(any()))
+        .thenAnswer((_) async => const Right([AppRole.user]));
     signOut = MockSignOut();
   });
 
   ProfileBloc buildBloc() => ProfileBloc(
         getCurrentUser: getCurrentUser,
         getProfile: getProfile,
+        getUserRoles: getUserRoles,
         signOut: signOut,
       );
 
@@ -60,6 +70,45 @@ void main() {
             .thenAnswer((_) async => const Right(user));
         when(() => getProfile(const GetProfileParams(userId: 'uuid-1')))
             .thenAnswer((_) async => Right(profile));
+        return buildBloc();
+      },
+      act: (bloc) => bloc.add(const ProfileLoadRequested()),
+      expect: () => [
+        const ProfileLoading(),
+        ProfileLoaded(
+          profile: profile,
+          email: user.email,
+          roles: const [AppRole.user],
+        ),
+      ],
+    );
+
+    blocTest<ProfileBloc, ProfileState>(
+      'incluye todos los roles de la cuenta y expone el de mayor jerarquía',
+      build: () {
+        when(() => getCurrentUser(any()))
+            .thenAnswer((_) async => const Right(user));
+        when(() => getProfile(any())).thenAnswer((_) async => Right(profile));
+        when(() => getUserRoles(any())).thenAnswer(
+          (_) async => const Right([AppRole.user, AppRole.moderator]),
+        );
+        return buildBloc();
+      },
+      act: (bloc) => bloc.add(const ProfileLoadRequested()),
+      verify: (bloc) {
+        final state = bloc.state as ProfileLoaded;
+        expect(state.role, AppRole.moderator);
+      },
+    );
+
+    blocTest<ProfileBloc, ProfileState>(
+      'muestra el perfil aunque no se puedan consultar los roles',
+      build: () {
+        when(() => getCurrentUser(any()))
+            .thenAnswer((_) async => const Right(user));
+        when(() => getProfile(any())).thenAnswer((_) async => Right(profile));
+        when(() => getUserRoles(any()))
+            .thenAnswer((_) async => const Left(NetworkFailure()));
         return buildBloc();
       },
       act: (bloc) => bloc.add(const ProfileLoadRequested()),

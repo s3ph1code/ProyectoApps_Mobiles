@@ -6,6 +6,7 @@ import '../../../../core/router/app_router.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_radii.dart';
 import '../../../../core/theme/app_theme.dart';
+import '../../domain/entities/app_role.dart';
 import '../../domain/entities/profile.dart';
 import '../bloc/profile_bloc.dart';
 import '../bloc/profile_event.dart';
@@ -35,9 +36,11 @@ class ProfilePage extends StatelessWidget {
                       .read<ProfileBloc>()
                       .add(const ProfileLoadRequested()),
                 ),
-              ProfileLoaded(:final profile, :final email) => _ProfileContentView(
+              ProfileLoaded(:final profile, :final email, :final role) =>
+                _ProfileContentView(
                   profile: profile,
                   email: email,
+                  role: role,
                   onSignOut: () => context
                       .read<ProfileBloc>()
                       .add(const ProfileSignOutRequested()),
@@ -54,11 +57,13 @@ class ProfilePage extends StatelessWidget {
 class _ProfileContentView extends StatelessWidget {
   final Profile profile;
   final String email;
+  final AppRole? role;
   final VoidCallback onSignOut;
 
   const _ProfileContentView({
     required this.profile,
     required this.email,
+    required this.role,
     required this.onSignOut,
   });
 
@@ -127,6 +132,29 @@ class _ProfileContentView extends StatelessWidget {
                                       email,
                                       style: textTheme.bodyMedium,
                                     ),
+                                    if (role != null) ...[
+                                      const SizedBox(height: 8),
+                                      Container(
+                                        key: const Key('profile_role_chip'),
+                                        padding: const EdgeInsets.symmetric(
+                                          horizontal: 12,
+                                          vertical: 4,
+                                        ),
+                                        decoration: BoxDecoration(
+                                          color: AppColors.beige,
+                                          borderRadius: BorderRadius.circular(
+                                            AppRadii.full,
+                                          ),
+                                        ),
+                                        child: Text(
+                                          role!.label,
+                                          style: textTheme.bodySmall?.copyWith(
+                                            color: AppColors.sageDark,
+                                            fontWeight: FontWeight.w600,
+                                          ),
+                                        ),
+                                      ),
+                                    ],
                                   ],
                                 ),
                               ),
