@@ -17,15 +17,18 @@ class RegisterPage extends StatefulWidget {
 }
 
 class _RegisterPageState extends State<RegisterPage> {
+  final _nameController = TextEditingController();
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
   final _confirmPasswordController = TextEditingController();
   bool _obscurePassword = true;
   bool _obscureConfirmPassword = true;
+  bool _acceptedTerms = false;
   String? _localError;
 
   @override
   void dispose() {
+    _nameController.dispose();
     _emailController.dispose();
     _passwordController.dispose();
     _confirmPasswordController.dispose();
@@ -38,10 +41,18 @@ class _RegisterPageState extends State<RegisterPage> {
     final password = _passwordController.text;
     final confirmPassword = _confirmPasswordController.text;
 
-    if (confirmPassword.isNotEmpty && password != confirmPassword) {
+    if (password != confirmPassword) {
       setState(() {
         _localError =
             'Las contraseñas no coinciden. Revisa que ambas sean iguales.';
+      });
+      return;
+    }
+
+    if (!_acceptedTerms) {
+      setState(() {
+        _localError =
+            'Para crear tu cuenta, acepta los términos y la política de privacidad.';
       });
       return;
     }
@@ -50,6 +61,7 @@ class _RegisterPageState extends State<RegisterPage> {
 
     context.read<RegisterBloc>().add(
           RegisterSubmitted(
+            displayName: _nameController.text,
             email: _emailController.text,
             password: password,
           ),
@@ -119,6 +131,22 @@ class _RegisterPageState extends State<RegisterPage> {
                             const SizedBox(height: 16),
                           ],
                           Text(
+                            'Nombre',
+                            style: textTheme.titleMedium,
+                          ),
+                          const SizedBox(height: 8),
+                          TextField(
+                            key: const Key('register_name_field'),
+                            controller: _nameController,
+                            enabled: !isLoading,
+                            textCapitalization: TextCapitalization.words,
+                            textInputAction: TextInputAction.next,
+                            decoration: const InputDecoration(
+                              hintText: 'Tu nombre o un apodo',
+                            ),
+                          ),
+                          const SizedBox(height: 16),
+                          Text(
                             'Correo electrónico',
                             style: textTheme.titleMedium,
                           ),
@@ -176,7 +204,6 @@ class _RegisterPageState extends State<RegisterPage> {
                             enabled: !isLoading,
                             obscureText: _obscureConfirmPassword,
                             textInputAction: TextInputAction.done,
-                            onSubmitted: (_) => isLoading ? null : _submit(),
                             decoration: InputDecoration(
                               hintText: 'Repite tu contraseña',
                               suffixIcon: IconButton(
@@ -195,7 +222,45 @@ class _RegisterPageState extends State<RegisterPage> {
                               ),
                             ),
                           ),
-                          const SizedBox(height: 24),
+                          const SizedBox(height: 16),
+                          InkWell(
+                            key: const Key('register_terms_toggle'),
+                            borderRadius: BorderRadius.circular(AppRadii.sm),
+                            onTap: isLoading
+                                ? null
+                                : () => setState(
+                                      () => _acceptedTerms = !_acceptedTerms,
+                                    ),
+                            child: Padding(
+                              padding: const EdgeInsets.symmetric(vertical: 4),
+                              child: Row(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Checkbox(
+                                    key: const Key('register_terms_checkbox'),
+                                    value: _acceptedTerms,
+                                    activeColor: AppColors.sage,
+                                    onChanged: isLoading
+                                        ? null
+                                        : (value) => setState(
+                                              () => _acceptedTerms =
+                                                  value ?? false,
+                                            ),
+                                  ),
+                                  Expanded(
+                                    child: Padding(
+                                      padding: const EdgeInsets.only(top: 12),
+                                      child: Text(
+                                        'Acepto los términos y condiciones y la política de privacidad.',
+                                        style: textTheme.bodySmall,
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ),
+                          const SizedBox(height: 16),
                           ElevatedButton(
                             key: const Key('register_submit_button'),
                             onPressed: isLoading ? null : _submit,
