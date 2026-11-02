@@ -14,8 +14,8 @@ void main() {
           builder: (_, _) => const OnboardingPage(),
         ),
         GoRoute(
-          path: AppRoutes.home,
-          builder: (_, _) => const Scaffold(body: Text('Pantalla Inicio')),
+          path: AppRoutes.postAuth,
+          builder: (_, _) => const Scaffold(body: Text('Pantalla Perfil')),
         ),
       ],
     );
@@ -54,7 +54,7 @@ void main() {
     expect(find.text('Continuar'), findsNothing);
 
     await next(tester);
-    expect(find.text('Pantalla Inicio'), findsOneWidget);
+    expect(find.text('Pantalla Perfil'), findsOneWidget);
   });
 
   testWidgets('también se puede avanzar deslizando', (tester) async {
@@ -69,12 +69,12 @@ void main() {
     expect(find.text('Pequeños momentos\ntambién cuentan.'), findsOneWidget);
   });
 
-  testWidgets('Saltar lleva directo al inicio', (tester) async {
+  testWidgets('Saltar lleva directo al resumen del perfil', (tester) async {
     await tester.pumpWidget(buildPage());
 
     await tester.tap(find.byKey(const Key('onboarding_skip_button')));
     await tester.pumpAndSettle();
 
-    expect(find.text('Pantalla Inicio'), findsOneWidget);
+    expect(find.text('Pantalla Perfil'), findsOneWidget);
   });
 }

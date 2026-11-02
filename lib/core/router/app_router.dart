@@ -2,8 +2,10 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../features/auth/presentation/bloc/forgot_password_bloc.dart';
 import '../../features/auth/presentation/bloc/login_bloc.dart';
 import '../../features/auth/presentation/bloc/register_bloc.dart';
+import '../../features/auth/presentation/pages/forgot_password_page.dart';
 import '../../features/auth/presentation/pages/login_page.dart';
 import '../../features/auth/presentation/pages/register_page.dart';
 import '../../features/home/presentation/pages/home_page.dart';
@@ -23,11 +25,17 @@ class AppRoutes {
   static const splash = '/splash';
   static const login = '/login';
   static const register = '/register';
+  static const forgotPassword = '/forgot-password';
   static const onboarding = '/onboarding';
   static const home = '/home';
   static const forMe = '/for-me';
   static const support = '/support';
   static const profile = '/profile';
+
+  /// A dónde llega la usuaria después de iniciar sesión o terminar el
+  /// onboarding. En el Sprint 1 es el resumen del perfil; cambiar a [home]
+  /// basta para que la entrada sea el inicio.
+  static const postAuth = profile;
 }
 
 class AppRouter {
@@ -38,6 +46,7 @@ class AppRouter {
     AppRoutes.splash,
     AppRoutes.login,
     AppRoutes.register,
+    AppRoutes.forgotPassword,
   };
 
   /// [session] activa el control de acceso: sin sesión solo se ven las rutas
@@ -61,7 +70,7 @@ class AppRouter {
           path: AppRoutes.splash,
           builder: (context, state) => SplashPage(
             nextRoute: session?.isAuthenticated ?? false
-                ? AppRoutes.home
+                ? AppRoutes.postAuth
                 : AppRoutes.login,
           ),
         ),
@@ -77,6 +86,13 @@ class AppRouter {
           builder: (context, state) => BlocProvider(
             create: (_) => sl<RegisterBloc>(),
             child: const RegisterPage(),
+          ),
+        ),
+        GoRoute(
+          path: AppRoutes.forgotPassword,
+          builder: (context, state) => BlocProvider(
+            create: (_) => sl<ForgotPasswordBloc>(),
+            child: const ForgotPasswordPage(),
           ),
         ),
         GoRoute(
@@ -140,7 +156,9 @@ class AppRouter {
     final isPublic = _publicRoutes.contains(location);
 
     if (!isAuthenticated && !isPublic) return AppRoutes.login;
-    if (isAuthenticated && location == AppRoutes.login) return AppRoutes.home;
+    if (isAuthenticated && location == AppRoutes.login) {
+      return AppRoutes.postAuth;
+    }
     return null;
   }
 

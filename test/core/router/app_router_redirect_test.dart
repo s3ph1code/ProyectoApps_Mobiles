@@ -41,8 +41,9 @@ void main() {
           isAuthenticated: true,
           location: AppRoutes.login,
         ),
-        AppRoutes.home,
+        AppRoutes.profile,
       );
+      expect(AppRoutes.postAuth, AppRoutes.profile);
     });
 
     test('deja ver el inicio, el perfil, el onboarding y el registro en curso',

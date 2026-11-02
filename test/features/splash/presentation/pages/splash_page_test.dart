@@ -21,8 +21,8 @@ void main() {
           builder: (_, _) => const Scaffold(body: Text('Pantalla Login')),
         ),
         GoRoute(
-          path: AppRoutes.home,
-          builder: (_, _) => const Scaffold(body: Text('Pantalla Inicio')),
+          path: AppRoutes.profile,
+          builder: (_, _) => const Scaffold(body: Text('Pantalla Perfil')),
         ),
       ],
     );
@@ -44,14 +44,14 @@ void main() {
   });
 
   testWidgets('pasa solo a la pantalla indicada', (tester) async {
-    await tester.pumpWidget(buildPage(nextRoute: AppRoutes.home));
+    await tester.pumpWidget(buildPage(nextRoute: AppRoutes.profile));
 
-    expect(find.text('Pantalla Inicio'), findsNothing);
+    expect(find.text('Pantalla Perfil'), findsNothing);
 
     await tester.pump(const Duration(milliseconds: 600));
     await tester.pumpAndSettle();
 
-    expect(find.text('Pantalla Inicio'), findsOneWidget);
+    expect(find.text('Pantalla Perfil'), findsOneWidget);
   });
 
   testWidgets('también continúa al tocar la pantalla', (tester) async {

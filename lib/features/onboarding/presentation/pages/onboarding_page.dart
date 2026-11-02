@@ -44,7 +44,7 @@ class _OnboardingPageState extends State<OnboardingPage> {
     super.dispose();
   }
 
-  void _finish() => context.go(AppRoutes.home);
+  void _finish() => context.go(AppRoutes.postAuth);
 
   void _next() {
     if (_isLast) {

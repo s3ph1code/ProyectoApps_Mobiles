@@ -47,7 +47,7 @@ class _LoginPageState extends State<LoginPage> {
         child: BlocConsumer<LoginBloc, LoginState>(
           listener: (context, state) {
             if (state is LoginSuccess) {
-              context.go(AppRoutes.profile);
+              context.go(AppRoutes.postAuth);
             }
           },
           builder: (context, state) {
@@ -171,7 +171,23 @@ class _LoginPageState extends State<LoginPage> {
                               ),
                             ),
                           ),
-                          const SizedBox(height: 24),
+                          Align(
+                            alignment: Alignment.centerRight,
+                            child: TextButton(
+                              key: const Key('login_to_forgot_button'),
+                              onPressed: isLoading
+                                  ? null
+                                  : () => context.go(AppRoutes.forgotPassword),
+                              style: TextButton.styleFrom(
+                                minimumSize: const Size(0, 40),
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 4,
+                                ),
+                              ),
+                              child: const Text('¿Olvidaste tu contraseña?'),
+                            ),
+                          ),
+                          const SizedBox(height: 12),
                           ElevatedButton(
                             key: const Key('login_submit_button'),
                             onPressed: isLoading ? null : _submit,

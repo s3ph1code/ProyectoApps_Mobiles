@@ -8,10 +8,12 @@ import 'features/auth/data/datasources/auth_remote_datasource.dart';
 import 'features/auth/data/repositories/auth_repository_impl.dart';
 import 'features/auth/domain/repositories/auth_repository.dart';
 import 'features/auth/domain/usecases/get_current_user.dart';
+import 'features/auth/domain/usecases/send_password_reset.dart';
 import 'features/auth/domain/usecases/sign_in_with_email.dart';
 import 'features/auth/domain/usecases/sign_out.dart';
 import 'features/auth/domain/usecases/sign_up_with_email.dart';
 import 'features/auth/domain/usecases/watch_auth_state.dart';
+import 'features/auth/presentation/bloc/forgot_password_bloc.dart';
 import 'features/auth/presentation/bloc/login_bloc.dart';
 import 'features/auth/presentation/bloc/register_bloc.dart';
 import 'features/profile/data/datasources/profile_remote_datasource.dart';
@@ -53,9 +55,11 @@ void _registerAuth() {
   sl.registerLazySingleton(() => SignOut(sl()));
   sl.registerLazySingleton(() => GetCurrentUser(sl()));
   sl.registerLazySingleton(() => WatchAuthState(sl()));
+  sl.registerLazySingleton(() => SendPasswordReset(sl()));
 
   sl.registerFactory(() => LoginBloc(signIn: sl()));
   sl.registerFactory(() => RegisterBloc(signUp: sl()));
+  sl.registerFactory(() => ForgotPasswordBloc(sendPasswordReset: sl()));
 }
 
 void _registerProfile() {

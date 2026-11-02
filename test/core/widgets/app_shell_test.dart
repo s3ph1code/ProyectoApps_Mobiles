@@ -98,8 +98,9 @@ void main() {
     router.go(AppRoutes.login);
     await tester.pumpAndSettle();
 
+    // Redirige al resumen del perfil, que es donde se llega al iniciar sesión.
     expect(find.text('Pantalla Login'), findsNothing);
-    expect(find.text('Pestaña Inicio'), findsOneWidget);
+    expect(find.text('Pestaña Perfil'), findsOneWidget);
   });
 
   testWidgets('al cerrarse la sesión el router lleva al login', (tester) async {
