@@ -74,7 +74,9 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
 
       final user = response.user;
       if (user == null) {
-        throw const AuthException('El inicio de sesión no devolvió un usuario.');
+        throw const AuthException(
+          'El inicio de sesión no devolvió un usuario.',
+        );
       }
       return AuthUserModel.fromSupabaseUser(user);
     });

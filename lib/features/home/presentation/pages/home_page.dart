@@ -148,7 +148,10 @@ class HomePage extends StatelessWidget {
   /// «Hola, Karla» con el primer nombre; «Hola» mientras el perfil carga.
   static String _greeting(ProfileState state) {
     if (state is ProfileLoaded) {
-      final first = state.profile.displayName.trim().split(RegExp(r'\s+')).first;
+      final first = state.profile.displayName
+          .trim()
+          .split(RegExp(r'\s+'))
+          .first;
       if (first.isNotEmpty) return 'Hola, $first';
     }
     return 'Hola';
@@ -201,7 +204,11 @@ class _FeatureCard extends StatelessWidget {
             gradient: const LinearGradient(
               begin: Alignment.topLeft,
               end: Alignment.bottomRight,
-              colors: [AppColors.sageMid, AppColors.sageDeep, Color(0xFF3F6547)],
+              colors: [
+                AppColors.sageMid,
+                AppColors.sageDeep,
+                Color(0xFF3F6547),
+              ],
               stops: [0, 0.62, 1],
             ),
             boxShadow: const [
@@ -358,9 +365,7 @@ class _MenuCard extends StatelessWidget {
         child: Ink(
           padding: const EdgeInsets.fromLTRB(15, 16, 15, 17),
           decoration: BoxDecoration(
-            color: data.soon
-                ? const Color(0x8CFFFFFF)
-                : AppColors.surface,
+            color: data.soon ? const Color(0x8CFFFFFF) : AppColors.surface,
             borderRadius: BorderRadius.circular(AppRadii.lg),
             border: Border.all(
               color: data.soon ? const Color(0x2426382D) : AppColors.lineSoft,
@@ -383,21 +388,25 @@ class _MenuCard extends StatelessWidget {
                     child: Icon(data.icon, size: 22, color: AppColors.sage),
                   ),
                   if (data.soon)
-                    Container(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 10,
-                        vertical: 4,
-                      ),
-                      decoration: BoxDecoration(
-                        color: AppColors.beige,
-                        borderRadius: BorderRadius.circular(AppRadii.full),
-                      ),
-                      child: const Text(
-                        'Próximamente',
-                        style: TextStyle(
-                          fontSize: 11,
-                          fontWeight: FontWeight.w600,
-                          color: Color(0xFF8E978F),
+                    Flexible(
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 8,
+                          vertical: 4,
+                        ),
+                        decoration: BoxDecoration(
+                          color: AppColors.beige,
+                          borderRadius: BorderRadius.circular(AppRadii.full),
+                        ),
+                        child: const Text(
+                          'Próximamente',
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: TextStyle(
+                            fontSize: 11,
+                            fontWeight: FontWeight.w600,
+                            color: Color(0xFF8E978F),
+                          ),
                         ),
                       ),
                     ),

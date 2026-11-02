@@ -11,7 +11,7 @@ class ForgotPasswordBloc
   final SendPasswordReset sendPasswordReset;
 
   ForgotPasswordBloc({required this.sendPasswordReset})
-      : super(const ForgotPasswordInitial()) {
+    : super(const ForgotPasswordInitial()) {
     on<ForgotPasswordSubmitted>(_onSubmitted);
   }
 

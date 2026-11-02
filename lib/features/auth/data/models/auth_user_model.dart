@@ -16,10 +16,8 @@ class AuthUserModel extends AuthUser {
     return AuthUserModel(id: user.id, email: email);
   }
 
-  factory AuthUserModel.fromJson(Map<String, dynamic> json) => AuthUserModel(
-        id: json['id'] as String,
-        email: json['email'] as String,
-      );
+  factory AuthUserModel.fromJson(Map<String, dynamic> json) =>
+      AuthUserModel(id: json['id'] as String, email: json['email'] as String);
 
   Map<String, dynamic> toJson() => {'id': id, 'email': email};
 }

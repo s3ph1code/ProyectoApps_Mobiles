@@ -112,8 +112,9 @@ class _OnboardingPageState extends State<OnboardingPage> {
                                 ),
                                 const SizedBox(height: 12),
                                 ConstrainedBox(
-                                  constraints:
-                                      const BoxConstraints(maxWidth: 290),
+                                  constraints: const BoxConstraints(
+                                    maxWidth: 290,
+                                  ),
                                   child: Text(
                                     slide.body,
                                     textAlign: TextAlign.center,
@@ -176,7 +177,10 @@ class _Illustration extends StatelessWidget {
               alignment: Alignment.center,
               children: [
                 _circle(outer, AppColors.beige),
-                _circle(outer * 0.74, AppColors.sageLight.withValues(alpha: 0.3)),
+                _circle(
+                  outer * 0.74,
+                  AppColors.sageLight.withValues(alpha: 0.3),
+                ),
                 _circle(outer * 0.5, AppColors.sage.withValues(alpha: 0.18)),
                 Icon(icon, size: outer * 0.24, color: AppColors.sageDark),
               ],

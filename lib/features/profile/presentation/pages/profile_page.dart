@@ -31,22 +31,22 @@ class ProfilePage extends StatelessWidget {
           builder: (context, state) {
             return switch (state) {
               ProfileInitial() || ProfileLoading() => const Center(
-                  child: CircularProgressIndicator(color: AppColors.sage),
-                ),
+                child: CircularProgressIndicator(color: AppColors.sage),
+              ),
               ProfileFailure(:final message) => _ProfileErrorView(
-                  message: message,
-                  onRetry: () => context
-                      .read<ProfileBloc>()
-                      .add(const ProfileLoadRequested()),
+                message: message,
+                onRetry: () => context.read<ProfileBloc>().add(
+                  const ProfileLoadRequested(),
                 ),
+              ),
               ProfileLoaded(:final profile, :final email, :final role) =>
                 _ProfileContentView(
                   profile: profile,
                   email: email,
                   role: role,
-                  onSignOut: () => context
-                      .read<ProfileBloc>()
-                      .add(const ProfileSignOutRequested()),
+                  onSignOut: () => context.read<ProfileBloc>().add(
+                    const ProfileSignOutRequested(),
+                  ),
                 ),
               ProfileSignedOut() => const SizedBox.shrink(),
             };
@@ -302,15 +302,26 @@ class _PrivacyPanel extends StatelessWidget {
               ),
             ),
           const SizedBox(height: 4),
-          TextButton.icon(
+          TextButton(
             key: const Key('profile_privacy_button'),
             onPressed: onAdjust,
-            icon: const Text('Ajustar mi privacidad'),
-            label: const Icon(Icons.arrow_forward_rounded, size: 18),
             style: TextButton.styleFrom(
               alignment: Alignment.centerLeft,
               padding: EdgeInsets.zero,
               minimumSize: const Size(0, 40),
+            ),
+            child: const Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Flexible(
+                  child: Text(
+                    'Ajustar mi privacidad',
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ),
+                SizedBox(width: 8),
+                Icon(Icons.arrow_forward_rounded, size: 18),
+              ],
             ),
           ),
         ],
@@ -414,10 +425,10 @@ class _SettingsList extends StatelessWidget {
 }
 
 String _statusLabel(AccountStatus status) => switch (status) {
-      AccountStatus.active => 'Activa',
-      AccountStatus.suspended => 'Suspendida',
-      AccountStatus.deactivated => 'Desactivada',
-    };
+  AccountStatus.active => 'Activa',
+  AccountStatus.suspended => 'Suspendida',
+  AccountStatus.deactivated => 'Desactivada',
+};
 
 const _months = [
   'enero',
@@ -449,19 +460,19 @@ Future<void> _showAccountInfo(
   final bio = profile.bio?.trim();
 
   Widget row(String label, String value) => Padding(
-        padding: const EdgeInsets.symmetric(vertical: 8),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              label,
-              style: textTheme.bodySmall?.copyWith(fontWeight: FontWeight.w600),
-            ),
-            const SizedBox(height: 2),
-            Text(value, style: textTheme.bodyLarge),
-          ],
+    padding: const EdgeInsets.symmetric(vertical: 8),
+    child: Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          label,
+          style: textTheme.bodySmall?.copyWith(fontWeight: FontWeight.w600),
         ),
-      );
+        const SizedBox(height: 2),
+        Text(value, style: textTheme.bodyLarge),
+      ],
+    ),
+  );
 
   return showModalBottomSheet<void>(
     context: context,
@@ -503,10 +514,7 @@ class _ProfileErrorView extends StatelessWidget {
   final String message;
   final VoidCallback onRetry;
 
-  const _ProfileErrorView({
-    required this.message,
-    required this.onRetry,
-  });
+  const _ProfileErrorView({required this.message, required this.onRetry});
 
   @override
   Widget build(BuildContext context) {

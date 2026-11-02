@@ -24,12 +24,12 @@ class Profile extends Equatable {
 
   @override
   List<Object?> get props => [
-        id,
-        displayName,
-        avatarUrl,
-        bio,
-        accountStatus,
-        createdAt,
-        updatedAt,
-      ];
+    id,
+    displayName,
+    avatarUrl,
+    bio,
+    accountStatus,
+    createdAt,
+    updatedAt,
+  ];
 }

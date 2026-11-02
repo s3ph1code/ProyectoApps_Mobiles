@@ -60,12 +60,12 @@ class _RegisterPageState extends State<RegisterPage> {
     setState(() => _localError = null);
 
     context.read<RegisterBloc>().add(
-          RegisterSubmitted(
-            displayName: _nameController.text,
-            email: _emailController.text,
-            password: password,
-          ),
-        );
+      RegisterSubmitted(
+        displayName: _nameController.text,
+        email: _emailController.text,
+        password: password,
+      ),
+    );
   }
 
   @override
@@ -130,10 +130,7 @@ class _RegisterPageState extends State<RegisterPage> {
                             ),
                             const SizedBox(height: 16),
                           ],
-                          Text(
-                            'Nombre',
-                            style: textTheme.titleMedium,
-                          ),
+                          Text('Nombre', style: textTheme.titleMedium),
                           const SizedBox(height: 8),
                           TextField(
                             key: const Key('register_name_field'),
@@ -163,10 +160,7 @@ class _RegisterPageState extends State<RegisterPage> {
                             ),
                           ),
                           const SizedBox(height: 16),
-                          Text(
-                            'Contraseña',
-                            style: textTheme.titleMedium,
-                          ),
+                          Text('Contraseña', style: textTheme.titleMedium),
                           const SizedBox(height: 8),
                           TextField(
                             key: const Key('register_password_field'),
@@ -180,9 +174,9 @@ class _RegisterPageState extends State<RegisterPage> {
                                 onPressed: isLoading
                                     ? null
                                     : () => setState(
-                                          () => _obscurePassword =
-                                              !_obscurePassword,
-                                        ),
+                                        () => _obscurePassword =
+                                            !_obscurePassword,
+                                      ),
                                 icon: Icon(
                                   _obscurePassword
                                       ? Icons.visibility_outlined
@@ -210,9 +204,9 @@ class _RegisterPageState extends State<RegisterPage> {
                                 onPressed: isLoading
                                     ? null
                                     : () => setState(
-                                          () => _obscureConfirmPassword =
-                                              !_obscureConfirmPassword,
-                                        ),
+                                        () => _obscureConfirmPassword =
+                                            !_obscureConfirmPassword,
+                                      ),
                                 icon: Icon(
                                   _obscureConfirmPassword
                                       ? Icons.visibility_outlined
@@ -229,8 +223,8 @@ class _RegisterPageState extends State<RegisterPage> {
                             onTap: isLoading
                                 ? null
                                 : () => setState(
-                                      () => _acceptedTerms = !_acceptedTerms,
-                                    ),
+                                    () => _acceptedTerms = !_acceptedTerms,
+                                  ),
                             child: Padding(
                               padding: const EdgeInsets.symmetric(vertical: 4),
                               child: Row(
@@ -243,9 +237,9 @@ class _RegisterPageState extends State<RegisterPage> {
                                     onChanged: isLoading
                                         ? null
                                         : (value) => setState(
-                                              () => _acceptedTerms =
-                                                  value ?? false,
-                                            ),
+                                            () =>
+                                                _acceptedTerms = value ?? false,
+                                          ),
                                   ),
                                   Expanded(
                                     child: Padding(

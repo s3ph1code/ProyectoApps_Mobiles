@@ -24,10 +24,7 @@ class CreateProfileParams extends Equatable {
   final String userId;
   final String displayName;
 
-  const CreateProfileParams({
-    required this.userId,
-    required this.displayName,
-  });
+  const CreateProfileParams({required this.userId, required this.displayName});
 
   @override
   List<Object?> get props => [userId, displayName];

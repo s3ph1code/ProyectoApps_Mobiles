@@ -8,7 +8,7 @@ enum AccountStatus {
   final String code;
 
   static AccountStatus fromCode(String code) => AccountStatus.values.firstWhere(
-        (status) => status.code == code,
-        orElse: () => AccountStatus.active,
-      );
+    (status) => status.code == code,
+    orElse: () => AccountStatus.active,
+  );
 }

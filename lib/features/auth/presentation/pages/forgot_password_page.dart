@@ -29,9 +29,9 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
 
   void _submit() {
     FocusScope.of(context).unfocus();
-    context
-        .read<ForgotPasswordBloc>()
-        .add(ForgotPasswordSubmitted(email: _emailController.text));
+    context.read<ForgotPasswordBloc>().add(
+      ForgotPasswordSubmitted(email: _emailController.text),
+    );
   }
 
   @override
@@ -50,8 +50,9 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
         child: BlocBuilder<ForgotPasswordBloc, ForgotPasswordState>(
           builder: (context, state) {
             final isLoading = state is ForgotPasswordLoading;
-            final errorMessage =
-                state is ForgotPasswordFailure ? state.message : null;
+            final errorMessage = state is ForgotPasswordFailure
+                ? state.message
+                : null;
             final sentTo = state is ForgotPasswordSuccess ? state.email : null;
 
             return SingleChildScrollView(
@@ -131,7 +132,9 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
                             ),
                           )
                         : Text(
-                            sentTo == null ? 'Enviar enlace' : 'Enviar de nuevo',
+                            sentTo == null
+                                ? 'Enviar enlace'
+                                : 'Enviar de nuevo',
                           ),
                   ),
                   const SizedBox(height: 10),

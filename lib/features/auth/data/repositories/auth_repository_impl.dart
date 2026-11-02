@@ -31,7 +31,9 @@ class AuthRepositoryImpl implements AuthRepository {
     required String email,
     required String password,
   }) {
-    return _run(() => remoteDataSource.signIn(email: email, password: password));
+    return _run(
+      () => remoteDataSource.signIn(email: email, password: password),
+    );
   }
 
   @override

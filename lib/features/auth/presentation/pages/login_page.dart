@@ -31,11 +31,11 @@ class _LoginPageState extends State<LoginPage> {
   void _submit() {
     FocusScope.of(context).unfocus();
     context.read<LoginBloc>().add(
-          LoginSubmitted(
-            email: _emailController.text,
-            password: _passwordController.text,
-          ),
-        );
+      LoginSubmitted(
+        email: _emailController.text,
+        password: _passwordController.text,
+      ),
+    );
   }
 
   @override
@@ -141,10 +141,7 @@ class _LoginPageState extends State<LoginPage> {
                             ),
                           ),
                           const SizedBox(height: 16),
-                          Text(
-                            'Contraseña',
-                            style: textTheme.titleMedium,
-                          ),
+                          Text('Contraseña', style: textTheme.titleMedium),
                           const SizedBox(height: 8),
                           TextField(
                             key: const Key('login_password_field'),
@@ -159,9 +156,9 @@ class _LoginPageState extends State<LoginPage> {
                                 onPressed: isLoading
                                     ? null
                                     : () => setState(
-                                          () => _obscurePassword =
-                                              !_obscurePassword,
-                                        ),
+                                        () => _obscurePassword =
+                                            !_obscurePassword,
+                                      ),
                                 icon: Icon(
                                   _obscurePassword
                                       ? Icons.visibility_outlined

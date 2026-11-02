@@ -62,9 +62,9 @@ class AppRouter {
       redirect: session == null
           ? null
           : (context, state) => redirectFor(
-                isAuthenticated: session.isAuthenticated,
-                location: state.matchedLocation,
-              ),
+              isAuthenticated: session.isAuthenticated,
+              location: state.matchedLocation,
+            ),
       routes: [
         GoRoute(
           path: AppRoutes.splash,
