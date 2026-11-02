@@ -38,6 +38,10 @@ class AuthRepositoryImpl implements AuthRepository {
   Future<Either<Failure, void>> signOut() => _run(remoteDataSource.signOut);
 
   @override
+  Future<Either<Failure, void>> sendPasswordReset(String email) =>
+      _run(() => remoteDataSource.sendPasswordReset(email));
+
+  @override
   Future<Either<Failure, AuthUser?>> getCurrentUser() =>
       _run(remoteDataSource.getCurrentUser);
 

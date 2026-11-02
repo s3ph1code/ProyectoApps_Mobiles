@@ -20,6 +20,8 @@ abstract class AuthRemoteDataSource {
 
   Future<void> signOut();
 
+  Future<void> sendPasswordReset(String email);
+
   Future<AuthUserModel?> getCurrentUser();
 
   Stream<AuthUserModel?> authStateChanges();
@@ -80,6 +82,11 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
 
   @override
   Future<void> signOut() => _guard(() => _auth.signOut());
+
+  @override
+  Future<void> sendPasswordReset(String email) {
+    return _guard(() => _auth.resetPasswordForEmail(email.trim()));
+  }
 
   @override
   Future<AuthUserModel?> getCurrentUser() {

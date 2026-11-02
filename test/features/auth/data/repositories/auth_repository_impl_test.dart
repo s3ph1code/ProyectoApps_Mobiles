@@ -140,4 +140,34 @@ void main() {
       expect(result, const Right<Failure, AuthUserModel?>(null));
     });
   });
+
+  group('sendPasswordReset', () {
+    test('devuelve Right cuando el enlace se envía', () async {
+      when(() => dataSource.sendPasswordReset(email)).thenAnswer((_) async {});
+
+      final result = await repository.sendPasswordReset(email);
+
+      expect(result.isRight(), isTrue);
+      verify(() => dataSource.sendPasswordReset(email)).called(1);
+    });
+
+    test('traduce el límite de intentos', () async {
+      when(() => dataSource.sendPasswordReset(email)).thenThrow(
+        const AuthException('rate limit', code: 'over_email_send_rate_limit'),
+      );
+
+      final result = await repository.sendPasswordReset(email);
+
+      expect(result, const Left<Failure, void>(TooManyAttemptsFailure()));
+    });
+
+    test('traduce la falta de conexión', () async {
+      when(() => dataSource.sendPasswordReset(email))
+          .thenThrow(const NetworkException('sin red'));
+
+      final result = await repository.sendPasswordReset(email);
+
+      expect(result, const Left<Failure, void>(NetworkFailure()));
+    });
+  });
 }
