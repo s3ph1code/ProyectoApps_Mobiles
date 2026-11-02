@@ -79,21 +79,57 @@ lib/
 │   └── theme/                        # colores, tipografía, radios, tema
 │
 └── features/
-    ├── auth/                         # registro, login, logout
+    ├── auth/                         # registro, login, logout, recuperar acceso, sesión
     ├── profile/                      # entidad Profile, repositorio, ProfileBloc y ProfilePage
-    └── onboarding/                   # captura de datos iniciales
+    ├── onboarding/                   # carrusel de bienvenida
+    ├── home/                         # inicio
+    └── splash/                       # pantalla de bienvenida
 ```
 
 ### Rutas y navegación
 
-Configuradas en `lib/core/router/app_router.dart` mediante `GoRouter`:
+Configuradas en `lib/core/router/app_router.dart` con `GoRouter`. Un
+`SessionNotifier` escucha los cambios de sesión de Supabase y el router
+redirige: sin sesión solo se ven las rutas públicas; con sesión, entrar a
+`/login` lleva al resumen del perfil.
 
-| Ruta | Propósito |
-|---|---|
-| `/login` | Inicio de sesión → navega a `/profile` |
-| `/register` | Creación de cuenta → navega a `/onboarding` |
-| `/onboarding` | Captura inicial del nombre del perfil → navega a `/profile` |
-| `/profile` | Resumen visual del perfil provisto con `BlocProvider<ProfileBloc>` |
+| Ruta | Acceso | Propósito |
+|---|---|---|
+| `/splash` | público | Pantalla de bienvenida de la marca |
+| `/login` | público | Inicio de sesión → `/profile` |
+| `/register` | público | Cuenta nueva (nombre, correo, contraseña, términos) → `/onboarding` |
+| `/forgot-password` | público | Envía el enlace para recuperar el acceso |
+| `/onboarding` | privado | Carrusel informativo de tres pasos → `/profile` |
+| `/home` | privado | Inicio con las seis secciones (las que aún no existen abren «Próximamente») |
+| `/for-me`, `/support` | privado | Pestañas «Para mí» y «Apoyo» (próximamente) |
+| `/profile` | privado | Resumen del perfil: nombre, rol, correo, privacidad y cierre de sesión |
+
+La barra inferior tiene cuatro pestañas: Inicio, Para mí, Apoyo y Perfil.
+
+### Recorrido para probar el flujo
+
+1. Abrir la app y pulsar **Crear cuenta**. Escribir nombre, correo, contraseña
+   (dos veces) y aceptar los términos.
+2. Pasar el carrusel de bienvenida (o **Omitir**). Se llega al **resumen del
+   perfil** con el nombre escrito y el rol «Usuaria».
+3. Pulsar **Cerrar sesión**; se vuelve al inicio de sesión.
+4. Iniciar sesión con la misma cuenta: se llega de nuevo al resumen del perfil.
+5. En el inicio de sesión, **¿Olvidaste tu contraseña?** abre la pantalla de
+   recuperación.
+
+### Roles
+
+Hay tres roles: **usuaria**, **moderadora** y **administradora**. Toda cuenta
+nueva nace como usuaria (lo asigna el trigger `handle_new_user`). Para probar
+los otros dos:
+
+1. Crear desde la app las cuentas `moderadora@doulapp.test` y
+   `admin@doulapp.test`.
+2. Ejecutar [`supabase/seed_demo_roles.sql`](supabase/seed_demo_roles.sql) en el
+   **SQL Editor**; asigna el rol correspondiente y termina con una consulta de
+   verificación.
+
+El rol aparece como una etiqueta en el resumen del perfil.
 
 Cada feature se divide en `data/` (datasources, models, repositories),
 `domain/` (entities, repositories, usecases) y `presentation/` (bloc, pages,
@@ -150,9 +186,11 @@ flutter analyze
 
 ## Notas para el equipo
 
-**El perfil ya existe cuando termina el registro.** El trigger
-`handle_new_user` inserta la fila de `profiles` con un nombre provisional
-tomado de la parte local del correo. Por eso `ProfileRepository.createProfile`
+**El perfil ya existe cuando termina el registro.** El nombre que escribe la
+usuaria viaja como metadato en el registro y el trigger `handle_new_user` lo
+usa al insertar la fila de `profiles` (si falta, usa la parte local del
+correo). El caso de uso `CreateProfile` se conserva en el dominio, pero el flujo
+actual ya no lo invoca. Por eso `ProfileRepository.createProfile`
 debe escribirse como un `update` (o un `upsert`) sobre la fila existente, no
 como un `insert`: `profiles` solo tiene políticas de RLS de `select` y `update`,
 así que un `insert` desde el cliente sería rechazado.
