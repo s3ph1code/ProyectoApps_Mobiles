@@ -9,6 +9,9 @@ import 'features/auth/domain/usecases/get_current_user.dart';
 import 'features/auth/domain/usecases/sign_in_with_email.dart';
 import 'features/auth/domain/usecases/sign_out.dart';
 import 'features/auth/domain/usecases/sign_up_with_email.dart';
+import 'features/auth/presentation/bloc/login_bloc.dart';
+import 'features/auth/presentation/bloc/register_bloc.dart';
+import 'features/onboarding/presentation/bloc/onboarding_bloc.dart';
 import 'features/profile/data/datasources/profile_remote_datasource.dart';
 import 'features/profile/data/repositories/profile_repository_impl.dart';
 import 'features/profile/domain/repositories/profile_repository.dart';
@@ -23,6 +26,7 @@ Future<void> initDependencies() async {
 
   _registerAuth();
   _registerProfile();
+  _registerOnboarding();
 }
 
 void _registerAuth() {
@@ -37,6 +41,18 @@ void _registerAuth() {
   sl.registerLazySingleton(() => SignInWithEmail(sl()));
   sl.registerLazySingleton(() => SignOut(sl()));
   sl.registerLazySingleton(() => GetCurrentUser(sl()));
+
+  sl.registerFactory(() => LoginBloc(signIn: sl()));
+  sl.registerFactory(() => RegisterBloc(signUp: sl()));
+}
+
+void _registerOnboarding() {
+  sl.registerFactory(
+    () => OnboardingBloc(
+      getCurrentUser: sl(),
+      createProfile: sl(),
+    ),
+  );
 }
 
 void _registerProfile() {
