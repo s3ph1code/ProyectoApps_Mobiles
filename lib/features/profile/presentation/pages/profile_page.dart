@@ -5,13 +5,16 @@ import 'package:go_router/go_router.dart';
 import '../../../../core/router/app_router.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_radii.dart';
-import '../../../../core/theme/app_theme.dart';
+import '../../../../core/widgets/coming_soon.dart';
+import '../../domain/entities/account_status.dart';
 import '../../domain/entities/app_role.dart';
 import '../../domain/entities/profile.dart';
 import '../bloc/profile_bloc.dart';
 import '../bloc/profile_event.dart';
 import '../bloc/profile_state.dart';
 
+/// Resumen del perfil: quién es la usuaria, su privacidad y los ajustes de la
+/// cuenta, con el cierre de sesión al final.
 class ProfilePage extends StatelessWidget {
   const ProfilePage({super.key});
 
@@ -67,154 +70,248 @@ class _ProfileContentView extends StatelessWidget {
     required this.onSignOut,
   });
 
-  String get _initial {
-    final trimmed = profile.displayName.trim();
-    if (trimmed.isEmpty) return 'D';
-    return trimmed[0].toUpperCase();
+  @override
+  Widget build(BuildContext context) {
+    final textTheme = Theme.of(context).textTheme;
+
+    return ListView(
+      padding: const EdgeInsets.fromLTRB(24, 16, 24, 24),
+      children: [
+        Text('Perfil', style: textTheme.headlineMedium),
+        const SizedBox(height: 20),
+        _Header(profile: profile, role: role),
+        const SizedBox(height: 24),
+        _PrivacyPanel(onAdjust: () => showComingSoon(context)),
+        const SizedBox(height: 16),
+        _SettingsList(
+          rows: [
+            _SettingsRow(
+              key: 'info',
+              icon: Icons.person_outline_rounded,
+              title: 'Mi información',
+              subtitle: 'Nombre, correo y datos de la cuenta',
+              onTap: () => _showAccountInfo(
+                context,
+                profile: profile,
+                email: email,
+                role: role,
+              ),
+            ),
+            _SettingsRow(
+              key: 'network',
+              icon: Icons.people_outline_rounded,
+              title: 'Mi red de apoyo',
+              subtitle: 'Las personas de tu confianza',
+              onTap: () => showComingSoon(context),
+            ),
+            _SettingsRow(
+              key: 'notifications',
+              icon: Icons.notifications_none_rounded,
+              title: 'Notificaciones',
+              subtitle: 'Recordatorios suaves, nunca insistentes',
+              onTap: () => showComingSoon(context),
+            ),
+            _SettingsRow(
+              key: 'help',
+              icon: Icons.help_outline_rounded,
+              title: 'Ayuda',
+              subtitle: 'Preguntas frecuentes y contacto',
+              onTap: () => showComingSoon(context),
+            ),
+          ],
+        ),
+        const SizedBox(height: 20),
+        OutlinedButton.icon(
+          key: const Key('profile_sign_out_button'),
+          onPressed: onSignOut,
+          icon: const Icon(Icons.logout_rounded, size: 20),
+          label: const Text('Cerrar sesión'),
+          style: OutlinedButton.styleFrom(
+            foregroundColor: AppColors.sageDark,
+            minimumSize: const Size.fromHeight(56),
+            side: const BorderSide(color: AppColors.sageLight, width: 1.5),
+            shape: const StadiumBorder(),
+            textStyle: textTheme.labelLarge,
+          ),
+        ),
+        const SizedBox(height: 18),
+        Center(
+          child: Text(
+            'Doulapp · versión 1.0',
+            style: textTheme.bodySmall?.copyWith(color: AppColors.inkMuted),
+          ),
+        ),
+      ],
+    );
   }
+}
+
+class _Header extends StatelessWidget {
+  final Profile profile;
+  final AppRole? role;
+
+  const _Header({required this.profile, required this.role});
 
   @override
   Widget build(BuildContext context) {
     final textTheme = Theme.of(context).textTheme;
-    final bio = profile.bio?.trim();
 
-    return Padding(
-      padding: const EdgeInsets.fromLTRB(24, 24, 24, 24),
+    return Column(
+      children: [
+        Container(
+          key: const Key('profile_avatar'),
+          width: 88,
+          height: 88,
+          alignment: Alignment.center,
+          decoration: BoxDecoration(
+            shape: BoxShape.circle,
+            color: AppColors.beige,
+            border: Border.all(
+              color: AppColors.sage.withValues(alpha: 0.18),
+              width: 2,
+            ),
+          ),
+          child: Text(
+            initialsOf(profile.displayName),
+            style: textTheme.headlineMedium?.copyWith(
+              color: AppColors.sageDark,
+            ),
+          ),
+        ),
+        const SizedBox(height: 14),
+        Text(
+          profile.displayName,
+          textAlign: TextAlign.center,
+          style: textTheme.headlineSmall,
+        ),
+        const SizedBox(height: 4),
+        Text('Tu espacio personal', style: textTheme.bodyMedium),
+        if (role != null) ...[
+          const SizedBox(height: 10),
+          Container(
+            key: const Key('profile_role_chip'),
+            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+            decoration: BoxDecoration(
+              color: AppColors.sage.withValues(alpha: 0.12),
+              borderRadius: BorderRadius.circular(AppRadii.full),
+            ),
+            child: Text(
+              role!.label,
+              style: textTheme.bodySmall?.copyWith(
+                color: AppColors.sageDark,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+          ),
+        ],
+      ],
+    );
+  }
+}
+
+/// Iniciales de las dos primeras palabras del nombre («Karla Mendoza» → «KM»).
+@visibleForTesting
+String initialsOf(String name) {
+  final words = name.trim().split(RegExp(r'\s+')).where((w) => w.isNotEmpty);
+  final letters = words.take(2).map((w) => w.characters.first.toUpperCase());
+  final initials = letters.join();
+  return initials.isEmpty ? 'D' : initials;
+}
+
+class _PrivacyPanel extends StatelessWidget {
+  final VoidCallback onAdjust;
+
+  const _PrivacyPanel({required this.onAdjust});
+
+  static const _promises = [
+    'Tu red solo ve lo que tú envías',
+    'Tus microdescansos son solo tuyos',
+    'Puedes salir de una solicitud cuando quieras',
+  ];
+
+  @override
+  Widget build(BuildContext context) {
+    final textTheme = Theme.of(context).textTheme;
+
+    return Container(
+      padding: const EdgeInsets.fromLTRB(18, 20, 18, 18),
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(AppRadii.lg),
+        gradient: const LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: [Colors.white, Color(0xFFF4F6F0)],
+        ),
+        border: Border.all(
+          color: AppColors.sage.withValues(alpha: 0.18),
+          width: 1.5,
+        ),
+        boxShadow: [
+          BoxShadow(
+            color: AppColors.sage.withValues(alpha: 0.1),
+            blurRadius: 20,
+            offset: const Offset(0, 6),
+          ),
+        ],
+      ),
       child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Expanded(
-            child: SingleChildScrollView(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
+          Row(
+            children: [
+              const Icon(Icons.shield_outlined, color: AppColors.sage),
+              const SizedBox(width: 10),
+              Text('Privacidad', style: textTheme.headlineSmall),
+            ],
+          ),
+          const SizedBox(height: 6),
+          Text(
+            'Tú decides qué se comparte y con quién.',
+            style: textTheme.bodyMedium,
+          ),
+          const SizedBox(height: 14),
+          for (final promise in _promises)
+            Padding(
+              padding: const EdgeInsets.only(bottom: 11),
+              child: Row(
                 children: [
-                  Text('Tu espacio', style: textTheme.displaySmall),
-                  const SizedBox(height: 6),
-                  Text(
-                    'Tu bienestar también importa.',
-                    style: textTheme.bodyMedium,
-                  ),
-                  const SizedBox(height: 24),
-                  Card(
-                    child: Padding(
-                      padding: const EdgeInsets.all(20),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Row(
-                            children: [
-                              Container(
-                                width: 60,
-                                height: 60,
-                                alignment: Alignment.center,
-                                decoration: const BoxDecoration(
-                                  color: AppColors.beige,
-                                  shape: BoxShape.circle,
-                                ),
-                                child: Text(
-                                  _initial,
-                                  style: textTheme.headlineSmall?.copyWith(
-                                    color: AppColors.sageDark,
-                                  ),
-                                ),
-                              ),
-                              const SizedBox(width: 16),
-                              Expanded(
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Text(
-                                      profile.displayName,
-                                      style: textTheme.headlineSmall,
-                                    ),
-                                    const SizedBox(height: 4),
-                                    Text(
-                                      email,
-                                      style: textTheme.bodyMedium,
-                                    ),
-                                    if (role != null) ...[
-                                      const SizedBox(height: 8),
-                                      Container(
-                                        key: const Key('profile_role_chip'),
-                                        padding: const EdgeInsets.symmetric(
-                                          horizontal: 12,
-                                          vertical: 4,
-                                        ),
-                                        decoration: BoxDecoration(
-                                          color: AppColors.beige,
-                                          borderRadius: BorderRadius.circular(
-                                            AppRadii.full,
-                                          ),
-                                        ),
-                                        child: Text(
-                                          role!.label,
-                                          style: textTheme.bodySmall?.copyWith(
-                                            color: AppColors.sageDark,
-                                            fontWeight: FontWeight.w600,
-                                          ),
-                                        ),
-                                      ),
-                                    ],
-                                  ],
-                                ),
-                              ),
-                            ],
-                          ),
-                          if (bio != null && bio.isNotEmpty) ...[
-                            const SizedBox(height: 16),
-                            Text(
-                              bio,
-                              style: textTheme.bodyLarge,
-                            ),
-                          ],
-                        ],
-                      ),
+                  Container(
+                    width: 19,
+                    height: 19,
+                    decoration: const BoxDecoration(
+                      color: AppColors.sage,
+                      shape: BoxShape.circle,
+                    ),
+                    child: const Icon(
+                      Icons.check_rounded,
+                      size: 12,
+                      color: Colors.white,
                     ),
                   ),
-                  const SizedBox(height: 28),
-                  Text(
-                    'En tu acompañamiento',
-                    style: textTheme.titleMedium,
-                  ),
-                  const SizedBox(height: 12),
-                  const _UpcomingFeatureTile(
-                    icon: Icons.spa_outlined,
-                    title: 'Microdescansos',
-                    subtitle: 'Pausas breves pensadas para ti',
-                  ),
-                  const SizedBox(height: 10),
-                  const _UpcomingFeatureTile(
-                    icon: Icons.favorite_border_rounded,
-                    title: 'Bienestar emocional',
-                    subtitle: 'Un espacio sin juicios para cómo te sientes',
-                  ),
-                  const SizedBox(height: 10),
-                  const _UpcomingFeatureTile(
-                    icon: Icons.people_outline_rounded,
-                    title: 'Comunidad de madres',
-                    subtitle: 'Experiencias y apoyo entre madres',
-                  ),
-                  const SizedBox(height: 10),
-                  const _UpcomingFeatureTile(
-                    icon: Icons.tune_rounded,
-                    title: 'Preferencias y privacidad',
-                    subtitle: 'Visibilidad del perfil y avisos',
+                  const SizedBox(width: 10),
+                  Expanded(
+                    child: Text(
+                      promise,
+                      style: textTheme.bodySmall?.copyWith(
+                        fontSize: 13,
+                        color: AppColors.ink,
+                      ),
+                    ),
                   ),
                 ],
               ),
             ),
-          ),
-          const SizedBox(height: 16),
-          OutlinedButton(
-            onPressed: onSignOut,
-            style: OutlinedButton.styleFrom(
-              foregroundColor: AppColors.sageDark,
-              minimumSize: const Size.fromHeight(AppTheme.touchTargetHeight),
-              side: const BorderSide(color: AppColors.sageLight, width: 1.5),
-              shape: const StadiumBorder(),
-              textStyle: textTheme.labelLarge,
+          const SizedBox(height: 4),
+          TextButton.icon(
+            key: const Key('profile_privacy_button'),
+            onPressed: onAdjust,
+            icon: const Text('Ajustar mi privacidad'),
+            label: const Icon(Icons.arrow_forward_rounded, size: 18),
+            style: TextButton.styleFrom(
+              alignment: Alignment.centerLeft,
+              padding: EdgeInsets.zero,
+              minimumSize: const Size(0, 40),
             ),
-            child: const Text('Cerrar sesión'),
           ),
         ],
       ),
@@ -222,69 +319,184 @@ class _ProfileContentView extends StatelessWidget {
   }
 }
 
-class _UpcomingFeatureTile extends StatelessWidget {
+class _SettingsRow {
+  final String key;
   final IconData icon;
   final String title;
   final String subtitle;
+  final VoidCallback onTap;
 
-  const _UpcomingFeatureTile({
+  const _SettingsRow({
+    required this.key,
     required this.icon,
     required this.title,
     required this.subtitle,
+    required this.onTap,
   });
+}
+
+class _SettingsList extends StatelessWidget {
+  final List<_SettingsRow> rows;
+
+  const _SettingsList({required this.rows});
 
   @override
   Widget build(BuildContext context) {
     final textTheme = Theme.of(context).textTheme;
 
-    return ConstrainedBox(
-      constraints: const BoxConstraints(minHeight: AppTheme.touchTargetHeight),
-      child: DecoratedBox(
-        decoration: BoxDecoration(
-          color: AppColors.surface,
-          borderRadius: BorderRadius.circular(AppRadii.md),
-          border: Border.all(color: AppColors.beige),
-        ),
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-          child: Row(
-            children: [
-              Icon(icon, color: AppColors.sage, size: 24),
-              const SizedBox(width: 14),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
+    return Container(
+      decoration: BoxDecoration(
+        color: AppColors.surface,
+        borderRadius: BorderRadius.circular(AppRadii.lg),
+        border: Border.all(color: AppColors.lineSoft),
+      ),
+      clipBehavior: Clip.antiAlias,
+      child: Column(
+        children: [
+          for (var i = 0; i < rows.length; i++) ...[
+            InkWell(
+              key: Key('profile_row_${rows[i].key}'),
+              onTap: rows[i].onTap,
+              child: Padding(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 16,
+                  vertical: 15,
+                ),
+                child: Row(
                   children: [
-                    Text(title, style: textTheme.titleMedium),
-                    const SizedBox(height: 2),
-                    Text(subtitle, style: textTheme.bodySmall),
+                    Container(
+                      width: 38,
+                      height: 38,
+                      decoration: BoxDecoration(
+                        color: AppColors.sage.withValues(alpha: 0.1),
+                        borderRadius: BorderRadius.circular(AppRadii.sm),
+                      ),
+                      child: Icon(
+                        rows[i].icon,
+                        size: 21,
+                        color: AppColors.sage,
+                      ),
+                    ),
+                    const SizedBox(width: 14),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            rows[i].title,
+                            style: textTheme.titleMedium?.copyWith(
+                              fontSize: 14.5,
+                            ),
+                          ),
+                          const SizedBox(height: 2),
+                          Text(
+                            rows[i].subtitle,
+                            style: textTheme.bodySmall?.copyWith(fontSize: 12),
+                          ),
+                        ],
+                      ),
+                    ),
+                    const Icon(
+                      Icons.chevron_right_rounded,
+                      color: Color(0xFFB4BBB5),
+                    ),
                   ],
                 ),
               ),
-              const SizedBox(width: 12),
-              Container(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 10,
-                  vertical: 6,
-                ),
-                decoration: BoxDecoration(
-                  color: AppColors.beige,
-                  borderRadius: BorderRadius.circular(AppRadii.xs),
-                ),
-                child: Text(
-                  'Próximamente',
-                  style: textTheme.bodySmall?.copyWith(
-                    color: AppColors.sageDark,
-                    fontWeight: FontWeight.w600,
-                  ),
-                ),
-              ),
-            ],
-          ),
-        ),
+            ),
+            if (i < rows.length - 1)
+              const Divider(height: 1, color: AppColors.lineSoft),
+          ],
+        ],
       ),
     );
   }
+}
+
+String _statusLabel(AccountStatus status) => switch (status) {
+      AccountStatus.active => 'Activa',
+      AccountStatus.suspended => 'Suspendida',
+      AccountStatus.deactivated => 'Desactivada',
+    };
+
+const _months = [
+  'enero',
+  'febrero',
+  'marzo',
+  'abril',
+  'mayo',
+  'junio',
+  'julio',
+  'agosto',
+  'septiembre',
+  'octubre',
+  'noviembre',
+  'diciembre',
+];
+
+/// «1 de febrero de 2026»
+@visibleForTesting
+String formatDate(DateTime date) =>
+    '${date.day} de ${_months[date.month - 1]} de ${date.year}';
+
+Future<void> _showAccountInfo(
+  BuildContext context, {
+  required Profile profile,
+  required String email,
+  required AppRole? role,
+}) {
+  final textTheme = Theme.of(context).textTheme;
+  final bio = profile.bio?.trim();
+
+  Widget row(String label, String value) => Padding(
+        padding: const EdgeInsets.symmetric(vertical: 8),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              label,
+              style: textTheme.bodySmall?.copyWith(fontWeight: FontWeight.w600),
+            ),
+            const SizedBox(height: 2),
+            Text(value, style: textTheme.bodyLarge),
+          ],
+        ),
+      );
+
+  return showModalBottomSheet<void>(
+    context: context,
+    isScrollControlled: true,
+    backgroundColor: AppColors.surface,
+    showDragHandle: true,
+    shape: const RoundedRectangleBorder(
+      borderRadius: BorderRadius.vertical(top: Radius.circular(AppRadii.xl)),
+    ),
+    builder: (sheetContext) => SafeArea(
+      child: Padding(
+        padding: const EdgeInsets.fromLTRB(24, 0, 24, 24),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text('Mi información', style: textTheme.headlineSmall),
+            const SizedBox(height: 8),
+            row('Nombre', profile.displayName),
+            row('Correo', email),
+            if (role != null) row('Rol', role.label),
+            row('Estado de la cuenta', _statusLabel(profile.accountStatus)),
+            row('Miembro desde', formatDate(profile.createdAt)),
+            if (bio != null && bio.isNotEmpty) row('Sobre ti', bio),
+            const SizedBox(height: 12),
+            ElevatedButton(
+              key: const Key('account_info_close_button'),
+              onPressed: () => Navigator.of(sheetContext).pop(),
+              child: const Text('Cerrar'),
+            ),
+          ],
+        ),
+      ),
+    ),
+  );
 }
 
 class _ProfileErrorView extends StatelessWidget {
@@ -305,7 +517,7 @@ class _ProfileErrorView extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          Text('Tu espacio', style: textTheme.displaySmall),
+          Text('Perfil', style: textTheme.headlineMedium),
           const SizedBox(height: 12),
           Text(
             message,
