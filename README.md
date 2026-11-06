@@ -46,15 +46,20 @@ flutter run
    [`supabase/migrations/0001_identity.sql`](supabase/migrations/0001_identity.sql).
    Crea `roles`, `profiles`, `user_preferences`, `user_roles`, los triggers y las
    políticas de RLS.
-3. En **Authentication → Providers**, dejar *Email* habilitado.
-4. Para probar el registro sin revisar el correo, desactivar **Confirm email**
+3. Para el Sprint 2, ejecutar después
+   [`supabase/migrations/0002_wellbeing_activities_rls.sql`](supabase/migrations/0002_wellbeing_activities_rls.sql)
+   (microdescansos y bienestar, con sus políticas de RLS) y, si se quieren datos
+   de prueba, [`supabase/seed_demo_content.sql`](supabase/seed_demo_content.sql).
+4. En **Authentication → Providers**, dejar *Email* habilitado.
+5. Para probar el registro sin revisar el correo, desactivar **Confirm email**
    en **Authentication → Sign In / Providers → Email**. Si se deja activo, el
    inicio de sesión responderá «Falta confirmar tu correo» hasta que la usuaria
    abra el enlace.
 
 [`supabase/schema.sql`](supabase/schema.sql) contiene el esquema completo de la
-app (25 tablas en 5 módulos). Solo el bloque de identidad entra en la entrega
-actual; el resto se ejecuta cuando sus módulos entren en alcance.
+app (25 tablas en 5 módulos). Las migraciones de `supabase/migrations` se aplican
+en orden y cubren identidad (0001) y microdescansos y bienestar (0002); comunidad
+y notificaciones llegan después.
 
 La identidad la gestiona **Supabase Auth**: no hay tablas de contraseñas ni de
 identidades de proveedor. `public.profiles` cuelga de `auth.users` y comparte su

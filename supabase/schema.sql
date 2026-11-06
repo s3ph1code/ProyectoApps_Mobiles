@@ -4,8 +4,10 @@
 -- tablas de contraseñas ni de identidades de proveedor: profiles cuelga
 -- de auth.users y comparte su id.
 --
--- Orden: ejecutar el bloque IDENTIDAD completo. El resto de bloques solo
--- cuando su módulo entre en alcance.
+-- Este archivo es la referencia completa del modelo. Para crear la base se
+-- aplican las migraciones de supabase/migrations en orden (0001, 0002, ...):
+-- cada una incluye sus tablas y su seguridad a nivel de fila. Los bloques de
+-- comunidad y notificaciones se aplicarán en la 0003.
 
 -- =====================================================================
 -- IDENTIDAD
