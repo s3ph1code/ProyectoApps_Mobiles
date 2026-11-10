@@ -50,6 +50,10 @@ void main() {
           builder: (_, _) => const Scaffold(body: Text('Pantalla Para mí')),
         ),
         GoRoute(
+          path: AppRoutes.moodCheckin,
+          builder: (_, _) => const Scaffold(body: Text('Pantalla Check-in')),
+        ),
+        GoRoute(
           path: AppRoutes.support,
           builder: (_, _) => const Scaffold(body: Text('Pantalla Apoyo')),
         ),
@@ -60,9 +64,9 @@ void main() {
 
   testWidgets('saluda con el primer nombre del perfil', (tester) async {
     useTallScreen(tester);
-    when(() => bloc.state).thenReturn(
-      ProfileLoaded(profile: profile, email: 'karla@icesi.edu.co'),
-    );
+    when(
+      () => bloc.state,
+    ).thenReturn(ProfileLoaded(profile: profile, email: 'karla@icesi.edu.co'));
 
     await tester.pumpWidget(buildPage());
 
@@ -79,7 +83,9 @@ void main() {
     expect(find.text('Hola'), findsOneWidget);
   });
 
-  testWidgets('muestra la tarjeta destacada y las seis opciones', (tester) async {
+  testWidgets('muestra la tarjeta destacada y las seis opciones', (
+    tester,
+  ) async {
     useTallScreen(tester);
     when(() => bloc.state).thenReturn(const ProfileLoading());
 
@@ -97,7 +103,7 @@ void main() {
     ]) {
       expect(find.text(title), findsOneWidget, reason: title);
     }
-    expect(find.text('Próximamente'), findsNWidgets(4));
+    expect(find.text('Próximamente'), findsNWidgets(3));
   });
 
   testWidgets('Para mí y Red de apoyo abren sus pestañas', (tester) async {
@@ -113,6 +119,17 @@ void main() {
     await tester.tap(find.byKey(const Key('home_card_support')));
     await tester.pumpAndSettle();
     expect(find.text('Pantalla Apoyo'), findsOneWidget);
+  });
+
+  testWidgets('Mi bienestar abre el check-in de ánimo', (tester) async {
+    useTallScreen(tester);
+    when(() => bloc.state).thenReturn(const ProfileLoading());
+
+    await tester.pumpWidget(buildPage());
+    await tester.tap(find.byKey(const Key('home_card_wellbeing')));
+    await tester.pumpAndSettle();
+
+    expect(find.text('Pantalla Check-in'), findsOneWidget);
   });
 
   testWidgets('las secciones Próximamente avisan sin navegar', (tester) async {

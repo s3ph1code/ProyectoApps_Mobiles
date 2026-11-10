@@ -121,8 +121,7 @@ class HomePage extends StatelessWidget {
                             icon: Icons.sentiment_satisfied_outlined,
                             title: 'Mi bienestar',
                             subtitle: 'Conoce y registra cómo te sientes.',
-                            soon: true,
-                            onTap: () => showComingSoon(context),
+                            onTap: () => context.push(AppRoutes.moodCheckin),
                           ),
                           _MenuCardData(
                             key: 'resources',
