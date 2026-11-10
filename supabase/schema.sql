@@ -126,6 +126,14 @@ create policy "cada quien edita sus preferencias"
 create policy "cada quien lee sus roles"
   on public.user_roles for select using (user_id = auth.uid());
 
+-- Catálogo de roles: solo lectura. Sin esta política, con RLS activado la app
+-- no podría leer los nombres de los roles (también se aplicó en el proyecto
+-- remoto como "0002_roles_rls").
+alter table public.roles enable row level security;
+
+create policy "catalogo de roles es de solo lectura"
+  on public.roles for select to anon, authenticated using (true);
+
 
 -- =====================================================================
 -- MULTIMEDIA  (compartido por comunidad y microdescansos)
