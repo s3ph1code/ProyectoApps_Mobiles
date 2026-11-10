@@ -53,6 +53,16 @@ class MissingNameFailure extends Failure {
     : super('Escribe cómo te gustaría que te llamemos.');
 }
 
+class NameTooLongFailure extends Failure {
+  const NameTooLongFailure()
+    : super('El nombre puede tener hasta 100 caracteres. Acórtalo un poco.');
+}
+
+class BioTooLongFailure extends Failure {
+  const BioTooLongFailure()
+    : super('Sobre ti puede tener hasta 280 caracteres. Acórtalo un poco.');
+}
+
 class UnauthenticatedFailure extends Failure {
   const UnauthenticatedFailure()
     : super('Tu sesión terminó. Inicia sesión para continuar.');
