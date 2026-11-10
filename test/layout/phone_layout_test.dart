@@ -17,9 +17,13 @@ import 'package:doulapp/features/onboarding/presentation/pages/onboarding_page.d
 import 'package:doulapp/features/profile/domain/entities/account_status.dart';
 import 'package:doulapp/features/profile/domain/entities/app_role.dart';
 import 'package:doulapp/features/profile/domain/entities/profile.dart';
+import 'package:doulapp/features/profile/presentation/bloc/edit_profile_bloc.dart';
+import 'package:doulapp/features/profile/presentation/bloc/edit_profile_event.dart';
+import 'package:doulapp/features/profile/presentation/bloc/edit_profile_state.dart';
 import 'package:doulapp/features/profile/presentation/bloc/profile_bloc.dart';
 import 'package:doulapp/features/profile/presentation/bloc/profile_event.dart';
 import 'package:doulapp/features/profile/presentation/bloc/profile_state.dart';
+import 'package:doulapp/features/profile/presentation/pages/edit_profile_page.dart';
 import 'package:doulapp/features/profile/presentation/pages/profile_page.dart';
 import 'package:doulapp/features/splash/presentation/pages/splash_page.dart';
 import 'package:flutter/material.dart';
@@ -38,6 +42,9 @@ class MockForgotBloc extends MockBloc<ForgotPasswordEvent, ForgotPasswordState>
 
 class MockProfileBloc extends MockBloc<ProfileEvent, ProfileState>
     implements ProfileBloc {}
+
+class MockEditProfileBloc extends MockBloc<EditProfileEvent, EditProfileState>
+    implements EditProfileBloc {}
 
 /// Pinta cada pantalla en un teléfono de 390 × 844 y falla si algo se
 /// desborda. La fuente de pruebas es más ancha que Inter, así que si cabe
@@ -134,6 +141,28 @@ void main() {
     await pumpOnPhone(
       tester,
       BlocProvider<ProfileBloc>.value(value: bloc, child: const ProfilePage()),
+    );
+    expect(tester.takeException(), isNull);
+  });
+
+  testWidgets('editar perfil con un error visible', (tester) async {
+    final profileBloc = MockProfileBloc();
+    final editBloc = MockEditProfileBloc();
+    when(() => profileBloc.state).thenReturn(
+      ProfileLoaded(profile: profile, email: 'karla@icesi.edu.co'),
+    );
+    when(() => editBloc.state).thenReturn(
+      const EditProfileFailure('El nombre puede tener hasta 100 caracteres.'),
+    );
+    await pumpOnPhone(
+      tester,
+      MultiBlocProvider(
+        providers: [
+          BlocProvider<ProfileBloc>.value(value: profileBloc),
+          BlocProvider<EditProfileBloc>.value(value: editBloc),
+        ],
+        child: const EditProfilePage(),
+      ),
     );
     expect(tester.takeException(), isNull);
   });

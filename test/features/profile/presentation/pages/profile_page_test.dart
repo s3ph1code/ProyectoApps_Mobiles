@@ -45,6 +45,13 @@ void main() {
             value: profileBloc,
             child: const ProfilePage(),
           ),
+          routes: [
+            GoRoute(
+              path: 'edit',
+              builder: (_, _) =>
+                  const Scaffold(body: Center(child: Text('Pantalla edición'))),
+            ),
+          ],
         ),
         GoRoute(
           path: AppRoutes.login,
@@ -131,6 +138,21 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.text('camila@icesi.edu.co'), findsNothing);
+  });
+
+  testWidgets('Mi información lleva a editar el perfil', (tester) async {
+    useTallScreen(tester);
+    when(() => bloc.state).thenReturn(
+      ProfileLoaded(profile: sampleProfile, email: 'camila@icesi.edu.co'),
+    );
+
+    await tester.pumpWidget(buildTestablePage(bloc));
+    await tester.tap(find.byKey(const Key('profile_row_info')));
+    await tester.pumpAndSettle();
+    await tester.tap(find.byKey(const Key('account_info_edit_button')));
+    await tester.pumpAndSettle();
+
+    expect(find.text('Pantalla edición'), findsOneWidget);
   });
 
   testWidgets('las opciones que aún no existen avisan sin navegar', (

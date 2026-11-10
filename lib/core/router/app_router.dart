@@ -10,8 +10,10 @@ import '../../features/auth/presentation/pages/login_page.dart';
 import '../../features/auth/presentation/pages/register_page.dart';
 import '../../features/home/presentation/pages/home_page.dart';
 import '../../features/onboarding/presentation/pages/onboarding_page.dart';
+import '../../features/profile/presentation/bloc/edit_profile_bloc.dart';
 import '../../features/profile/presentation/bloc/profile_bloc.dart';
 import '../../features/profile/presentation/bloc/profile_event.dart';
+import '../../features/profile/presentation/pages/edit_profile_page.dart';
 import '../../features/profile/presentation/pages/profile_page.dart';
 import '../../features/splash/presentation/pages/splash_page.dart';
 import '../../injection_container.dart';
@@ -31,6 +33,7 @@ class AppRoutes {
   static const forMe = '/for-me';
   static const support = '/support';
   static const profile = '/profile';
+  static const editProfile = '/profile/edit';
 
   /// A dónde llega la usuaria después de iniciar sesión o terminar el
   /// onboarding. En el Sprint 1 es el resumen del perfil; cambiar a [home]
@@ -138,6 +141,16 @@ class AppRouter {
                 GoRoute(
                   path: AppRoutes.profile,
                   builder: (context, state) => const ProfilePage(),
+                  routes: [
+                    // Dentro del shell para compartir el ProfileBloc.
+                    GoRoute(
+                      path: 'edit',
+                      builder: (context, state) => BlocProvider(
+                        create: (_) => sl<EditProfileBloc>(),
+                        child: const EditProfilePage(),
+                      ),
+                    ),
+                  ],
                 ),
               ],
             ),

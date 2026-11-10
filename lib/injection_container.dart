@@ -22,6 +22,8 @@ import 'features/profile/domain/repositories/profile_repository.dart';
 import 'features/profile/domain/usecases/create_profile.dart';
 import 'features/profile/domain/usecases/get_profile.dart';
 import 'features/profile/domain/usecases/get_user_roles.dart';
+import 'features/profile/domain/usecases/update_profile.dart';
+import 'features/profile/presentation/bloc/edit_profile_bloc.dart';
 import 'features/profile/presentation/bloc/profile_bloc.dart';
 
 final sl = GetIt.instance;
@@ -73,6 +75,7 @@ void _registerProfile() {
   sl.registerLazySingleton(() => CreateProfile(sl()));
   sl.registerLazySingleton(() => GetProfile(sl()));
   sl.registerLazySingleton(() => GetUserRoles(sl()));
+  sl.registerLazySingleton(() => UpdateProfile(sl()));
 
   sl.registerFactory(
     () => ProfileBloc(
@@ -82,4 +85,5 @@ void _registerProfile() {
       signOut: sl(),
     ),
   );
+  sl.registerFactory(() => EditProfileBloc(updateProfile: sl()));
 }

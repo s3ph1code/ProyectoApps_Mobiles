@@ -499,6 +499,15 @@ Future<void> _showAccountInfo(
             if (bio != null && bio.isNotEmpty) row('Sobre ti', bio),
             const SizedBox(height: 12),
             ElevatedButton(
+              key: const Key('account_info_edit_button'),
+              onPressed: () {
+                Navigator.of(sheetContext).pop();
+                context.push(AppRoutes.editProfile);
+              },
+              child: const Text('Editar perfil'),
+            ),
+            const SizedBox(height: 8),
+            TextButton(
               key: const Key('account_info_close_button'),
               onPressed: () => Navigator.of(sheetContext).pop(),
               child: const Text('Cerrar'),
