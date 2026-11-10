@@ -63,6 +63,16 @@ class BioTooLongFailure extends Failure {
     : super('Sobre ti puede tener hasta 280 caracteres. Acórtalo un poco.');
 }
 
+class MoodScoreRequiredFailure extends Failure {
+  const MoodScoreRequiredFailure()
+    : super('Elige cómo te sientes para poder guardar tu registro.');
+}
+
+class MoodNoteTooLongFailure extends Failure {
+  const MoodNoteTooLongFailure()
+    : super('La nota puede tener hasta 500 caracteres. Acórtala un poco.');
+}
+
 class UnauthenticatedFailure extends Failure {
   const UnauthenticatedFailure()
     : super('Tu sesión terminó. Inicia sesión para continuar.');
