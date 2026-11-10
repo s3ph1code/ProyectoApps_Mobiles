@@ -51,13 +51,24 @@ void main() {
               builder: (_, _) =>
                   const Scaffold(body: Center(child: Text('Pantalla edición'))),
             ),
+            GoRoute(
+              path: 'notifications',
+              builder: (_, _) => const Scaffold(
+                body: Center(child: Text('Pantalla notificaciones')),
+              ),
+            ),
+            GoRoute(
+              path: 'privacy',
+              builder: (_, _) => const Scaffold(
+                body: Center(child: Text('Pantalla privacidad')),
+              ),
+            ),
           ],
         ),
         GoRoute(
           path: AppRoutes.login,
-          builder: (_, _) => const Scaffold(
-            body: Center(child: Text('Pantalla Login')),
-          ),
+          builder: (_, _) =>
+              const Scaffold(body: Center(child: Text('Pantalla Login'))),
         ),
       ],
     );
@@ -71,34 +82,33 @@ void main() {
     addTearDown(tester.view.reset);
   }
 
-  testWidgets(
-    'muestra el resumen del perfil con iniciales, rol y privacidad',
-    (tester) async {
-      useTallScreen(tester);
-      when(() => bloc.state).thenReturn(
-        ProfileLoaded(
-          profile: sampleProfile,
-          email: 'camila@icesi.edu.co',
-          roles: const [AppRole.user, AppRole.moderator],
-        ),
-      );
+  testWidgets('muestra el resumen del perfil con iniciales, rol y privacidad', (
+    tester,
+  ) async {
+    useTallScreen(tester);
+    when(() => bloc.state).thenReturn(
+      ProfileLoaded(
+        profile: sampleProfile,
+        email: 'camila@icesi.edu.co',
+        roles: const [AppRole.user, AppRole.moderator],
+      ),
+    );
 
-      await tester.pumpWidget(buildTestablePage(bloc));
+    await tester.pumpWidget(buildTestablePage(bloc));
 
-      expect(find.text('Perfil'), findsOneWidget);
-      expect(find.text('Camila'), findsOneWidget);
-      expect(find.text('C'), findsOneWidget);
-      expect(find.text('Tu espacio personal'), findsOneWidget);
-      expect(find.text('Moderadora'), findsOneWidget);
-      expect(find.text('Privacidad'), findsOneWidget);
-      expect(
-        find.text('Tú decides qué se comparte y con quién.'),
-        findsOneWidget,
-      );
-      expect(find.text('Tu red solo ve lo que tú envías'), findsOneWidget);
-      expect(find.text('Doulapp · versión 1.0'), findsOneWidget);
-    },
-  );
+    expect(find.text('Perfil'), findsOneWidget);
+    expect(find.text('Camila'), findsOneWidget);
+    expect(find.text('C'), findsOneWidget);
+    expect(find.text('Tu espacio personal'), findsOneWidget);
+    expect(find.text('Moderadora'), findsOneWidget);
+    expect(find.text('Privacidad'), findsOneWidget);
+    expect(
+      find.text('Tú decides qué se comparte y con quién.'),
+      findsOneWidget,
+    );
+    expect(find.text('Tu red solo ve lo que tú envías'), findsOneWidget);
+    expect(find.text('Doulapp · versión 1.0'), findsOneWidget);
+  });
 
   testWidgets('no muestra la etiqueta de rol si no se pudo consultar', (
     tester,
@@ -155,6 +165,28 @@ void main() {
     expect(find.text('Pantalla edición'), findsOneWidget);
   });
 
+  testWidgets('privacidad y notificaciones abren su pantalla', (tester) async {
+    useTallScreen(tester);
+    when(() => bloc.state).thenReturn(
+      ProfileLoaded(profile: sampleProfile, email: 'camila@icesi.edu.co'),
+    );
+
+    await tester.pumpWidget(buildTestablePage(bloc));
+    await tester.tap(find.byKey(const Key('profile_privacy_button')));
+    await tester.pumpAndSettle();
+    expect(find.text('Pantalla privacidad'), findsOneWidget);
+
+    final router = GoRouter.of(
+      tester.element(find.text('Pantalla privacidad')),
+    );
+    router.pop();
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.byKey(const Key('profile_row_notifications')));
+    await tester.pumpAndSettle();
+    expect(find.text('Pantalla notificaciones'), findsOneWidget);
+  });
+
   testWidgets('las opciones que aún no existen avisan sin navegar', (
     tester,
   ) async {
@@ -165,12 +197,7 @@ void main() {
 
     await tester.pumpWidget(buildTestablePage(bloc));
 
-    for (final key in [
-      'profile_privacy_button',
-      'profile_row_network',
-      'profile_row_notifications',
-      'profile_row_help',
-    ]) {
+    for (final key in ['profile_row_network', 'profile_row_help']) {
       await tester.tap(find.byKey(Key(key)));
       await tester.pumpAndSettle();
       expect(find.text('Estamos preparando esto'), findsOneWidget, reason: key);
@@ -202,44 +229,42 @@ void main() {
     expect(formatDate(DateTime.utc(2026, 11, 2)), '2 de noviembre de 2026');
   });
 
-  testWidgets(
-    'muestra el mensaje de error y permite reintentar la carga',
-    (tester) async {
-      final errorMessage = const NetworkFailure().message;
-      when(() => bloc.state).thenReturn(ProfileFailure(errorMessage));
+  testWidgets('muestra el mensaje de error y permite reintentar la carga', (
+    tester,
+  ) async {
+    final errorMessage = const NetworkFailure().message;
+    when(() => bloc.state).thenReturn(ProfileFailure(errorMessage));
 
-      await tester.pumpWidget(buildTestablePage(bloc));
+    await tester.pumpWidget(buildTestablePage(bloc));
 
-      expect(find.text(errorMessage), findsOneWidget);
+    expect(find.text(errorMessage), findsOneWidget);
 
-      await tester.tap(find.text('Volver a intentar'));
-      await tester.pump();
+    await tester.tap(find.text('Volver a intentar'));
+    await tester.pump();
 
-      verify(() => bloc.add(const ProfileLoadRequested())).called(1);
-    },
-  );
+    verify(() => bloc.add(const ProfileLoadRequested())).called(1);
+  });
 
-  testWidgets(
-    'navega a /login cuando se emite ProfileSignedOut',
-    (tester) async {
-      useTallScreen(tester);
-      final controller = StreamController<ProfileState>.broadcast();
-      addTearDown(controller.close);
+  testWidgets('navega a /login cuando se emite ProfileSignedOut', (
+    tester,
+  ) async {
+    useTallScreen(tester);
+    final controller = StreamController<ProfileState>.broadcast();
+    addTearDown(controller.close);
 
-      when(() => bloc.state).thenReturn(
-        ProfileLoaded(profile: sampleProfile, email: 'camila@icesi.edu.co'),
-      );
-      whenListen(bloc, controller.stream);
+    when(() => bloc.state).thenReturn(
+      ProfileLoaded(profile: sampleProfile, email: 'camila@icesi.edu.co'),
+    );
+    whenListen(bloc, controller.stream);
 
-      await tester.pumpWidget(buildTestablePage(bloc));
+    await tester.pumpWidget(buildTestablePage(bloc));
 
-      await tester.tap(find.text('Cerrar sesión'));
-      verify(() => bloc.add(const ProfileSignOutRequested())).called(1);
+    await tester.tap(find.text('Cerrar sesión'));
+    verify(() => bloc.add(const ProfileSignOutRequested())).called(1);
 
-      controller.add(const ProfileSignedOut());
-      await tester.pumpAndSettle();
+    controller.add(const ProfileSignedOut());
+    await tester.pumpAndSettle();
 
-      expect(find.text('Pantalla Login'), findsOneWidget);
-    },
-  );
+    expect(find.text('Pantalla Login'), findsOneWidget);
+  });
 }

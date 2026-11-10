@@ -81,7 +81,7 @@ class _ProfileContentView extends StatelessWidget {
         const SizedBox(height: 20),
         _Header(profile: profile, role: role),
         const SizedBox(height: 24),
-        _PrivacyPanel(onAdjust: () => showComingSoon(context)),
+        _PrivacyPanel(onAdjust: () => context.push(AppRoutes.privacy)),
         const SizedBox(height: 16),
         _SettingsList(
           rows: [
@@ -109,7 +109,7 @@ class _ProfileContentView extends StatelessWidget {
               icon: Icons.notifications_none_rounded,
               title: 'Notificaciones',
               subtitle: 'Recordatorios suaves, nunca insistentes',
-              onTap: () => showComingSoon(context),
+              onTap: () => context.push(AppRoutes.notifications),
             ),
             _SettingsRow(
               key: 'help',
