@@ -23,6 +23,11 @@ import 'features/preferences/domain/usecases/get_preferences.dart';
 import 'features/preferences/domain/usecases/update_preferences.dart';
 import 'features/preferences/presentation/bloc/preferences_bloc.dart';
 import 'features/profile/data/datasources/profile_remote_datasource.dart';
+import 'features/wellbeing/data/datasources/mood_remote_datasource.dart';
+import 'features/wellbeing/data/repositories/mood_repository_impl.dart';
+import 'features/wellbeing/domain/repositories/mood_repository.dart';
+import 'features/wellbeing/domain/usecases/save_mood_checkin.dart';
+import 'features/wellbeing/presentation/bloc/mood_checkin_bloc.dart';
 import 'features/profile/data/repositories/profile_repository_impl.dart';
 import 'features/profile/domain/repositories/profile_repository.dart';
 import 'features/profile/domain/usecases/create_profile.dart';
@@ -40,6 +45,7 @@ Future<void> initDependencies() async {
   _registerAuth();
   _registerProfile();
   _registerPreferences();
+  _registerWellbeing();
 
   // La sesión que Supabase restauró al arrancar decide la primera pantalla.
   final current = await sl<GetCurrentUser>()(const NoParams());
@@ -112,5 +118,20 @@ void _registerPreferences() {
       getPreferences: sl(),
       updatePreferences: sl(),
     ),
+  );
+}
+
+void _registerWellbeing() {
+  sl.registerLazySingleton<MoodRemoteDataSource>(
+    () => MoodRemoteDataSourceImpl(client: sl()),
+  );
+  sl.registerLazySingleton<MoodRepository>(
+    () => MoodRepositoryImpl(remoteDataSource: sl()),
+  );
+
+  sl.registerLazySingleton(() => SaveMoodCheckin(sl()));
+
+  sl.registerFactory(
+    () => MoodCheckinBloc(getCurrentUser: sl(), saveMoodCheckin: sl()),
   );
 }
