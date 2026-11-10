@@ -10,6 +10,10 @@ import '../../features/auth/presentation/pages/login_page.dart';
 import '../../features/auth/presentation/pages/register_page.dart';
 import '../../features/home/presentation/pages/home_page.dart';
 import '../../features/onboarding/presentation/pages/onboarding_page.dart';
+import '../../features/preferences/presentation/bloc/preferences_bloc.dart';
+import '../../features/preferences/presentation/bloc/preferences_event.dart';
+import '../../features/preferences/presentation/pages/notifications_page.dart';
+import '../../features/preferences/presentation/pages/privacy_page.dart';
 import '../../features/profile/presentation/bloc/edit_profile_bloc.dart';
 import '../../features/profile/presentation/bloc/profile_bloc.dart';
 import '../../features/profile/presentation/bloc/profile_event.dart';
@@ -34,6 +38,8 @@ class AppRoutes {
   static const support = '/support';
   static const profile = '/profile';
   static const editProfile = '/profile/edit';
+  static const notifications = '/profile/notifications';
+  static const privacy = '/profile/privacy';
 
   /// A dónde llega la usuaria después de iniciar sesión o terminar el
   /// onboarding. En el Sprint 1 es el resumen del perfil; cambiar a [home]
@@ -148,6 +154,24 @@ class AppRouter {
                       builder: (context, state) => BlocProvider(
                         create: (_) => sl<EditProfileBloc>(),
                         child: const EditProfilePage(),
+                      ),
+                    ),
+                    GoRoute(
+                      path: 'notifications',
+                      builder: (context, state) => BlocProvider(
+                        create: (_) =>
+                            sl<PreferencesBloc>()
+                              ..add(const PreferencesLoadRequested()),
+                        child: const NotificationsPage(),
+                      ),
+                    ),
+                    GoRoute(
+                      path: 'privacy',
+                      builder: (context, state) => BlocProvider(
+                        create: (_) =>
+                            sl<PreferencesBloc>()
+                              ..add(const PreferencesLoadRequested()),
+                        child: const PrivacyPage(),
                       ),
                     ),
                   ],

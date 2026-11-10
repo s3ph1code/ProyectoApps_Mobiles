@@ -16,6 +16,12 @@ import 'features/auth/domain/usecases/watch_auth_state.dart';
 import 'features/auth/presentation/bloc/forgot_password_bloc.dart';
 import 'features/auth/presentation/bloc/login_bloc.dart';
 import 'features/auth/presentation/bloc/register_bloc.dart';
+import 'features/preferences/data/datasources/preferences_remote_datasource.dart';
+import 'features/preferences/data/repositories/preferences_repository_impl.dart';
+import 'features/preferences/domain/repositories/preferences_repository.dart';
+import 'features/preferences/domain/usecases/get_preferences.dart';
+import 'features/preferences/domain/usecases/update_preferences.dart';
+import 'features/preferences/presentation/bloc/preferences_bloc.dart';
 import 'features/profile/data/datasources/profile_remote_datasource.dart';
 import 'features/profile/data/repositories/profile_repository_impl.dart';
 import 'features/profile/domain/repositories/profile_repository.dart';
@@ -33,6 +39,7 @@ Future<void> initDependencies() async {
 
   _registerAuth();
   _registerProfile();
+  _registerPreferences();
 
   // La sesión que Supabase restauró al arrancar decide la primera pantalla.
   final current = await sl<GetCurrentUser>()(const NoParams());
@@ -86,4 +93,24 @@ void _registerProfile() {
     ),
   );
   sl.registerFactory(() => EditProfileBloc(updateProfile: sl()));
+}
+
+void _registerPreferences() {
+  sl.registerLazySingleton<PreferencesRemoteDataSource>(
+    () => PreferencesRemoteDataSourceImpl(client: sl()),
+  );
+  sl.registerLazySingleton<PreferencesRepository>(
+    () => PreferencesRepositoryImpl(remoteDataSource: sl()),
+  );
+
+  sl.registerLazySingleton(() => GetPreferences(sl()));
+  sl.registerLazySingleton(() => UpdatePreferences(sl()));
+
+  sl.registerFactory(
+    () => PreferencesBloc(
+      getCurrentUser: sl(),
+      getPreferences: sl(),
+      updatePreferences: sl(),
+    ),
+  );
 }
