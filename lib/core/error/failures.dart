@@ -63,6 +63,16 @@ class BioTooLongFailure extends Failure {
     : super('Sobre ti puede tener hasta 280 caracteres. Acórtalo un poco.');
 }
 
+class AvatarTypeNotAllowedFailure extends Failure {
+  const AvatarTypeNotAllowedFailure()
+    : super('Esa imagen no es válida. Usa una foto JPG, PNG o WebP.');
+}
+
+class AvatarTooLargeFailure extends Failure {
+  const AvatarTooLargeFailure()
+    : super('La foto pesa más de 2 MB. Elige una más liviana.');
+}
+
 class MoodScoreRequiredFailure extends Failure {
   const MoodScoreRequiredFailure()
     : super('Elige cómo te sientes para poder guardar tu registro.');

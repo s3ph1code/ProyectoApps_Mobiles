@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:io';
+import 'dart:typed_data';
 
 import 'package:supabase_flutter/supabase_flutter.dart' as supabase;
 
@@ -16,6 +17,18 @@ abstract class ProfileRemoteDataSource {
   Future<ProfileModel> getProfile(String userId);
 
   Future<ProfileModel> updateProfile(ProfileModel profile);
+
+  Future<ProfileModel> uploadAvatar({
+    required String userId,
+    required Uint8List bytes,
+    required String mimeType,
+    String? previousAvatarUrl,
+  });
+
+  Future<ProfileModel> removeAvatar({
+    required String userId,
+    String? previousAvatarUrl,
+  });
 
   Future<List<AppRole>> getRoles(String userId);
 }
@@ -71,6 +84,80 @@ class ProfileRemoteDataSourceImpl implements ProfileRemoteDataSource {
     });
   }
 
+  static const _avatarBucket = 'avatars';
+  static const _avatarExtensions = {
+    'image/jpeg': 'jpg',
+    'image/png': 'png',
+    'image/webp': 'webp',
+  };
+
+  @override
+  Future<ProfileModel> uploadAvatar({
+    required String userId,
+    required Uint8List bytes,
+    required String mimeType,
+    String? previousAvatarUrl,
+  }) {
+    return _guard(() async {
+      // Nombre único por subida: la URL cambia y nadie ve una foto cacheada.
+      final extension = _avatarExtensions[mimeType] ?? 'jpg';
+      final path =
+          '$userId/${DateTime.now().millisecondsSinceEpoch}.$extension';
+      final bucket = client.storage.from(_avatarBucket);
+
+      await bucket.uploadBinary(
+        path,
+        bytes,
+        fileOptions: supabase.FileOptions(contentType: mimeType),
+      );
+
+      final json = await client
+          .from('profiles')
+          .update({'avatar_url': bucket.getPublicUrl(path)})
+          .eq('id', userId)
+          .select()
+          .single();
+
+      await _deletePreviousAvatar(userId, previousAvatarUrl);
+      return ProfileModel.fromJson(json);
+    });
+  }
+
+  @override
+  Future<ProfileModel> removeAvatar({
+    required String userId,
+    String? previousAvatarUrl,
+  }) {
+    return _guard(() async {
+      final json = await client
+          .from('profiles')
+          .update({'avatar_url': null})
+          .eq('id', userId)
+          .select()
+          .single();
+
+      await _deletePreviousAvatar(userId, previousAvatarUrl);
+      return ProfileModel.fromJson(json);
+    });
+  }
+
+  /// Borra el archivo anterior. Si falla no importa: la foto nueva ya quedó
+  /// guardada y un archivo huérfano no se ve en ninguna pantalla.
+  Future<void> _deletePreviousAvatar(String userId, String? url) async {
+    if (url == null) return;
+    const marker = '/$_avatarBucket/';
+    final index = url.indexOf(marker);
+    if (index == -1) return;
+
+    final path = Uri.decodeComponent(url.substring(index + marker.length));
+    // Nunca se borra nada fuera de la carpeta de la usuaria.
+    if (!path.startsWith('$userId/')) return;
+
+    try {
+      await client.storage.from(_avatarBucket).remove([path]);
+    } catch (_) {}
+  }
+
   @override
   Future<List<AppRole>> getRoles(String userId) {
     return _guard(() async {
@@ -96,6 +183,8 @@ class ProfileRemoteDataSourceImpl implements ProfileRemoteDataSource {
     } on supabase.AuthException catch (e) {
       throw AuthException(e.message, code: e.code ?? e.statusCode);
     } on supabase.PostgrestException catch (e) {
+      throw ServerException(e.message);
+    } on supabase.StorageException catch (e) {
       throw ServerException(e.message);
     } on SocketException catch (e) {
       throw NetworkException(e.message);
