@@ -12,6 +12,9 @@ import '../../domain/entities/profile.dart';
 import '../bloc/profile_bloc.dart';
 import '../bloc/profile_event.dart';
 import '../bloc/profile_state.dart';
+import '../widgets/profile_avatar.dart';
+
+export '../widgets/profile_avatar.dart' show initialsOf;
 
 /// Resumen del perfil: quién es la usuaria, su privacidad y los ajustes de la
 /// cuenta, con el cierre de sesión al final.
@@ -158,25 +161,10 @@ class _Header extends StatelessWidget {
 
     return Column(
       children: [
-        Container(
+        ProfileAvatar(
           key: const Key('profile_avatar'),
-          width: 88,
-          height: 88,
-          alignment: Alignment.center,
-          decoration: BoxDecoration(
-            shape: BoxShape.circle,
-            color: AppColors.beige,
-            border: Border.all(
-              color: AppColors.sage.withValues(alpha: 0.18),
-              width: 2,
-            ),
-          ),
-          child: Text(
-            initialsOf(profile.displayName),
-            style: textTheme.headlineMedium?.copyWith(
-              color: AppColors.sageDark,
-            ),
-          ),
+          initials: initialsOf(profile.displayName),
+          avatarUrl: profile.avatarUrl,
         ),
         const SizedBox(height: 14),
         Text(
@@ -207,15 +195,6 @@ class _Header extends StatelessWidget {
       ],
     );
   }
-}
-
-/// Iniciales de las dos primeras palabras del nombre («Karla Mendoza» → «KM»).
-@visibleForTesting
-String initialsOf(String name) {
-  final words = name.trim().split(RegExp(r'\s+')).where((w) => w.isNotEmpty);
-  final letters = words.take(2).map((w) => w.characters.first.toUpperCase());
-  final initials = letters.join();
-  return initials.isEmpty ? 'D' : initials;
 }
 
 class _PrivacyPanel extends StatelessWidget {

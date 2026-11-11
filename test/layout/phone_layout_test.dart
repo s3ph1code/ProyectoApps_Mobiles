@@ -17,6 +17,9 @@ import 'package:doulapp/features/onboarding/presentation/pages/onboarding_page.d
 import 'package:doulapp/features/profile/domain/entities/account_status.dart';
 import 'package:doulapp/features/profile/domain/entities/app_role.dart';
 import 'package:doulapp/features/profile/domain/entities/profile.dart';
+import 'package:doulapp/features/profile/presentation/bloc/avatar_bloc.dart';
+import 'package:doulapp/features/profile/presentation/bloc/avatar_event.dart';
+import 'package:doulapp/features/profile/presentation/bloc/avatar_state.dart';
 import 'package:doulapp/features/profile/presentation/bloc/edit_profile_bloc.dart';
 import 'package:doulapp/features/profile/presentation/bloc/edit_profile_event.dart';
 import 'package:doulapp/features/profile/presentation/bloc/edit_profile_state.dart';
@@ -42,6 +45,9 @@ class MockForgotBloc extends MockBloc<ForgotPasswordEvent, ForgotPasswordState>
 
 class MockProfileBloc extends MockBloc<ProfileEvent, ProfileState>
     implements ProfileBloc {}
+
+class MockAvatarBloc extends MockBloc<AvatarEvent, AvatarState>
+    implements AvatarBloc {}
 
 class MockEditProfileBloc extends MockBloc<EditProfileEvent, EditProfileState>
     implements EditProfileBloc {}
@@ -148,6 +154,8 @@ void main() {
   testWidgets('editar perfil con un error visible', (tester) async {
     final profileBloc = MockProfileBloc();
     final editBloc = MockEditProfileBloc();
+    final avatarBloc = MockAvatarBloc();
+    when(() => avatarBloc.state).thenReturn(const AvatarInitial());
     when(() => profileBloc.state).thenReturn(
       ProfileLoaded(profile: profile, email: 'karla@icesi.edu.co'),
     );
@@ -160,6 +168,7 @@ void main() {
         providers: [
           BlocProvider<ProfileBloc>.value(value: profileBloc),
           BlocProvider<EditProfileBloc>.value(value: editBloc),
+          BlocProvider<AvatarBloc>.value(value: avatarBloc),
         ],
         child: const EditProfilePage(),
       ),

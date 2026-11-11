@@ -14,6 +14,7 @@ import '../../features/preferences/presentation/bloc/preferences_bloc.dart';
 import '../../features/preferences/presentation/bloc/preferences_event.dart';
 import '../../features/preferences/presentation/pages/notifications_page.dart';
 import '../../features/preferences/presentation/pages/privacy_page.dart';
+import '../../features/profile/presentation/bloc/avatar_bloc.dart';
 import '../../features/profile/presentation/bloc/edit_profile_bloc.dart';
 import '../../features/wellbeing/presentation/bloc/mood_checkin_bloc.dart';
 import '../../features/wellbeing/presentation/pages/mood_checkin_page.dart';
@@ -161,8 +162,11 @@ class AppRouter {
                     // Dentro del shell para compartir el ProfileBloc.
                     GoRoute(
                       path: 'edit',
-                      builder: (context, state) => BlocProvider(
-                        create: (_) => sl<EditProfileBloc>(),
+                      builder: (context, state) => MultiBlocProvider(
+                        providers: [
+                          BlocProvider(create: (_) => sl<EditProfileBloc>()),
+                          BlocProvider(create: (_) => sl<AvatarBloc>()),
+                        ],
                         child: const EditProfilePage(),
                       ),
                     ),

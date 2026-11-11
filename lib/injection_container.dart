@@ -33,7 +33,10 @@ import 'features/profile/domain/repositories/profile_repository.dart';
 import 'features/profile/domain/usecases/create_profile.dart';
 import 'features/profile/domain/usecases/get_profile.dart';
 import 'features/profile/domain/usecases/get_user_roles.dart';
+import 'features/profile/domain/usecases/remove_avatar.dart';
 import 'features/profile/domain/usecases/update_profile.dart';
+import 'features/profile/domain/usecases/upload_avatar.dart';
+import 'features/profile/presentation/bloc/avatar_bloc.dart';
 import 'features/profile/presentation/bloc/edit_profile_bloc.dart';
 import 'features/profile/presentation/bloc/profile_bloc.dart';
 
@@ -89,6 +92,8 @@ void _registerProfile() {
   sl.registerLazySingleton(() => GetProfile(sl()));
   sl.registerLazySingleton(() => GetUserRoles(sl()));
   sl.registerLazySingleton(() => UpdateProfile(sl()));
+  sl.registerLazySingleton(() => UploadAvatar(sl()));
+  sl.registerLazySingleton(() => RemoveAvatar(sl()));
 
   sl.registerFactory(
     () => ProfileBloc(
@@ -99,6 +104,7 @@ void _registerProfile() {
     ),
   );
   sl.registerFactory(() => EditProfileBloc(updateProfile: sl()));
+  sl.registerFactory(() => AvatarBloc(uploadAvatar: sl(), removeAvatar: sl()));
 }
 
 void _registerPreferences() {

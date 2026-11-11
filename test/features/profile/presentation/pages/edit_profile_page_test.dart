@@ -2,6 +2,9 @@ import 'package:bloc_test/bloc_test.dart';
 import 'package:doulapp/core/router/app_router.dart';
 import 'package:doulapp/features/profile/domain/entities/account_status.dart';
 import 'package:doulapp/features/profile/domain/entities/profile.dart';
+import 'package:doulapp/features/profile/presentation/bloc/avatar_bloc.dart';
+import 'package:doulapp/features/profile/presentation/bloc/avatar_event.dart';
+import 'package:doulapp/features/profile/presentation/bloc/avatar_state.dart';
 import 'package:doulapp/features/profile/presentation/bloc/edit_profile_bloc.dart';
 import 'package:doulapp/features/profile/presentation/bloc/edit_profile_event.dart';
 import 'package:doulapp/features/profile/presentation/bloc/edit_profile_state.dart';
@@ -18,12 +21,16 @@ import 'package:mocktail/mocktail.dart';
 class MockEditProfileBloc extends MockBloc<EditProfileEvent, EditProfileState>
     implements EditProfileBloc {}
 
+class MockAvatarBloc extends MockBloc<AvatarEvent, AvatarState>
+    implements AvatarBloc {}
+
 class MockProfileBloc extends MockBloc<ProfileEvent, ProfileState>
     implements ProfileBloc {}
 
 void main() {
   late MockEditProfileBloc editBloc;
   late MockProfileBloc profileBloc;
+  late MockAvatarBloc avatarBloc;
 
   final profile = Profile(
     id: 'uuid-1',
@@ -44,6 +51,8 @@ void main() {
   setUp(() {
     editBloc = MockEditProfileBloc();
     profileBloc = MockProfileBloc();
+    avatarBloc = MockAvatarBloc();
+    when(() => avatarBloc.state).thenReturn(const AvatarInitial());
     when(() => editBloc.state).thenReturn(const EditProfileInitial());
     when(
       () => profileBloc.state,
@@ -66,6 +75,7 @@ void main() {
                 providers: [
                   BlocProvider<ProfileBloc>.value(value: profileBloc),
                   BlocProvider<EditProfileBloc>.value(value: editBloc),
+                  BlocProvider<AvatarBloc>.value(value: avatarBloc),
                 ],
                 child: const EditProfilePage(),
               ),
