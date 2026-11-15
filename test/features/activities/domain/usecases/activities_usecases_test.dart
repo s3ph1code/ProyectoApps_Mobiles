@@ -6,6 +6,7 @@ import 'package:doulapp/features/activities/domain/entities/activity_category.da
 import 'package:doulapp/features/activities/domain/entities/activity_modality.dart';
 import 'package:doulapp/features/activities/domain/repositories/activities_repository.dart';
 import 'package:doulapp/features/activities/domain/usecases/get_activities.dart';
+import 'package:doulapp/features/activities/domain/usecases/get_activity_by_id.dart';
 import 'package:doulapp/features/activities/domain/usecases/get_activity_categories.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
@@ -93,6 +94,71 @@ void main() {
       final result = await GetActivities(repository)(const GetActivitiesParams());
 
       expect(result, const Left<Failure, List<Activity>>(ServerFailure()));
+    });
+  });
+
+  group('GetActivityById', () {
+    const detail = Activity(
+      id: 'act-1',
+      categoryId: 'cat-1',
+      title: 'Respiración 4-7-8',
+      description: 'Una pausa para bajar el ritmo.',
+      modality: ActivityModality.practice,
+      durationMinutes: 3,
+      contentText: 'Inhala contando 4, sostén 7 y suelta en 8.',
+      externalUrl: 'https://ejemplo.org/guia',
+    );
+
+    test('devuelve la actividad con sus pasos y su enlace', () async {
+      when(
+        () => repository.getActivityById(any()),
+      ).thenAnswer((_) async => const Right(detail));
+
+      final result = await GetActivityById(repository)(
+        const GetActivityByIdParams(activityId: 'act-1'),
+      );
+
+      expect(result.getOrElse(() => throw 'sin actividad'), detail);
+      verify(() => repository.getActivityById('act-1')).called(1);
+    });
+
+    test('recorta el id antes de consultar', () async {
+      when(
+        () => repository.getActivityById(any()),
+      ).thenAnswer((_) async => const Right(detail));
+
+      await GetActivityById(repository)(
+        const GetActivityByIdParams(activityId: '  act-1  '),
+      );
+
+      verify(() => repository.getActivityById('act-1')).called(1);
+    });
+
+    test('un id vacío se trata como actividad inexistente', () async {
+      final result = await GetActivityById(repository)(
+        const GetActivityByIdParams(activityId: '   '),
+      );
+
+      expect(
+        result.swap().getOrElse(() => const UnexpectedFailure()),
+        const ActivityNotFoundFailure(),
+      );
+      verifyNever(() => repository.getActivityById(any()));
+    });
+
+    test('propaga que la actividad no existe', () async {
+      when(
+        () => repository.getActivityById(any()),
+      ).thenAnswer((_) async => const Left(ActivityNotFoundFailure()));
+
+      final result = await GetActivityById(repository)(
+        const GetActivityByIdParams(activityId: 'act-9'),
+      );
+
+      expect(
+        result.swap().getOrElse(() => const UnexpectedFailure()),
+        const ActivityNotFoundFailure(),
+      );
     });
   });
 }

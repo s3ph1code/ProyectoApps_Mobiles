@@ -4,7 +4,11 @@ import 'package:go_router/go_router.dart';
 
 import '../../features/activities/presentation/bloc/activities_bloc.dart';
 import '../../features/activities/presentation/bloc/activities_event.dart';
+import '../../features/activities/presentation/bloc/activity_detail_bloc.dart';
+import '../../features/activities/presentation/bloc/activity_detail_event.dart';
 import '../../features/activities/presentation/pages/activities_page.dart';
+import '../../features/activities/presentation/pages/activity_detail_page.dart';
+import '../../features/activities/presentation/services/link_opener.dart';
 import '../../features/auth/presentation/bloc/forgot_password_bloc.dart';
 import '../../features/auth/presentation/bloc/login_bloc.dart';
 import '../../features/auth/presentation/bloc/register_bloc.dart';
@@ -186,12 +190,14 @@ class AppRouter {
         GoRoute(
           path: AppRoutes.activityDetail,
           builder: (context, state) {
-            final id = state.pathParameters['id'] ?? '';
-            return FeaturePlaceholderPage(
-              title: 'Detalle de la pausa',
-              subtitle:
-                  'Instrucciones paso a paso y duración de la actividad ($id).',
-              icon: Icons.menu_book_outlined,
+            final activityId = state.pathParameters['id'] ?? '';
+            return BlocProvider(
+              create: (_) => sl<ActivityDetailBloc>()
+                ..add(ActivityDetailRequested(activityId)),
+              child: ActivityDetailPage(
+                activityId: activityId,
+                linkOpener: sl<LinkOpener>(),
+              ),
             );
           },
         ),

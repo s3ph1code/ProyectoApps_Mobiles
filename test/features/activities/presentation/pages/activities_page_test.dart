@@ -6,9 +6,11 @@ import 'package:doulapp/features/activities/presentation/bloc/activities_bloc.da
 import 'package:doulapp/features/activities/presentation/bloc/activities_event.dart';
 import 'package:doulapp/features/activities/presentation/bloc/activities_state.dart';
 import 'package:doulapp/features/activities/presentation/pages/activities_page.dart';
+import 'package:doulapp/core/router/app_router.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:go_router/go_router.dart';
 import 'package:mocktail/mocktail.dart';
 
 class MockActivitiesBloc extends MockBloc<ActivitiesEvent, ActivitiesState>
@@ -50,12 +52,32 @@ void main() {
     addTearDown(tester.view.reset);
   }
 
-  Widget buildPage() => MaterialApp(
-    home: BlocProvider<ActivitiesBloc>.value(
-      value: bloc,
-      child: const ActivitiesPage(),
-    ),
-  );
+  Widget buildPage() {
+    final router = GoRouter(
+      initialLocation: AppRoutes.activities,
+      routes: [
+        GoRoute(
+          path: AppRoutes.activities,
+          builder: (_, _) => BlocProvider<ActivitiesBloc>.value(
+            value: bloc,
+            child: const ActivitiesPage(),
+          ),
+          routes: [
+            GoRoute(
+              path: ':id',
+              builder: (_, state) => Scaffold(
+                appBar: AppBar(title: const Text('Microdescanso')),
+                body: Text(
+                  'Pantalla Detalle ${state.pathParameters['id']}',
+                ),
+              ),
+            ),
+          ],
+        ),
+      ],
+    );
+    return MaterialApp.router(routerConfig: router);
+  }
 
   testWidgets('mientras carga muestra el indicador', (t) async {
     useSmallPhone(t);
@@ -177,6 +199,39 @@ void main() {
     await t.pump();
 
     verify(() => bloc.add(const ActivitiesRequested())).called(1);
+  });
+
+  testWidgets('tocar una tarjeta abre el detalle de esa actividad', (t) async {
+    useSmallPhone(t);
+    when(() => bloc.state).thenReturn(
+      const ActivitiesLoaded(
+        categories: categories,
+        activities: [breathing, reading],
+      ),
+    );
+
+    await t.pumpWidget(buildPage());
+    await t.tap(find.byKey(const Key('activities_item_act-2')));
+    await t.pumpAndSettle();
+
+    expect(find.text('Pantalla Detalle act-2'), findsOneWidget);
+  });
+
+  testWidgets('desde el detalle puedo volver a la lista', (t) async {
+    useSmallPhone(t);
+    when(() => bloc.state).thenReturn(
+      const ActivitiesLoaded(categories: categories, activities: [breathing]),
+    );
+
+    await t.pumpWidget(buildPage());
+    await t.tap(find.byKey(const Key('activities_item_act-1')));
+    await t.pumpAndSettle();
+    expect(find.text('Pantalla Detalle act-1'), findsOneWidget);
+
+    await t.pageBack();
+    await t.pumpAndSettle();
+
+    expect(find.byKey(const Key('activities_item_act-1')), findsOneWidget);
   });
 
   testWidgets('títulos largos y muchas categorías no desbordan', (t) async {

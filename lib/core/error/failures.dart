@@ -83,6 +83,11 @@ class MoodNoteTooLongFailure extends Failure {
     : super('La nota puede tener hasta 500 caracteres. Acórtala un poco.');
 }
 
+class ActivityNotFoundFailure extends Failure {
+  const ActivityNotFoundFailure()
+    : super('Esa actividad ya no está disponible. Elige otra de la lista.');
+}
+
 class NeedSelectionRequiredFailure extends Failure {
   const NeedSelectionRequiredFailure()
     : super('Elige al menos una opción para ver sugerencias.');

@@ -38,6 +38,15 @@ class NetworkException implements Exception {
   String toString() => 'NetworkException: $message';
 }
 
+/// Se pidió algo por su id y el backend no devolvió ninguna fila: no existe
+/// o no es visible para quien consulta.
+class NotFoundException implements Exception {
+  const NotFoundException();
+
+  @override
+  String toString() => 'NotFoundException';
+}
+
 class CacheException implements Exception {
   final String message;
 
