@@ -83,6 +83,11 @@ class MoodNoteTooLongFailure extends Failure {
     : super('La nota puede tener hasta 500 caracteres. Acórtala un poco.');
 }
 
+class NeedSelectionRequiredFailure extends Failure {
+  const NeedSelectionRequiredFailure()
+    : super('Elige al menos una opción para ver sugerencias.');
+}
+
 class UnauthenticatedFailure extends Failure {
   const UnauthenticatedFailure()
     : super('Tu sesión terminó. Inicia sesión para continuar.');

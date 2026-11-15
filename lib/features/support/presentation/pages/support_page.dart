@@ -86,7 +86,9 @@ class SupportPage extends StatelessWidget {
         borderRadius: BorderRadius.vertical(top: Radius.circular(AppRadii.xl)),
       ),
       builder: (ctx) => SafeArea(
-        child: Padding(
+        // Desplazable: con este contenido la hoja no cabe en pantallas
+        // cortas ni en horizontal, y el botón quedaba fuera de alcance.
+        child: SingleChildScrollView(
           padding: const EdgeInsets.fromLTRB(24, 0, 24, 24),
           child: Column(
             mainAxisSize: MainAxisSize.min,
@@ -153,7 +155,9 @@ class SupportPage extends StatelessWidget {
         borderRadius: BorderRadius.vertical(top: Radius.circular(AppRadii.xl)),
       ),
       builder: (ctx) => SafeArea(
-        child: Padding(
+        // Desplazable: con este contenido la hoja no cabe en pantallas
+        // cortas ni en horizontal, y el botón quedaba fuera de alcance.
+        child: SingleChildScrollView(
           padding: const EdgeInsets.fromLTRB(24, 0, 24, 24),
           child: Column(
             mainAxisSize: MainAxisSize.min,

@@ -1,4 +1,4 @@
-import 'package:flutter/foundation.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 
@@ -26,9 +26,13 @@ import '../../features/profile/presentation/pages/profile_page.dart';
 import '../../features/splash/presentation/pages/splash_page.dart';
 import '../../features/support/presentation/pages/support_page.dart';
 import '../../features/wellbeing/presentation/bloc/mood_checkin_bloc.dart';
+import '../../features/wellbeing/presentation/bloc/needs_bloc.dart';
+import '../../features/wellbeing/presentation/bloc/needs_event.dart';
 import '../../features/wellbeing/presentation/bloc/mood_history_bloc.dart';
 import '../../features/wellbeing/presentation/bloc/mood_history_event.dart';
 import '../../features/wellbeing/presentation/pages/mood_checkin_page.dart';
+import '../../features/wellbeing/presentation/pages/needs_selection_page.dart';
+import '../../features/wellbeing/presentation/pages/recommendations_page.dart';
 import '../../features/wellbeing/presentation/pages/mood_history_page.dart';
 import '../../injection_container.dart';
 import '../widgets/app_shell.dart';
@@ -152,23 +156,23 @@ class AppRouter {
             child: const MoodHistoryPage(),
           ),
         ),
-        GoRoute(
-          path: AppRoutes.needs,
-          builder: (context, state) => const FeaturePlaceholderPage(
-            title: '«No sé qué necesito»',
-            subtitle:
-                'Elige cómo te sientes ahora para recibir recomendaciones que te acompañen con cariño.',
-            icon: Icons.lightbulb_outline_rounded,
+        // Las dos pantallas comparten el NeedsBloc: la selección y lo que se
+        // recomienda a partir de ella son una sola conversación.
+        ShellRoute(
+          builder: (context, state, child) => BlocProvider(
+            create: (_) => sl<NeedsBloc>()..add(const NeedOptionsRequested()),
+            child: child,
           ),
-        ),
-        GoRoute(
-          path: AppRoutes.recommendations,
-          builder: (context, state) => const FeaturePlaceholderPage(
-            title: 'Recomendaciones',
-            subtitle:
-                'Sugerencias de pausas y apoyo pensadas para lo que necesitas hoy.',
-            icon: Icons.recommend_outlined,
-          ),
+          routes: [
+            GoRoute(
+              path: AppRoutes.needs,
+              builder: (context, state) => const NeedsSelectionPage(),
+            ),
+            GoRoute(
+              path: AppRoutes.recommendations,
+              builder: (context, state) => const RecommendationsPage(),
+            ),
+          ],
         ),
         GoRoute(
           path: AppRoutes.savedActivities,

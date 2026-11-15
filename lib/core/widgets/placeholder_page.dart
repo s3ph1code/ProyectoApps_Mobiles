@@ -3,7 +3,6 @@ import 'package:go_router/go_router.dart';
 
 import '../router/app_router.dart';
 import '../theme/app_colors.dart';
-import '../theme/app_radii.dart';
 import 'soft_orb.dart';
 
 /// Pantalla base para rutas registradas cuyo contenido completo se integrará
