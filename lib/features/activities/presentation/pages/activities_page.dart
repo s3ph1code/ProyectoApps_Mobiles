@@ -171,54 +171,75 @@ class _ActivityCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final textTheme = Theme.of(context).textTheme;
 
-    return InkWell(
-      borderRadius: BorderRadius.circular(AppRadii.md),
-      // Con push, el detalle se abre encima y la flecha vuelve a la lista
-      // manteniendo el filtro elegido.
-      onTap: () => context.push(AppRoutes.activityDetailPath(activity.id)),
-      child: Container(
-        padding: const EdgeInsets.all(16),
-        decoration: BoxDecoration(
-          color: AppColors.surface,
-          borderRadius: BorderRadius.circular(AppRadii.md),
-          border: Border.all(color: AppColors.lineSoft),
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        borderRadius: BorderRadius.circular(AppRadii.md),
+        // Con push, el detalle se abre encima y la flecha vuelve a la lista
+        // manteniendo el filtro elegido.
+        onTap: () => context.push(AppRoutes.activityDetailPath(activity.id)),
+        child: Ink(
+          padding: const EdgeInsets.all(16),
+          decoration: BoxDecoration(
+            color: AppColors.surface,
+            borderRadius: BorderRadius.circular(AppRadii.md),
+            border: Border.all(color: AppColors.lineSoft),
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                children: [
+                  Expanded(
+                    child: Text(activity.title, style: textTheme.titleMedium),
+                  ),
+                  const SizedBox(width: 8),
+                  const Icon(
+                    Icons.chevron_right_rounded,
+                    size: 22,
+                    color: AppColors.inkMuted,
+                  ),
+                ],
+              ),
+              const SizedBox(height: 6),
+              Text(
+                activity.description,
+                maxLines: 3,
+                overflow: TextOverflow.ellipsis,
+                style: textTheme.bodyMedium,
+              ),
+              const SizedBox(height: 12),
+              Row(
+                children: [
+                  Expanded(
+                    child: Wrap(
+                      spacing: 8,
+                      runSpacing: 8,
+                      children: [
+                        _Tag(
+                          icon: Icons.schedule_rounded,
+                          label: '${activity.durationMinutes} min',
+                        ),
+                        _Tag(label: activity.modality.label),
+                      ],
+                    ),
+                  ),
+                  TextButton.icon(
+                    key: Key('activity_start_${activity.id}'),
+                    onPressed: () => context.push(
+                      AppRoutes.activitySessionPath(activity.id),
+                      extra: activity,
+                    ),
+                    icon: const Icon(Icons.play_arrow_rounded, size: 18),
+                    label: const Text('Comenzar'),
+                  ),
+                ],
+              ),
+            ],
+          ),
         ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              children: [
-                Expanded(
-                  child: Text(activity.title, style: textTheme.titleMedium),
-                ),
-                const SizedBox(width: 8),
-                const Icon(
-                  Icons.chevron_right_rounded,
-                  size: 22,
-                  color: AppColors.inkMuted,
-                ),
-              ],
-            ),
-            const SizedBox(height: 6),
-            Text(
-              activity.description,
-              maxLines: 3,
-              overflow: TextOverflow.ellipsis,
-              style: textTheme.bodyMedium,
-            ),
-            const SizedBox(height: 12),
-            Wrap(
-              spacing: 8,
-              runSpacing: 8,
-              children: [
-                _Tag(
-                  icon: Icons.schedule_rounded,
-                  label: '${activity.durationMinutes} min',
-                ),
-                _Tag(label: activity.modality.label),
-              ],
-            ),
-          ],
+      ),
+    );
         ),
       ),
     );

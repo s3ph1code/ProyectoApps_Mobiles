@@ -21,7 +21,6 @@ class ActivityModel extends Activity {
       description: json['description'] as String,
       modality: ActivityModality.fromCode(json['modality'] as String),
       durationMinutes: (json['duration_minutes'] as num).toInt(),
-      // La lista no selecciona estas columnas; el detalle sí.
       contentText: json['content_text'] as String?,
       externalUrl: json['external_url'] as String?,
     );

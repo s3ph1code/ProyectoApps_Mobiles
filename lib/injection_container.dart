@@ -26,11 +26,15 @@ import 'features/profile/data/datasources/profile_remote_datasource.dart';
 import 'features/activities/data/datasources/activities_remote_datasource.dart';
 import 'features/activities/data/repositories/activities_repository_impl.dart';
 import 'features/activities/domain/repositories/activities_repository.dart';
+import 'features/activities/domain/usecases/abandon_activity_session.dart';
+import 'features/activities/domain/usecases/finish_activity_session.dart';
 import 'features/activities/domain/usecases/get_activities.dart';
 import 'features/activities/domain/usecases/get_activity_by_id.dart';
 import 'features/activities/domain/usecases/get_activity_categories.dart';
+import 'features/activities/domain/usecases/start_activity_session.dart';
 import 'features/activities/presentation/bloc/activities_bloc.dart';
 import 'features/activities/presentation/bloc/activity_detail_bloc.dart';
+import 'features/activities/presentation/bloc/activity_session_bloc.dart';
 import 'features/activities/presentation/services/link_opener.dart';
 import 'features/wellbeing/data/datasources/mood_remote_datasource.dart';
 import 'features/wellbeing/data/datasources/needs_remote_datasource.dart';
@@ -196,11 +200,21 @@ void _registerActivities() {
   sl.registerLazySingleton(() => GetActivityCategories(sl()));
   sl.registerLazySingleton(() => GetActivities(sl()));
   sl.registerLazySingleton(() => GetActivityById(sl()));
-
   sl.registerLazySingleton<LinkOpener>(() => const UrlLauncherLinkOpener());
+  sl.registerLazySingleton(() => StartActivitySession(sl()));
+  sl.registerLazySingleton(() => FinishActivitySession(sl()));
+  sl.registerLazySingleton(() => AbandonActivitySession(sl()));
 
   sl.registerFactory(
     () => ActivitiesBloc(getActivityCategories: sl(), getActivities: sl()),
   );
   sl.registerFactory(() => ActivityDetailBloc(getActivityById: sl()));
+  sl.registerFactory(
+    () => ActivitySessionBloc(
+      getCurrentUser: sl(),
+      startActivitySession: sl(),
+      finishActivitySession: sl(),
+      abandonActivitySession: sl(),
+    ),
+  );
 }

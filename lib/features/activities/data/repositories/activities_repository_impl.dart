@@ -4,6 +4,7 @@ import '../../../../core/error/exceptions.dart';
 import '../../../../core/error/failures.dart';
 import '../../domain/entities/activity.dart';
 import '../../domain/entities/activity_category.dart';
+import '../../domain/entities/activity_session.dart';
 import '../../domain/repositories/activities_repository.dart';
 import '../datasources/activities_remote_datasource.dart';
 
@@ -27,6 +28,48 @@ class ActivitiesRepositoryImpl implements ActivitiesRepository {
   @override
   Future<Either<Failure, Activity>> getActivityById(String activityId) {
     return _guard(() => remoteDataSource.fetchActivityById(activityId));
+  }
+
+  @override
+  Future<Either<Failure, ActivitySession>> startSession({
+    required String userId,
+    required String activityId,
+  }) {
+    return _guard(
+      () => remoteDataSource.insertSession(
+        userId: userId,
+        activityId: activityId,
+      ),
+    );
+  }
+
+  @override
+  Future<Either<Failure, ActivitySession>> finishSession({
+    required String sessionId,
+    required int elapsedSeconds,
+  }) {
+    return _guard(
+      () => remoteDataSource.updateSessionStatus(
+        sessionId: sessionId,
+        status: 'completed',
+        elapsedSeconds: elapsedSeconds,
+        completedAt: DateTime.now().toUtc(),
+      ),
+    );
+  }
+
+  @override
+  Future<Either<Failure, ActivitySession>> abandonSession({
+    required String sessionId,
+    required int elapsedSeconds,
+  }) {
+    return _guard(
+      () => remoteDataSource.updateSessionStatus(
+        sessionId: sessionId,
+        status: 'abandoned',
+        elapsedSeconds: elapsedSeconds,
+      ),
+    );
   }
 
   Future<Either<Failure, T>> _guard<T>(Future<T> Function() run) async {

@@ -133,9 +133,10 @@ class _DetailView extends StatelessWidget {
           padding: const EdgeInsets.fromLTRB(24, 8, 24, 16),
           child: ElevatedButton(
             key: const Key('activity_detail_start_button'),
-            // Realizar la actividad y cerrar la sesión es S2-09; hasta
-            // entonces avisa en vez de prometer algo que no pasa.
-            onPressed: () => showComingSoon(context),
+            onPressed: () => context.push(
+              AppRoutes.activitySessionPath(activity.id),
+              extra: activity,
+            ),
             child: const Text('Comenzar'),
           ),
         ),
