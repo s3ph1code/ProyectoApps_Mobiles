@@ -105,9 +105,21 @@ redirige: sin sesión solo se ven las rutas públicas; con sesión, entrar a
 | `/register` | público | Cuenta nueva (nombre, correo, contraseña, términos) → `/onboarding` |
 | `/forgot-password` | público | Envía el enlace para recuperar el acceso |
 | `/onboarding` | privado | Carrusel informativo de tres pasos → `/profile` |
-| `/home` | privado | Inicio con las seis secciones (las que aún no existen abren «Próximamente») |
-| `/for-me`, `/support` | privado | Pestañas «Para mí» y «Apoyo» (próximamente) |
+| `/home` | privado | Inicio con accesos a bienestar, pausas y secciones principales |
+| `/for-me` | privado | Pestaña «Para mí»: pausas, microdescansos, actividades guardadas y bienestar |
+| `/support` | privado | Pestaña «Red de apoyo»: líneas de atención emocional y red cercana |
+| `/wellbeing/checkin` | privado | Check-in de estado de ánimo (1-5 con notas) |
+| `/wellbeing/history` | privado | Historial de check-ins previos |
+| `/wellbeing/needs` | privado | «No sé qué necesito»: selección de necesidades |
+| `/wellbeing/recommendations` | privado | Recomendaciones personalizadas |
+| `/activities` | privado | Exploración de microdescansos por categoría |
+| `/activities/:id` | privado | Detalle de una actividad |
+| `/activities/:id/session` | privado | Realizar actividad con temporizador |
+| `/activities/saved` | privado | Actividades favoritas guardadas |
 | `/profile` | privado | Resumen del perfil: nombre, rol, correo, privacidad y cierre de sesión |
+| `/profile/edit` | privado | Editar nombre, bio y foto de perfil |
+| `/profile/notifications` | privado | Preferencias de recordatorios y notificaciones |
+| `/profile/privacy` | privado | Ajustes de privacidad y visibilidad |
 
 La barra inferior tiene cuatro pestañas: Inicio, Para mí, Apoyo y Perfil.
 

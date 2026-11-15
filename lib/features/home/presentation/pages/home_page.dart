@@ -63,7 +63,7 @@ class HomePage extends StatelessWidget {
                       _RoundIconButton(
                         key: const Key('home_notifications_button'),
                         icon: Icons.notifications_none_rounded,
-                        onTap: () => showComingSoon(context),
+                        onTap: () => context.push(AppRoutes.notifications),
                       ),
                     ],
                   ),

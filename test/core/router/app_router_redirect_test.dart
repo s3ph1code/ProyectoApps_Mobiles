@@ -23,7 +23,16 @@ void main() {
         AppRoutes.forMe,
         AppRoutes.support,
         AppRoutes.profile,
+        AppRoutes.editProfile,
+        AppRoutes.notifications,
+        AppRoutes.privacy,
         AppRoutes.onboarding,
+        AppRoutes.moodCheckin,
+        AppRoutes.moodHistory,
+        AppRoutes.needs,
+        AppRoutes.recommendations,
+        AppRoutes.activities,
+        AppRoutes.savedActivities,
       ]) {
         expect(
           AppRouter.redirectFor(isAuthenticated: false, location: route),
