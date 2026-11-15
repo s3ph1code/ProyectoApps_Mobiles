@@ -17,7 +17,10 @@ import '../../features/preferences/presentation/pages/privacy_page.dart';
 import '../../features/profile/presentation/bloc/avatar_bloc.dart';
 import '../../features/profile/presentation/bloc/edit_profile_bloc.dart';
 import '../../features/wellbeing/presentation/bloc/mood_checkin_bloc.dart';
+import '../../features/wellbeing/presentation/bloc/mood_history_bloc.dart';
+import '../../features/wellbeing/presentation/bloc/mood_history_event.dart';
 import '../../features/wellbeing/presentation/pages/mood_checkin_page.dart';
+import '../../features/wellbeing/presentation/pages/mood_history_page.dart';
 import '../../features/profile/presentation/bloc/profile_bloc.dart';
 import '../../features/profile/presentation/bloc/profile_event.dart';
 import '../../features/profile/presentation/pages/edit_profile_page.dart';
@@ -40,6 +43,7 @@ class AppRoutes {
   static const forMe = '/for-me';
   static const support = '/support';
   static const moodCheckin = '/wellbeing/checkin';
+  static const moodHistory = '/wellbeing/history';
   static const profile = '/profile';
   static const editProfile = '/profile/edit';
   static const notifications = '/profile/notifications';
@@ -117,6 +121,14 @@ class AppRouter {
           builder: (context, state) => BlocProvider(
             create: (_) => sl<MoodCheckinBloc>(),
             child: const MoodCheckinPage(),
+          ),
+        ),
+        GoRoute(
+          path: AppRoutes.moodHistory,
+          builder: (context, state) => BlocProvider(
+            create: (_) =>
+                sl<MoodHistoryBloc>()..add(const MoodHistoryRequested()),
+            child: const MoodHistoryPage(),
           ),
         ),
         // Pantallas principales: comparten el ProfileBloc (saludo e información
