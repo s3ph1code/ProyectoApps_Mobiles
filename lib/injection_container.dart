@@ -24,10 +24,17 @@ import 'features/preferences/domain/usecases/update_preferences.dart';
 import 'features/preferences/presentation/bloc/preferences_bloc.dart';
 import 'features/profile/data/datasources/profile_remote_datasource.dart';
 import 'features/wellbeing/data/datasources/mood_remote_datasource.dart';
+import 'features/wellbeing/data/datasources/needs_remote_datasource.dart';
 import 'features/wellbeing/data/repositories/mood_repository_impl.dart';
+import 'features/wellbeing/data/repositories/needs_repository_impl.dart';
 import 'features/wellbeing/domain/repositories/mood_repository.dart';
+import 'features/wellbeing/domain/repositories/needs_repository.dart';
+import 'features/wellbeing/domain/usecases/get_need_options.dart';
+import 'features/wellbeing/domain/usecases/get_recommendations.dart';
 import 'features/wellbeing/domain/usecases/save_mood_checkin.dart';
+import 'features/wellbeing/domain/usecases/save_need_session.dart';
 import 'features/wellbeing/presentation/bloc/mood_checkin_bloc.dart';
+import 'features/wellbeing/presentation/bloc/needs_bloc.dart';
 import 'features/profile/data/repositories/profile_repository_impl.dart';
 import 'features/profile/domain/repositories/profile_repository.dart';
 import 'features/profile/domain/usecases/create_profile.dart';
@@ -139,5 +146,25 @@ void _registerWellbeing() {
 
   sl.registerFactory(
     () => MoodCheckinBloc(getCurrentUser: sl(), saveMoodCheckin: sl()),
+  );
+
+  sl.registerLazySingleton<NeedsRemoteDataSource>(
+    () => NeedsRemoteDataSourceImpl(client: sl()),
+  );
+  sl.registerLazySingleton<NeedsRepository>(
+    () => NeedsRepositoryImpl(remoteDataSource: sl()),
+  );
+
+  sl.registerLazySingleton(() => GetNeedOptions(sl()));
+  sl.registerLazySingleton(() => GetRecommendations(sl()));
+  sl.registerLazySingleton(() => SaveNeedSession(sl()));
+
+  sl.registerFactory(
+    () => NeedsBloc(
+      getCurrentUser: sl(),
+      getNeedOptions: sl(),
+      getRecommendations: sl(),
+      saveNeedSession: sl(),
+    ),
   );
 }

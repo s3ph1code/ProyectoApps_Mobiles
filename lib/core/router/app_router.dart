@@ -17,7 +17,11 @@ import '../../features/preferences/presentation/pages/privacy_page.dart';
 import '../../features/profile/presentation/bloc/avatar_bloc.dart';
 import '../../features/profile/presentation/bloc/edit_profile_bloc.dart';
 import '../../features/wellbeing/presentation/bloc/mood_checkin_bloc.dart';
+import '../../features/wellbeing/presentation/bloc/needs_bloc.dart';
+import '../../features/wellbeing/presentation/bloc/needs_event.dart';
 import '../../features/wellbeing/presentation/pages/mood_checkin_page.dart';
+import '../../features/wellbeing/presentation/pages/needs_selection_page.dart';
+import '../../features/wellbeing/presentation/pages/recommendations_page.dart';
 import '../../features/profile/presentation/bloc/profile_bloc.dart';
 import '../../features/profile/presentation/bloc/profile_event.dart';
 import '../../features/profile/presentation/pages/edit_profile_page.dart';
@@ -39,6 +43,8 @@ class AppRoutes {
   static const home = '/home';
   static const forMe = '/for-me';
   static const support = '/support';
+  static const needs = '/needs';
+  static const needsRecommendations = '/needs/recommendations';
   static const moodCheckin = '/wellbeing/checkin';
   static const profile = '/profile';
   static const editProfile = '/profile/edit';
@@ -111,6 +117,22 @@ class AppRouter {
         GoRoute(
           path: AppRoutes.onboarding,
           builder: (context, state) => const OnboardingPage(),
+        ),
+        ShellRoute(
+          builder: (context, state, child) => BlocProvider(
+            create: (_) => sl<NeedsBloc>()..add(const NeedOptionsRequested()),
+            child: child,
+          ),
+          routes: [
+            GoRoute(
+              path: AppRoutes.needs,
+              builder: (context, state) => const NeedsSelectionPage(),
+            ),
+            GoRoute(
+              path: AppRoutes.needsRecommendations,
+              builder: (context, state) => const RecommendationsPage(),
+            ),
+          ],
         ),
         GoRoute(
           path: AppRoutes.moodCheckin,

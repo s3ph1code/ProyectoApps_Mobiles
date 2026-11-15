@@ -87,6 +87,13 @@ class HomePage extends StatelessWidget {
                       _MenuGrid(
                         cards: [
                           _MenuCardData(
+                            key: 'needs',
+                            icon: Icons.help_outline_rounded,
+                            title: 'No sé qué necesito',
+                            subtitle: 'Cuéntanos cómo estás y te sugerimos.',
+                            onTap: () => context.push(AppRoutes.needs),
+                          ),
+                          _MenuCardData(
                             key: 'for_me',
                             icon: Icons.spa_outlined,
                             title: 'Para mí',
