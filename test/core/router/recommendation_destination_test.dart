@@ -17,7 +17,7 @@ void main() {
   test('con activity_id abre el detalle de esa actividad', () {
     expect(
       recommendationRoute(rec(activityId: 'act-1')),
-      AppRoutes.activityDetail('act-1'),
+      AppRoutes.activityDetailPath('act-1'),
     );
   });
 
@@ -28,7 +28,7 @@ void main() {
       recommendationRoute(
         rec(activityId: 'act-1', destinationCode: 'activities'),
       ),
-      AppRoutes.activityDetail('act-1'),
+      AppRoutes.activityDetailPath('act-1'),
     );
   });
 
@@ -69,7 +69,7 @@ void main() {
   });
 
   test('la ruta del detalle lleva el id de la actividad', () {
-    expect(AppRoutes.activityDetail('act-7'), contains('act-7'));
-    expect(AppRoutes.activityDetail('act-7'), startsWith(AppRoutes.activities));
+    expect(AppRoutes.activityDetailPath('act-7'), contains('act-7'));
+    expect(AppRoutes.activityDetailPath('act-7'), startsWith(AppRoutes.activities));
   });
 }

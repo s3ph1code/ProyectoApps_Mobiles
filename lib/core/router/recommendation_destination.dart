@@ -18,7 +18,7 @@ const _routeByDestinationCode = {
 String? recommendationRoute(Recommendation recommendation) {
   final activityId = recommendation.activityId?.trim();
   if (activityId != null && activityId.isNotEmpty) {
-    return AppRoutes.activityDetail(activityId);
+    return AppRoutes.activityDetailPath(activityId);
   }
 
   return _routeByDestinationCode[recommendation.destinationCode];

@@ -74,44 +74,15 @@ class _ComingSoonContent extends StatelessWidget {
   }
 }
 
-/// Pantalla completa para una sección cuyo módulo todavía no está
-/// disponible.
-///
-/// Como pestaña ofrece «Volver al inicio», porque no hay nada debajo. Como
-/// destino al que se entró con `push` (por ejemplo una recomendación que
-/// lleva al detalle de una actividad) lleva barra con flecha, para poder
-/// volver justo a donde estaba.
+/// Pantalla completa para una pestaña cuyo módulo todavía no está disponible.
 class ComingSoonPage extends StatelessWidget {
   final String title;
-  final bool _pushed;
 
-  const ComingSoonPage({super.key, required this.title}) : _pushed = false;
-
-  const ComingSoonPage.pushed({super.key, required this.title})
-    : _pushed = true;
+  const ComingSoonPage({super.key, required this.title});
 
   @override
   Widget build(BuildContext context) {
     final textTheme = Theme.of(context).textTheme;
-
-    if (_pushed) {
-      return Scaffold(
-        appBar: AppBar(title: Text(title)),
-        body: const SafeArea(
-          child: Padding(
-            padding: EdgeInsets.fromLTRB(24, 24, 24, 24),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                Spacer(),
-                _ComingSoonContent(),
-                Spacer(),
-              ],
-            ),
-          ),
-        ),
-      );
-    }
 
     return Scaffold(
       body: SafeArea(
