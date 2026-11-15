@@ -57,6 +57,11 @@ void main() {
           path: AppRoutes.support,
           builder: (_, _) => const Scaffold(body: Text('Pantalla Apoyo')),
         ),
+        GoRoute(
+          path: AppRoutes.activities,
+          builder: (_, _) =>
+              const Scaffold(body: Text('Pantalla Microdescansos')),
+        ),
       ],
     );
     return MaterialApp.router(routerConfig: router);
@@ -130,6 +135,17 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.text('Pantalla Check-in'), findsOneWidget);
+  });
+
+  testWidgets('la tarjeta destacada abre los microdescansos', (tester) async {
+    useTallScreen(tester);
+    when(() => bloc.state).thenReturn(const ProfileLoading());
+
+    await tester.pumpWidget(buildPage());
+    await tester.tap(find.byKey(const Key('home_feature_card')));
+    await tester.pumpAndSettle();
+
+    expect(find.text('Pantalla Microdescansos'), findsOneWidget);
   });
 
   testWidgets('las secciones Próximamente avisan sin navegar', (tester) async {
