@@ -40,6 +40,35 @@ void main() {
       expect(activity.modality, ActivityModality.practice);
     });
 
+    test('lee los pasos y el enlace externo cuando vienen', () {
+      final activity = ActivityModel.fromJson({
+        ...json(),
+        'content_text': 'Inhala contando 4, sostén 7 y suelta en 8.',
+        'external_url': 'https://ejemplo.org/guia',
+      });
+
+      expect(activity.contentText, 'Inhala contando 4, sostén 7 y suelta en 8.');
+      expect(activity.externalUrl, 'https://ejemplo.org/guia');
+    });
+
+    test('sin pasos ni enlace quedan en null', () {
+      final activity = ActivityModel.fromJson({
+        ...json(),
+        'content_text': null,
+        'external_url': null,
+      });
+
+      expect(activity.contentText, isNull);
+      expect(activity.externalUrl, isNull);
+    });
+
+    test('la lista no trae esas columnas y no falla', () {
+      final activity = ActivityModel.fromJson(json());
+
+      expect(activity.contentText, isNull);
+      expect(activity.externalUrl, isNull);
+    });
+
     test('traduce cada modalidad de la base', () {
       expect(
         ActivityModel.fromJson(json(modality: 'read')).modality,
