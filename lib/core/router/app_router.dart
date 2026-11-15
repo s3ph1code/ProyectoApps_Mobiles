@@ -2,9 +2,14 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../features/activities/domain/entities/activity.dart';
+import '../../features/activities/domain/entities/activity_modality.dart';
 import '../../features/activities/presentation/bloc/activities_bloc.dart';
 import '../../features/activities/presentation/bloc/activities_event.dart';
+import '../../features/activities/presentation/bloc/activity_session_bloc.dart';
+import '../../features/activities/presentation/bloc/activity_session_event.dart';
 import '../../features/activities/presentation/pages/activities_page.dart';
+import '../../features/activities/presentation/pages/activity_session_page.dart';
 import '../../features/auth/presentation/bloc/forgot_password_bloc.dart';
 import '../../features/auth/presentation/bloc/login_bloc.dart';
 import '../../features/auth/presentation/bloc/register_bloc.dart';
@@ -195,11 +200,21 @@ class AppRouter {
           path: AppRoutes.activitySession,
           builder: (context, state) {
             final id = state.pathParameters['id'] ?? '';
-            return FeaturePlaceholderPage(
-              title: 'Pausa en curso',
-              subtitle:
-                  'Temporizador y guía tranquila para completar tu descanso ($id).',
-              icon: Icons.timer_outlined,
+            final activity = state.extra is Activity
+                ? state.extra as Activity
+                : Activity(
+                    id: id,
+                    categoryId: '',
+                    title: 'Pausa breve',
+                    description: 'Tómate este momento a tu propio ritmo.',
+                    modality: ActivityModality.practice,
+                    durationMinutes: 5,
+                  );
+
+            return BlocProvider(
+              create: (_) => sl<ActivitySessionBloc>()
+                ..add(ActivitySessionStarted(activity)),
+              child: ActivitySessionPage(activity: activity),
             );
           },
         ),

@@ -1,6 +1,12 @@
 import 'package:bloc_test/bloc_test.dart';
 import 'package:doulapp/core/widgets/coming_soon.dart';
 import 'package:doulapp/core/widgets/placeholder_page.dart';
+import 'package:doulapp/features/activities/domain/entities/activity.dart';
+import 'package:doulapp/features/activities/domain/entities/activity_modality.dart';
+import 'package:doulapp/features/activities/presentation/bloc/activity_session_bloc.dart';
+import 'package:doulapp/features/activities/presentation/bloc/activity_session_event.dart';
+import 'package:doulapp/features/activities/presentation/bloc/activity_session_state.dart';
+import 'package:doulapp/features/activities/presentation/pages/activity_session_page.dart';
 import 'package:doulapp/features/auth/presentation/bloc/forgot_password_bloc.dart';
 import 'package:doulapp/features/auth/presentation/bloc/forgot_password_event.dart';
 import 'package:doulapp/features/auth/presentation/bloc/forgot_password_state.dart';
@@ -54,6 +60,10 @@ class MockAvatarBloc extends MockBloc<AvatarEvent, AvatarState>
 
 class MockEditProfileBloc extends MockBloc<EditProfileEvent, EditProfileState>
     implements EditProfileBloc {}
+
+class MockActivitySessionBloc
+    extends MockBloc<ActivitySessionEvent, ActivitySessionState>
+    implements ActivitySessionBloc {}
 
 /// Pinta cada pantalla en un teléfono de 390 × 844 y falla si algo se
 /// desborda. La fuente de pruebas es más ancha que Inter, así que si cabe
@@ -200,6 +210,30 @@ void main() {
       const FeaturePlaceholderPage(
         title: 'Microdescansos',
         subtitle: 'Pausas breves para respirar y descansar.',
+      ),
+    );
+    expect(tester.takeException(), isNull);
+  });
+
+  testWidgets('sesión de microdescanso en curso (390×844)', (tester) async {
+    final bloc = MockActivitySessionBloc();
+    const activity = Activity(
+      id: 'act-1',
+      categoryId: 'cat-1',
+      title: 'Respiración 4-7-8',
+      description: 'Una pausa para bajar el ritmo.',
+      contentText: 'Inhala en 4, sostén en 7 y exhala en 8.',
+      modality: ActivityModality.practice,
+      durationMinutes: 3,
+    );
+    when(() => bloc.state).thenReturn(
+      const ActivitySessionActive(activity: activity, elapsedSeconds: 45),
+    );
+    await pumpOnPhone(
+      tester,
+      BlocProvider<ActivitySessionBloc>.value(
+        value: bloc,
+        child: const ActivitySessionPage(activity: activity),
       ),
     );
     expect(tester.takeException(), isNull);

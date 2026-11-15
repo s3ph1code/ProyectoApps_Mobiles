@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:go_router/go_router.dart';
 
+import '../../../../core/router/app_router.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_radii.dart';
 import '../../domain/entities/activity.dart';
@@ -169,37 +171,62 @@ class _ActivityCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final textTheme = Theme.of(context).textTheme;
 
-    return Container(
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: AppColors.surface,
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
         borderRadius: BorderRadius.circular(AppRadii.md),
-        border: Border.all(color: AppColors.lineSoft),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(activity.title, style: textTheme.titleMedium),
-          const SizedBox(height: 6),
-          Text(
-            activity.description,
-            maxLines: 3,
-            overflow: TextOverflow.ellipsis,
-            style: textTheme.bodyMedium,
+        onTap: () => context.push(
+          AppRoutes.activitySessionPath(activity.id),
+          extra: activity,
+        ),
+        child: Ink(
+          padding: const EdgeInsets.all(16),
+          decoration: BoxDecoration(
+            color: AppColors.surface,
+            borderRadius: BorderRadius.circular(AppRadii.md),
+            border: Border.all(color: AppColors.lineSoft),
           ),
-          const SizedBox(height: 12),
-          Wrap(
-            spacing: 8,
-            runSpacing: 8,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              _Tag(
-                icon: Icons.schedule_rounded,
-                label: '${activity.durationMinutes} min',
+              Text(activity.title, style: textTheme.titleMedium),
+              const SizedBox(height: 6),
+              Text(
+                activity.description,
+                maxLines: 3,
+                overflow: TextOverflow.ellipsis,
+                style: textTheme.bodyMedium,
               ),
-              _Tag(label: activity.modality.label),
+              const SizedBox(height: 12),
+              Row(
+                children: [
+                  Expanded(
+                    child: Wrap(
+                      spacing: 8,
+                      runSpacing: 8,
+                      children: [
+                        _Tag(
+                          icon: Icons.schedule_rounded,
+                          label: '${activity.durationMinutes} min',
+                        ),
+                        _Tag(label: activity.modality.label),
+                      ],
+                    ),
+                  ),
+                  TextButton.icon(
+                    key: Key('activity_start_${activity.id}'),
+                    onPressed: () => context.push(
+                      AppRoutes.activitySessionPath(activity.id),
+                      extra: activity,
+                    ),
+                    icon: const Icon(Icons.play_arrow_rounded, size: 18),
+                    label: const Text('Comenzar'),
+                  ),
+                ],
+              ),
             ],
           ),
-        ],
+        ),
       ),
     );
   }
