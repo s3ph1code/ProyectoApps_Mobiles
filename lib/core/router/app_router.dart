@@ -186,12 +186,14 @@ class AppRouter {
         GoRoute(
           path: AppRoutes.activityDetail,
           builder: (context, state) {
-            final id = state.pathParameters['id'] ?? '';
-            return FeaturePlaceholderPage(
-              title: 'Detalle de la pausa',
-              subtitle:
-                  'Instrucciones paso a paso y duración de la actividad ($id).',
-              icon: Icons.menu_book_outlined,
+            final activityId = state.pathParameters['id'] ?? '';
+            return BlocProvider(
+              create: (_) => sl<ActivityDetailBloc>()
+                ..add(ActivityDetailRequested(activityId)),
+              child: ActivityDetailPage(
+                activityId: activityId,
+                linkOpener: sl<LinkOpener>(),
+              ),
             );
           },
         ),

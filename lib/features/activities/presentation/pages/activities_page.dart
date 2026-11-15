@@ -175,7 +175,7 @@ class _ActivityCard extends StatelessWidget {
       borderRadius: BorderRadius.circular(AppRadii.md),
       // Con push, el detalle se abre encima y la flecha vuelve a la lista
       // manteniendo el filtro elegido.
-      onTap: () => context.push(AppRoutes.activityDetail(activity.id)),
+      onTap: () => context.push(AppRoutes.activityDetailPath(activity.id)),
       child: Container(
         padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
