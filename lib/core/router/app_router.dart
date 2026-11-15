@@ -4,7 +4,11 @@ import 'package:go_router/go_router.dart';
 
 import '../../features/activities/presentation/bloc/activities_bloc.dart';
 import '../../features/activities/presentation/bloc/activities_event.dart';
+import '../../features/activities/presentation/bloc/activity_detail_bloc.dart';
+import '../../features/activities/presentation/bloc/activity_detail_event.dart';
 import '../../features/activities/presentation/pages/activities_page.dart';
+import '../../features/activities/presentation/pages/activity_detail_page.dart';
+import '../../features/activities/presentation/services/link_opener.dart';
 import '../../features/auth/presentation/bloc/forgot_password_bloc.dart';
 import '../../features/auth/presentation/bloc/login_bloc.dart';
 import '../../features/auth/presentation/bloc/register_bloc.dart';
@@ -48,6 +52,11 @@ class AppRoutes {
   static const editProfile = '/profile/edit';
   static const notifications = '/profile/notifications';
   static const privacy = '/profile/privacy';
+
+  /// Detalle de una actividad. La ruta lleva el id como parámetro y la usa
+  /// también S2-06, cuando una recomendación apunta a una actividad.
+  static String activityDetail(String activityId) =>
+      '$activities/$activityId';
 
   /// A dónde llega la usuaria después de iniciar sesión o terminar el
   /// onboarding. En el Sprint 1 es el resumen del perfil; cambiar a [home]
@@ -123,6 +132,22 @@ class AppRouter {
                 sl<ActivitiesBloc>()..add(const ActivitiesRequested()),
             child: const ActivitiesPage(),
           ),
+          routes: [
+            GoRoute(
+              path: ':activityId',
+              builder: (context, state) {
+                final activityId = state.pathParameters['activityId'] ?? '';
+                return BlocProvider(
+                  create: (_) => sl<ActivityDetailBloc>()
+                    ..add(ActivityDetailRequested(activityId)),
+                  child: ActivityDetailPage(
+                    activityId: activityId,
+                    linkOpener: sl<LinkOpener>(),
+                  ),
+                );
+              },
+            ),
+          ],
         ),
         GoRoute(
           path: AppRoutes.moodCheckin,
