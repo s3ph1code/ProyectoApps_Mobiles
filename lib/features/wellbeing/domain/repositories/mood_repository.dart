@@ -10,4 +10,11 @@ abstract class MoodRepository {
     required int moodScore,
     String? note,
   });
+
+  /// Devuelve los check-ins de [userId], del más reciente al más antiguo,
+  /// como máximo [limit].
+  Future<Either<Failure, List<MoodCheckin>>> getHistory({
+    required String userId,
+    required int limit,
+  });
 }

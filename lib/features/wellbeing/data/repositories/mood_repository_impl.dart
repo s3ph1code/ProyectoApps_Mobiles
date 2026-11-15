@@ -16,15 +16,31 @@ class MoodRepositoryImpl implements MoodRepository {
     required String userId,
     required int moodScore,
     String? note,
-  }) async {
+  }) {
+    return _guard(
+      () => remoteDataSource.insertCheckin(
+        userId: userId,
+        moodScore: moodScore,
+        note: note,
+      ),
+    );
+  }
+
+  @override
+  Future<Either<Failure, List<MoodCheckin>>> getHistory({
+    required String userId,
+    required int limit,
+  }) {
+    return _guard(
+      () => remoteDataSource.fetchCheckins(userId: userId, limit: limit),
+    );
+  }
+
+  /// Convierte las excepciones del datasource en el `Failure` que la
+  /// presentación muestra.
+  Future<Either<Failure, T>> _guard<T>(Future<T> Function() run) async {
     try {
-      return Right(
-        await remoteDataSource.insertCheckin(
-          userId: userId,
-          moodScore: moodScore,
-          note: note,
-        ),
-      );
+      return Right(await run());
     } on UnauthenticatedException {
       return const Left(UnauthenticatedFailure());
     } on AuthException {
