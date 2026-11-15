@@ -120,4 +120,48 @@ void main() {
       );
     });
   });
+
+  group('fetchActivityById', () {
+    test('pide la actividad por id y solo si está publicada', () async {
+      useResponse([
+        {
+          'id': 'act-1',
+          'category_id': 'cat-1',
+          'title': 'Respiración 4-7-8',
+          'description': 'Una pausa.',
+          'modality': 'do',
+          'duration_minutes': 3,
+          'content_text': 'Inhala 4, sostén 7, suelta 8.',
+          'external_url': 'https://ejemplo.org/guia',
+        },
+      ]);
+
+      final activity = await dataSource.fetchActivityById('act-1');
+
+      expect(lastRequest!.method, 'GET');
+      expect(lastRequest!.url.path, '/rest/v1/activities');
+      expect(lastRequest!.url.queryParameters['id'], 'eq.act-1');
+      expect(lastRequest!.url.queryParameters['is_published'], 'eq.true');
+      expect(activity.contentText, 'Inhala 4, sostén 7, suelta 8.');
+      expect(activity.externalUrl, 'https://ejemplo.org/guia');
+    });
+
+    test('una actividad inexistente o no publicada lanza NotFound', () async {
+      useResponse(const []);
+
+      expect(
+        () => dataSource.fetchActivityById('act-9'),
+        throwsA(isA<app.NotFoundException>()),
+      );
+    });
+
+    test('lanza ServerException si falla la consulta', () async {
+      useResponse({'code': '500', 'message': 'boom'}, status: 500);
+
+      expect(
+        () => dataSource.fetchActivityById('act-1'),
+        throwsA(isA<app.ServerException>()),
+      );
+    });
+  });
 }

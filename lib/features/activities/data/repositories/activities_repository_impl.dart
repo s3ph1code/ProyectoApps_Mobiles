@@ -24,9 +24,16 @@ class ActivitiesRepositoryImpl implements ActivitiesRepository {
     );
   }
 
+  @override
+  Future<Either<Failure, Activity>> getActivityById(String activityId) {
+    return _guard(() => remoteDataSource.fetchActivityById(activityId));
+  }
+
   Future<Either<Failure, T>> _guard<T>(Future<T> Function() run) async {
     try {
       return Right(await run());
+    } on NotFoundException {
+      return const Left(ActivityNotFoundFailure());
     } on UnauthenticatedException {
       return const Left(UnauthenticatedFailure());
     } on AuthException {

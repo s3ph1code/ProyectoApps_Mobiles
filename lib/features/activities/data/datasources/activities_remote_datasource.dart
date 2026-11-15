@@ -11,6 +11,9 @@ abstract class ActivitiesRemoteDataSource {
   Future<List<ActivityCategoryModel>> fetchCategories();
 
   Future<List<ActivityModel>> fetchActivities({String? categoryId});
+
+  /// Lanza [NotFoundException] si la actividad no existe o no está publicada.
+  Future<ActivityModel> fetchActivityById(String activityId);
 }
 
 class ActivitiesRemoteDataSourceImpl implements ActivitiesRemoteDataSource {
@@ -45,6 +48,24 @@ class ActivitiesRemoteDataSourceImpl implements ActivitiesRemoteDataSource {
       final rows = await query.order('title', ascending: true);
 
       return rows.map(ActivityModel.fromJson).toList();
+    });
+  }
+
+  /// Filtra también por `is_published`: una actividad en borrador no debe
+  /// abrirse ni siquiera con el enlace directo.
+  @override
+  Future<ActivityModel> fetchActivityById(String activityId) {
+    return _guard(() async {
+      final rows = await client
+          .from('activities')
+          .select()
+          .eq('id', activityId)
+          .eq('is_published', true)
+          .limit(1);
+
+      if (rows.isEmpty) throw const NotFoundException();
+
+      return ActivityModel.fromJson(rows.first);
     });
   }
 

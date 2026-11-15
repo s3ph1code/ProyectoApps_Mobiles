@@ -111,4 +111,40 @@ void main() {
       });
     });
   });
+
+  group('getActivityById', () {
+    test('devuelve la actividad del datasource', () async {
+      when(
+        () => dataSource.fetchActivityById(any()),
+      ).thenAnswer((_) async => activity);
+
+      final result = await repository.getActivityById('act-1');
+
+      expect(result.getOrElse(() => throw 'sin actividad'), activity);
+      verify(() => dataSource.fetchActivityById('act-1')).called(1);
+    });
+
+    test('NotFoundException se vuelve ActivityNotFoundFailure', () async {
+      when(
+        () => dataSource.fetchActivityById(any()),
+      ).thenThrow(const NotFoundException());
+
+      final result = await repository.getActivityById('act-9');
+
+      expect(
+        result.swap().getOrElse(() => const UnexpectedFailure()),
+        const ActivityNotFoundFailure(),
+      );
+    });
+
+    errorCases.forEach((name, pair) {
+      test('mapea $name a su Failure', () async {
+        when(() => dataSource.fetchActivityById(any())).thenThrow(pair.$1);
+
+        final result = await repository.getActivityById('act-1');
+
+        expect(result.swap().getOrElse(() => const UnexpectedFailure()), pair.$2);
+      });
+    });
+  });
 }

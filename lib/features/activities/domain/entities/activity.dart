@@ -11,6 +11,13 @@ class Activity extends Equatable {
   final ActivityModality modality;
   final int durationMinutes;
 
+  /// Los pasos de la actividad (`content_text`). La lista no los trae; el
+  /// detalle sí.
+  final String? contentText;
+
+  /// Enlace externo opcional (`external_url`).
+  final String? externalUrl;
+
   const Activity({
     required this.id,
     required this.categoryId,
@@ -18,6 +25,8 @@ class Activity extends Equatable {
     required this.description,
     required this.modality,
     required this.durationMinutes,
+    this.contentText,
+    this.externalUrl,
   });
 
   @override
@@ -28,5 +37,7 @@ class Activity extends Equatable {
     description,
     modality,
     durationMinutes,
+    contentText,
+    externalUrl,
   ];
 }

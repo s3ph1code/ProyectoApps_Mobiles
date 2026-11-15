@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:go_router/go_router.dart';
 
+import '../../../../core/router/app_router.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_radii.dart';
 import '../../domain/entities/activity.dart';
@@ -169,37 +171,55 @@ class _ActivityCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final textTheme = Theme.of(context).textTheme;
 
-    return Container(
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: AppColors.surface,
-        borderRadius: BorderRadius.circular(AppRadii.md),
-        border: Border.all(color: AppColors.lineSoft),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(activity.title, style: textTheme.titleMedium),
-          const SizedBox(height: 6),
-          Text(
-            activity.description,
-            maxLines: 3,
-            overflow: TextOverflow.ellipsis,
-            style: textTheme.bodyMedium,
-          ),
-          const SizedBox(height: 12),
-          Wrap(
-            spacing: 8,
-            runSpacing: 8,
-            children: [
-              _Tag(
-                icon: Icons.schedule_rounded,
-                label: '${activity.durationMinutes} min',
-              ),
-              _Tag(label: activity.modality.label),
-            ],
-          ),
-        ],
+    return InkWell(
+      borderRadius: BorderRadius.circular(AppRadii.md),
+      // Con push, el detalle se abre encima y la flecha vuelve a la lista
+      // manteniendo el filtro elegido.
+      onTap: () => context.push(AppRoutes.activityDetail(activity.id)),
+      child: Container(
+        padding: const EdgeInsets.all(16),
+        decoration: BoxDecoration(
+          color: AppColors.surface,
+          borderRadius: BorderRadius.circular(AppRadii.md),
+          border: Border.all(color: AppColors.lineSoft),
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                Expanded(
+                  child: Text(activity.title, style: textTheme.titleMedium),
+                ),
+                const SizedBox(width: 8),
+                const Icon(
+                  Icons.chevron_right_rounded,
+                  size: 22,
+                  color: AppColors.inkMuted,
+                ),
+              ],
+            ),
+            const SizedBox(height: 6),
+            Text(
+              activity.description,
+              maxLines: 3,
+              overflow: TextOverflow.ellipsis,
+              style: textTheme.bodyMedium,
+            ),
+            const SizedBox(height: 12),
+            Wrap(
+              spacing: 8,
+              runSpacing: 8,
+              children: [
+                _Tag(
+                  icon: Icons.schedule_rounded,
+                  label: '${activity.durationMinutes} min',
+                ),
+                _Tag(label: activity.modality.label),
+              ],
+            ),
+          ],
+        ),
       ),
     );
   }

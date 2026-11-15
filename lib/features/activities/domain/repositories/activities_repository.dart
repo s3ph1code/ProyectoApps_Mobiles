@@ -10,4 +10,7 @@ abstract class ActivitiesRepository {
 
   /// Las actividades publicadas; con [categoryId] solo las de esa categoría.
   Future<Either<Failure, List<Activity>>> getActivities({String? categoryId});
+
+  /// Una actividad publicada por su id, con sus pasos y su enlace.
+  Future<Either<Failure, Activity>> getActivityById(String activityId);
 }
