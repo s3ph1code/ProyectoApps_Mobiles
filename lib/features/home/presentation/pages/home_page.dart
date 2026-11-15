@@ -72,7 +72,9 @@ class HomePage extends StatelessWidget {
                   child: ListView(
                     padding: const EdgeInsets.fromLTRB(24, 0, 24, 24),
                     children: [
-                      _FeatureCard(onTap: () => showComingSoon(context)),
+                      _FeatureCard(
+                        onTap: () => context.push(AppRoutes.activities),
+                      ),
                       const SizedBox(height: 28),
                       Text(
                         '¿QUÉ NECESITAS HOY?',

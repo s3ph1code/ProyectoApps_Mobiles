@@ -2,6 +2,9 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../features/activities/presentation/bloc/activities_bloc.dart';
+import '../../features/activities/presentation/bloc/activities_event.dart';
+import '../../features/activities/presentation/pages/activities_page.dart';
 import '../../features/auth/presentation/bloc/forgot_password_bloc.dart';
 import '../../features/auth/presentation/bloc/login_bloc.dart';
 import '../../features/auth/presentation/bloc/register_bloc.dart';
@@ -43,6 +46,7 @@ class AppRoutes {
   static const home = '/home';
   static const forMe = '/for-me';
   static const support = '/support';
+  static const activities = '/activities';
   static const needs = '/needs';
   static const needsRecommendations = '/needs/recommendations';
   static const moodCheckin = '/wellbeing/checkin';
@@ -135,6 +139,14 @@ class AppRouter {
           ],
         ),
         GoRoute(
+          path: AppRoutes.activities,
+          builder: (context, state) => BlocProvider(
+            create: (_) =>
+                sl<ActivitiesBloc>()..add(const ActivitiesRequested()),
+            child: const ActivitiesPage(),
+          ),
+        ),
+        GoRoute(
           path: AppRoutes.moodCheckin,
           builder: (context, state) => BlocProvider(
             create: (_) => sl<MoodCheckinBloc>(),
@@ -161,8 +173,11 @@ class AppRouter {
               routes: [
                 GoRoute(
                   path: AppRoutes.forMe,
-                  builder: (context, state) =>
-                      const ComingSoonPage(title: 'Para mí'),
+                  builder: (context, state) => BlocProvider(
+                    create: (_) =>
+                        sl<ActivitiesBloc>()..add(const ActivitiesRequested()),
+                    child: const ActivitiesPage(),
+                  ),
                 ),
               ],
             ),
