@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:go_router/go_router.dart';
 
+import '../../../../core/router/recommendation_destination.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_radii.dart';
 import '../../domain/entities/recommendation.dart';
@@ -70,6 +72,8 @@ class _RecommendationsList extends StatelessWidget {
   }
 }
 
+/// Tarjeta de una sugerencia. A dónde lleva lo decide la capa de navegación
+/// con [recommendationRoute]; si no lleva a ninguna parte, solo se lee.
 class _RecommendationCard extends StatelessWidget {
   final Recommendation recommendation;
 
@@ -78,30 +82,43 @@ class _RecommendationCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final textTheme = Theme.of(context).textTheme;
+    final route = recommendationRoute(recommendation);
 
-    return Container(
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: AppColors.surface,
-        borderRadius: BorderRadius.circular(AppRadii.md),
-        border: Border.all(color: AppColors.lineSoft),
-      ),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          const Icon(
-            Icons.auto_awesome_outlined,
-            size: 22,
-            color: AppColors.sage,
-          ),
-          const SizedBox(width: 12),
-          Expanded(
-            child: Text(
-              recommendation.message,
-              style: textTheme.bodyLarge,
+    return InkWell(
+      borderRadius: BorderRadius.circular(AppRadii.md),
+      onTap: route == null ? null : () => context.push(route),
+      child: Container(
+        padding: const EdgeInsets.all(16),
+        decoration: BoxDecoration(
+          color: AppColors.surface,
+          borderRadius: BorderRadius.circular(AppRadii.md),
+          border: Border.all(color: AppColors.lineSoft),
+        ),
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const Icon(
+              Icons.auto_awesome_outlined,
+              size: 22,
+              color: AppColors.sage,
             ),
-          ),
-        ],
+            const SizedBox(width: 12),
+            Expanded(
+              child: Text(
+                recommendation.message,
+                style: textTheme.bodyLarge,
+              ),
+            ),
+            if (route != null) ...[
+              const SizedBox(width: 8),
+              const Icon(
+                Icons.chevron_right_rounded,
+                size: 22,
+                color: AppColors.inkMuted,
+              ),
+            ],
+          ],
+        ),
       ),
     );
   }

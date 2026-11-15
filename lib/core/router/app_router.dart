@@ -62,6 +62,7 @@ class AppRoutes {
   static const activityDetail = '/activities/:id';
   static const activitySession = '/activities/:id/session';
   static const savedActivities = '/activities/saved';
+  static const community = '/community';
   static const profile = '/profile';
   static const editProfile = '/profile/edit';
   static const notifications = '/profile/notifications';
@@ -185,6 +186,17 @@ class AppRouter {
             subtitle:
                 'Tus pausas favoritas guardadas para acceder a ellas rápidamente.',
             icon: Icons.bookmark_border_rounded,
+          ),
+        ),
+        // La comunidad llega en el Sprint 3. El placeholder vuelve a donde
+        // estaba la usuaria, que es lo que pide el AC-5 de S2-06.
+        GoRoute(
+          path: AppRoutes.community,
+          builder: (context, state) => const FeaturePlaceholderPage(
+            title: 'Comunidad de madres',
+            subtitle:
+                'Un espacio sin juicios para leer a otras madres y compartir lo que estás viviendo.',
+            icon: Icons.forum_outlined,
           ),
         ),
         GoRoute(

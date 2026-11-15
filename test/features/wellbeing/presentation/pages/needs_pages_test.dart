@@ -56,6 +56,31 @@ void main() {
     final router = GoRouter(
       initialLocation: initialLocation,
       routes: [
+        GoRoute(
+          path: AppRoutes.activities,
+          builder: (_, _) =>
+              const Scaffold(body: Text('Pantalla Microdescansos')),
+          routes: [
+            GoRoute(
+              path: ':activityId',
+              // Con barra, como el destino real: así se puede volver.
+              builder: (_, state) => Scaffold(
+                appBar: AppBar(title: const Text('Microdescanso')),
+                body: Text(
+                  'Pantalla Detalle ${state.pathParameters['activityId']}',
+                ),
+              ),
+            ),
+          ],
+        ),
+        GoRoute(
+          path: AppRoutes.moodCheckin,
+          builder: (_, _) => const Scaffold(body: Text('Pantalla Check-in')),
+        ),
+        GoRoute(
+          path: AppRoutes.community,
+          builder: (_, _) => const Scaffold(body: Text('Pantalla Comunidad')),
+        ),
         ShellRoute(
           builder: (_, _, child) =>
               BlocProvider<NeedsBloc>.value(value: bloc, child: child),
@@ -279,6 +304,113 @@ void main() {
       await t.pumpWidget(buildRecommendations());
 
       expect(find.text('El servicio no respondió.'), findsOneWidget);
+      expect(t.takeException(), isNull);
+    });
+  });
+
+  group('destinos de una recomendación', () {
+    /// Pinta las recomendaciones con una sola [recommendation] y la toca.
+    Future<void> tapOn(WidgetTester t, Recommendation recommendation) async {
+      useSmallPhone(t);
+      when(
+        () => bloc.state,
+      ).thenReturn(NeedsRecommendationsReady([recommendation]));
+
+      await t.pumpWidget(buildRecommendations());
+      await t.tap(find.byKey(Key('recommendation_${recommendation.id}')));
+      await t.pumpAndSettle();
+    }
+
+    testWidgets('con activity_id abre el detalle de esa actividad', (t) async {
+      await tapOn(
+        t,
+        const Recommendation(
+          id: 'rec-1',
+          message: 'Respira conmigo.',
+          priority: 10,
+          activityId: 'act-1',
+          destinationCode: 'activities',
+        ),
+      );
+
+      expect(find.text('Pantalla Detalle act-1'), findsOneWidget);
+    });
+
+    testWidgets('puedo volver a las recomendaciones desde el destino', (
+      t,
+    ) async {
+      await tapOn(
+        t,
+        const Recommendation(
+          id: 'rec-1',
+          message: 'Respira conmigo.',
+          priority: 10,
+          activityId: 'act-1',
+        ),
+      );
+      expect(find.text('Pantalla Detalle act-1'), findsOneWidget);
+
+      await t.pageBack();
+      await t.pumpAndSettle();
+
+      expect(find.byKey(const Key('recommendation_rec-1')), findsOneWidget);
+    });
+
+    testWidgets('activities abre la lista de microdescansos', (t) async {
+      await tapOn(
+        t,
+        const Recommendation(
+          id: 'rec-2',
+          message: 'Mira los microdescansos.',
+          priority: 10,
+          destinationCode: 'activities',
+        ),
+      );
+
+      expect(find.text('Pantalla Microdescansos'), findsOneWidget);
+    });
+
+    testWidgets('mood_checkin abre el check-in de ánimo', (t) async {
+      await tapOn(
+        t,
+        const Recommendation(
+          id: 'rec-3',
+          message: 'Contarte cómo te sientes también cuenta.',
+          priority: 10,
+          destinationCode: 'mood_checkin',
+        ),
+      );
+
+      expect(find.text('Pantalla Check-in'), findsOneWidget);
+    });
+
+    testWidgets('community abre la comunidad', (t) async {
+      await tapOn(
+        t,
+        const Recommendation(
+          id: 'rec-4',
+          message: 'Otras madres están viviendo algo parecido.',
+          priority: 10,
+          destinationCode: 'community',
+        ),
+      );
+
+      expect(find.text('Pantalla Comunidad'), findsOneWidget);
+    });
+
+    testWidgets('sin destino la tarjeta no navega ni falla', (t) async {
+      useSmallPhone(t);
+      when(() => bloc.state).thenReturn(
+        const NeedsRecommendationsReady([
+          Recommendation(id: 'rec-5', message: 'Solo un mensaje.', priority: 10),
+        ]),
+      );
+
+      await t.pumpWidget(buildRecommendations());
+      await t.tap(find.byKey(const Key('recommendation_rec-5')));
+      await t.pumpAndSettle();
+
+      expect(find.byKey(const Key('recommendation_rec-5')), findsOneWidget);
       expect(t.takeException(), isNull);
     });
   });
