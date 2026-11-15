@@ -47,6 +47,7 @@ class AppRoutes {
   static const forMe = '/for-me';
   static const support = '/support';
   static const activities = '/activities';
+  static const community = '/community';
   static const needs = '/needs';
   static const needsRecommendations = '/needs/recommendations';
   static const moodCheckin = '/wellbeing/checkin';
@@ -54,6 +55,12 @@ class AppRoutes {
   static const editProfile = '/profile/edit';
   static const notifications = '/profile/notifications';
   static const privacy = '/profile/privacy';
+
+  /// Detalle de una actividad. El contenido llega con S2-08; por ahora la
+  /// ruta existe para que una recomendación con `activity_id` tenga a dónde
+  /// ir sin romper la app.
+  static String activityDetail(String activityId) =>
+      '$activities/$activityId';
 
   /// A dónde llega la usuaria después de iniciar sesión o terminar el
   /// onboarding. En el Sprint 1 es el resumen del perfil; cambiar a [home]
@@ -145,6 +152,20 @@ class AppRouter {
                 sl<ActivitiesBloc>()..add(const ActivitiesRequested()),
             child: const ActivitiesPage(),
           ),
+          routes: [
+            // El detalle de la actividad es S2-08. Hasta entonces avisa en
+            // vez de romper: la recomendación ya sabe a dónde ir.
+            GoRoute(
+              path: ':activityId',
+              builder: (context, state) =>
+                  const ComingSoonPage.pushed(title: 'Microdescanso'),
+            ),
+          ],
+        ),
+        GoRoute(
+          path: AppRoutes.community,
+          builder: (context, state) =>
+              const ComingSoonPage.pushed(title: 'Comunidad'),
         ),
         GoRoute(
           path: AppRoutes.moodCheckin,
