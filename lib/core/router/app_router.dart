@@ -2,13 +2,15 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../features/activities/presentation/bloc/activities_bloc.dart';
+import '../../features/activities/presentation/bloc/activities_event.dart';
+import '../../features/activities/presentation/pages/activities_page.dart';
 import '../../features/auth/presentation/bloc/forgot_password_bloc.dart';
 import '../../features/auth/presentation/bloc/login_bloc.dart';
 import '../../features/auth/presentation/bloc/register_bloc.dart';
 import '../../features/auth/presentation/pages/forgot_password_page.dart';
 import '../../features/auth/presentation/pages/login_page.dart';
 import '../../features/auth/presentation/pages/register_page.dart';
-import '../../features/for_me/presentation/pages/for_me_page.dart';
 import '../../features/home/presentation/pages/home_page.dart';
 import '../../features/onboarding/presentation/pages/onboarding_page.dart';
 import '../../features/preferences/presentation/bloc/preferences_bloc.dart';
@@ -24,10 +26,12 @@ import '../../features/profile/presentation/pages/profile_page.dart';
 import '../../features/splash/presentation/pages/splash_page.dart';
 import '../../features/support/presentation/pages/support_page.dart';
 import '../../features/wellbeing/presentation/bloc/mood_checkin_bloc.dart';
+import '../../features/wellbeing/presentation/bloc/mood_history_bloc.dart';
+import '../../features/wellbeing/presentation/bloc/mood_history_event.dart';
 import '../../features/wellbeing/presentation/pages/mood_checkin_page.dart';
+import '../../features/wellbeing/presentation/pages/mood_history_page.dart';
 import '../../injection_container.dart';
 import '../widgets/app_shell.dart';
-import '../widgets/coming_soon.dart';
 import '../widgets/placeholder_page.dart';
 import 'session_notifier.dart';
 
@@ -42,11 +46,11 @@ class AppRoutes {
   static const home = '/home';
   static const forMe = '/for-me';
   static const support = '/support';
+  static const activities = '/activities';
   static const moodCheckin = '/wellbeing/checkin';
   static const moodHistory = '/wellbeing/history';
   static const needs = '/wellbeing/needs';
   static const recommendations = '/wellbeing/recommendations';
-  static const activities = '/activities';
   static const activityDetail = '/activities/:id';
   static const activitySession = '/activities/:id/session';
   static const savedActivities = '/activities/saved';
@@ -126,6 +130,14 @@ class AppRouter {
           builder: (context, state) => const OnboardingPage(),
         ),
         GoRoute(
+          path: AppRoutes.activities,
+          builder: (context, state) => BlocProvider(
+            create: (_) =>
+                sl<ActivitiesBloc>()..add(const ActivitiesRequested()),
+            child: const ActivitiesPage(),
+          ),
+        ),
+        GoRoute(
           path: AppRoutes.moodCheckin,
           builder: (context, state) => BlocProvider(
             create: (_) => sl<MoodCheckinBloc>(),
@@ -134,11 +146,10 @@ class AppRouter {
         ),
         GoRoute(
           path: AppRoutes.moodHistory,
-          builder: (context, state) => const FeaturePlaceholderPage(
-            title: 'Mis check-ins',
-            subtitle:
-                'Aquí podrás consultar tus registros previos y ver cómo te has sentido a lo largo de los días.',
-            icon: Icons.history_rounded,
+          builder: (context, state) => BlocProvider(
+            create: (_) =>
+                sl<MoodHistoryBloc>()..add(const MoodHistoryRequested()),
+            child: const MoodHistoryPage(),
           ),
         ),
         GoRoute(
@@ -157,15 +168,6 @@ class AppRouter {
             subtitle:
                 'Sugerencias de pausas y apoyo pensadas para lo que necesitas hoy.',
             icon: Icons.recommend_outlined,
-          ),
-        ),
-        GoRoute(
-          path: AppRoutes.activities,
-          builder: (context, state) => const FeaturePlaceholderPage(
-            title: 'Microdescansos',
-            subtitle:
-                'Pausas breves ordenadas por categoría: respiración, descanso, movimiento y mente amable.',
-            icon: Icons.spa_outlined,
           ),
         ),
         GoRoute(
@@ -221,7 +223,11 @@ class AppRouter {
               routes: [
                 GoRoute(
                   path: AppRoutes.forMe,
-                  builder: (context, state) => const ForMePage(),
+                  builder: (context, state) => BlocProvider(
+                    create: (_) =>
+                        sl<ActivitiesBloc>()..add(const ActivitiesRequested()),
+                    child: const ActivitiesPage(),
+                  ),
                 ),
               ],
             ),

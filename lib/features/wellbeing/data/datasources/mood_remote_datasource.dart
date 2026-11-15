@@ -12,6 +12,13 @@ abstract class MoodRemoteDataSource {
     required int moodScore,
     String? note,
   });
+
+  /// Los check-ins de [userId], del más reciente al más antiguo, como
+  /// máximo [limit].
+  Future<List<MoodCheckinModel>> fetchCheckins({
+    required String userId,
+    required int limit,
+  });
 }
 
 class MoodRemoteDataSourceImpl implements MoodRemoteDataSource {
@@ -24,8 +31,8 @@ class MoodRemoteDataSourceImpl implements MoodRemoteDataSource {
     required String userId,
     required int moodScore,
     String? note,
-  }) async {
-    try {
+  }) {
+    return _guard(() async {
       final json = await client
           .from('mood_checkins')
           .insert({'user_id': userId, 'mood_score': moodScore, 'note': note})
@@ -33,6 +40,31 @@ class MoodRemoteDataSourceImpl implements MoodRemoteDataSource {
           .single();
 
       return MoodCheckinModel.fromJson(json);
+    });
+  }
+
+  @override
+  Future<List<MoodCheckinModel>> fetchCheckins({
+    required String userId,
+    required int limit,
+  }) {
+    return _guard(() async {
+      final rows = await client
+          .from('mood_checkins')
+          .select()
+          .eq('user_id', userId)
+          .order('recorded_at', ascending: false)
+          .limit(limit);
+
+      return rows.map(MoodCheckinModel.fromJson).toList();
+    });
+  }
+
+  /// Traduce los errores de Supabase y de red a las excepciones de la app,
+  /// que el repositorio convierte en `Failure`.
+  Future<T> _guard<T>(Future<T> Function() run) async {
+    try {
+      return await run();
     } on supabase.AuthException catch (e) {
       throw AuthException(e.message, code: e.code ?? e.statusCode);
     } on supabase.PostgrestException catch (e) {

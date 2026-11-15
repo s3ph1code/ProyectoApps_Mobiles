@@ -42,6 +42,11 @@ void main() {
           builder: (_, _) => const Scaffold(body: Text('Pantalla Inicio')),
         ),
         GoRoute(
+          path: AppRoutes.moodHistory,
+          builder: (_, _) =>
+              const Scaffold(body: Text('Pantalla Mis registros')),
+        ),
+        GoRoute(
           path: AppRoutes.moodCheckin,
           builder: (_, _) => BlocProvider<MoodCheckinBloc>.value(
             value: bloc,
@@ -166,6 +171,17 @@ void main() {
     await t.pumpAndSettle();
 
     expect(find.text('Pantalla Inicio'), findsOneWidget);
+    verifyNever(() => bloc.add(any()));
+  });
+
+  testWidgets('"Mis registros" abre el historial sin guardar', (t) async {
+    useSmallPhone(t);
+    await t.pumpWidget(buildPage());
+
+    await t.tap(find.byKey(const Key('mood_history_link')));
+    await t.pumpAndSettle();
+
+    expect(find.text('Pantalla Mis registros'), findsOneWidget);
     verifyNever(() => bloc.add(any()));
   });
 }

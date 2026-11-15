@@ -23,11 +23,19 @@ import 'features/preferences/domain/usecases/get_preferences.dart';
 import 'features/preferences/domain/usecases/update_preferences.dart';
 import 'features/preferences/presentation/bloc/preferences_bloc.dart';
 import 'features/profile/data/datasources/profile_remote_datasource.dart';
+import 'features/activities/data/datasources/activities_remote_datasource.dart';
+import 'features/activities/data/repositories/activities_repository_impl.dart';
+import 'features/activities/domain/repositories/activities_repository.dart';
+import 'features/activities/domain/usecases/get_activities.dart';
+import 'features/activities/domain/usecases/get_activity_categories.dart';
+import 'features/activities/presentation/bloc/activities_bloc.dart';
 import 'features/wellbeing/data/datasources/mood_remote_datasource.dart';
 import 'features/wellbeing/data/repositories/mood_repository_impl.dart';
 import 'features/wellbeing/domain/repositories/mood_repository.dart';
+import 'features/wellbeing/domain/usecases/get_mood_history.dart';
 import 'features/wellbeing/domain/usecases/save_mood_checkin.dart';
 import 'features/wellbeing/presentation/bloc/mood_checkin_bloc.dart';
+import 'features/wellbeing/presentation/bloc/mood_history_bloc.dart';
 import 'features/profile/data/repositories/profile_repository_impl.dart';
 import 'features/profile/domain/repositories/profile_repository.dart';
 import 'features/profile/domain/usecases/create_profile.dart';
@@ -49,6 +57,7 @@ Future<void> initDependencies() async {
   _registerProfile();
   _registerPreferences();
   _registerWellbeing();
+  _registerActivities();
 
   // La sesión que Supabase restauró al arrancar decide la primera pantalla.
   final current = await sl<GetCurrentUser>()(const NoParams());
@@ -136,8 +145,28 @@ void _registerWellbeing() {
   );
 
   sl.registerLazySingleton(() => SaveMoodCheckin(sl()));
+  sl.registerLazySingleton(() => GetMoodHistory(sl()));
 
   sl.registerFactory(
     () => MoodCheckinBloc(getCurrentUser: sl(), saveMoodCheckin: sl()),
+  );
+  sl.registerFactory(
+    () => MoodHistoryBloc(getCurrentUser: sl(), getMoodHistory: sl()),
+  );
+}
+
+void _registerActivities() {
+  sl.registerLazySingleton<ActivitiesRemoteDataSource>(
+    () => ActivitiesRemoteDataSourceImpl(client: sl()),
+  );
+  sl.registerLazySingleton<ActivitiesRepository>(
+    () => ActivitiesRepositoryImpl(remoteDataSource: sl()),
+  );
+
+  sl.registerLazySingleton(() => GetActivityCategories(sl()));
+  sl.registerLazySingleton(() => GetActivities(sl()));
+
+  sl.registerFactory(
+    () => ActivitiesBloc(getActivityCategories: sl(), getActivities: sl()),
   );
 }

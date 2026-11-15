@@ -62,6 +62,11 @@ void main() {
           builder: (_, _) =>
               const Scaffold(body: Text('Pantalla Notificaciones')),
         ),
+        GoRoute(
+          path: AppRoutes.activities,
+          builder: (_, _) =>
+              const Scaffold(body: Text('Pantalla Microdescansos')),
+        ),
       ],
     );
     return MaterialApp.router(routerConfig: router);
@@ -137,6 +142,17 @@ void main() {
     expect(find.text('Pantalla Check-in'), findsOneWidget);
   });
 
+  testWidgets('la tarjeta destacada abre los microdescansos', (tester) async {
+    useTallScreen(tester);
+    when(() => bloc.state).thenReturn(const ProfileLoading());
+
+    await tester.pumpWidget(buildPage());
+    await tester.tap(find.byKey(const Key('home_feature_card')));
+    await tester.pumpAndSettle();
+
+    expect(find.text('Pantalla Microdescansos'), findsOneWidget);
+  });
+
   testWidgets('las secciones Próximamente avisan sin navegar', (tester) async {
     useTallScreen(tester);
     when(() => bloc.state).thenReturn(const ProfileLoading());
@@ -171,16 +187,5 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.text('Pantalla Notificaciones'), findsOneWidget);
-  });
-
-  testWidgets('la tarjeta destacada abre la pestaña Para mí', (tester) async {
-    useTallScreen(tester);
-    when(() => bloc.state).thenReturn(const ProfileLoading());
-
-    await tester.pumpWidget(buildPage());
-    await tester.tap(find.byKey(const Key('home_feature_card')));
-    await tester.pumpAndSettle();
-
-    expect(find.text('Pantalla Para mí'), findsOneWidget);
   });
 }
