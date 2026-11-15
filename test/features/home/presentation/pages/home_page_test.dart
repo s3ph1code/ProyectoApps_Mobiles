@@ -63,6 +63,11 @@ void main() {
               const Scaffold(body: Text('Pantalla Notificaciones')),
         ),
         GoRoute(
+          path: AppRoutes.needs,
+          builder: (_, _) =>
+              const Scaffold(body: Text('Pantalla No sé qué necesito')),
+        ),
+        GoRoute(
           path: AppRoutes.activities,
           builder: (_, _) =>
               const Scaffold(body: Text('Pantalla Microdescansos')),
@@ -93,7 +98,7 @@ void main() {
     expect(find.text('Hola'), findsOneWidget);
   });
 
-  testWidgets('muestra la tarjeta destacada y las seis opciones', (
+  testWidgets('muestra la tarjeta destacada y las siete opciones', (
     tester,
   ) async {
     useTallScreen(tester);
@@ -104,6 +109,7 @@ void main() {
     expect(find.text('¿Tienes unos minutos\npara ti?'), findsOneWidget);
     expect(find.text('¿QUÉ NECESITAS HOY?'), findsOneWidget);
     for (final title in [
+      'No sé qué necesito',
       'Para mí',
       'Red de apoyo',
       'Aprende sobre ti',
@@ -151,6 +157,17 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.text('Pantalla Microdescansos'), findsOneWidget);
+  });
+
+  testWidgets('«No sé qué necesito» abre las necesidades', (tester) async {
+    useTallScreen(tester);
+    when(() => bloc.state).thenReturn(const ProfileLoading());
+
+    await tester.pumpWidget(buildPage());
+    await tester.tap(find.byKey(const Key('home_card_needs')));
+    await tester.pumpAndSettle();
+
+    expect(find.text('Pantalla No sé qué necesito'), findsOneWidget);
   });
 
   testWidgets('las secciones Próximamente avisan sin navegar', (tester) async {

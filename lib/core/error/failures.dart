@@ -88,6 +88,11 @@ class ActivityNotFoundFailure extends Failure {
     : super('Esa actividad ya no está disponible. Elige otra de la lista.');
 }
 
+class NeedSelectionRequiredFailure extends Failure {
+  const NeedSelectionRequiredFailure()
+    : super('Elige al menos una opción para ver sugerencias.');
+}
+
 class UnauthenticatedFailure extends Failure {
   const UnauthenticatedFailure()
     : super('Tu sesión terminó. Inicia sesión para continuar.');

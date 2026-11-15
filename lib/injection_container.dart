@@ -33,12 +33,19 @@ import 'features/activities/presentation/bloc/activities_bloc.dart';
 import 'features/activities/presentation/bloc/activity_detail_bloc.dart';
 import 'features/activities/presentation/services/link_opener.dart';
 import 'features/wellbeing/data/datasources/mood_remote_datasource.dart';
+import 'features/wellbeing/data/datasources/needs_remote_datasource.dart';
 import 'features/wellbeing/data/repositories/mood_repository_impl.dart';
+import 'features/wellbeing/data/repositories/needs_repository_impl.dart';
 import 'features/wellbeing/domain/repositories/mood_repository.dart';
+import 'features/wellbeing/domain/repositories/needs_repository.dart';
 import 'features/wellbeing/domain/usecases/get_mood_history.dart';
+import 'features/wellbeing/domain/usecases/get_need_options.dart';
+import 'features/wellbeing/domain/usecases/get_recommendations.dart';
 import 'features/wellbeing/domain/usecases/save_mood_checkin.dart';
+import 'features/wellbeing/domain/usecases/save_need_session.dart';
 import 'features/wellbeing/presentation/bloc/mood_checkin_bloc.dart';
 import 'features/wellbeing/presentation/bloc/mood_history_bloc.dart';
+import 'features/wellbeing/presentation/bloc/needs_bloc.dart';
 import 'features/profile/data/repositories/profile_repository_impl.dart';
 import 'features/profile/domain/repositories/profile_repository.dart';
 import 'features/profile/domain/usecases/create_profile.dart';
@@ -155,6 +162,26 @@ void _registerWellbeing() {
   );
   sl.registerFactory(
     () => MoodHistoryBloc(getCurrentUser: sl(), getMoodHistory: sl()),
+  );
+
+  sl.registerLazySingleton<NeedsRemoteDataSource>(
+    () => NeedsRemoteDataSourceImpl(client: sl()),
+  );
+  sl.registerLazySingleton<NeedsRepository>(
+    () => NeedsRepositoryImpl(remoteDataSource: sl()),
+  );
+
+  sl.registerLazySingleton(() => GetNeedOptions(sl()));
+  sl.registerLazySingleton(() => GetRecommendations(sl()));
+  sl.registerLazySingleton(() => SaveNeedSession(sl()));
+
+  sl.registerFactory(
+    () => NeedsBloc(
+      getCurrentUser: sl(),
+      getNeedOptions: sl(),
+      getRecommendations: sl(),
+      saveNeedSession: sl(),
+    ),
   );
 }
 
