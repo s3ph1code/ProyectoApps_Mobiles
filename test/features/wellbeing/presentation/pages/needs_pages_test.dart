@@ -65,7 +65,7 @@ void main() {
               builder: (_, _) => const NeedsSelectionPage(),
             ),
             GoRoute(
-              path: AppRoutes.needsRecommendations,
+              path: AppRoutes.recommendations,
               builder: (_, _) => const RecommendationsPage(),
             ),
           ],
@@ -77,7 +77,7 @@ void main() {
 
   Widget buildSelection() => buildApp(initialLocation: AppRoutes.needs);
   Widget buildRecommendations() =>
-      buildApp(initialLocation: AppRoutes.needsRecommendations);
+      buildApp(initialLocation: AppRoutes.recommendations);
 
   group('NeedsSelectionPage', () {
     testWidgets('mientras carga muestra el indicador', (t) async {

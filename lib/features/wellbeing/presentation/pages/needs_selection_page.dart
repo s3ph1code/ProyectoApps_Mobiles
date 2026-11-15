@@ -26,7 +26,7 @@ class NeedsSelectionPage extends StatelessWidget {
           listenWhen: (previous, current) =>
               current is NeedsRecommendationsReady,
           listener: (context, state) =>
-              context.push(AppRoutes.needsRecommendations),
+              context.push(AppRoutes.recommendations),
           builder: (context, state) => switch (state) {
             NeedsInitial() || NeedsLoadingOptions() => const Center(
               key: Key('needs_loading'),
