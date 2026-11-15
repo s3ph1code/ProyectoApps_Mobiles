@@ -63,7 +63,7 @@ class HomePage extends StatelessWidget {
                       _RoundIconButton(
                         key: const Key('home_notifications_button'),
                         icon: Icons.notifications_none_rounded,
-                        onTap: () => showComingSoon(context),
+                        onTap: () => context.push(AppRoutes.notifications),
                       ),
                     ],
                   ),
@@ -72,7 +72,7 @@ class HomePage extends StatelessWidget {
                   child: ListView(
                     padding: const EdgeInsets.fromLTRB(24, 0, 24, 24),
                     children: [
-                      _FeatureCard(onTap: () => showComingSoon(context)),
+                      _FeatureCard(onTap: () => context.go(AppRoutes.forMe)),
                       const SizedBox(height: 28),
                       Text(
                         '¿QUÉ NECESITAS HOY?',

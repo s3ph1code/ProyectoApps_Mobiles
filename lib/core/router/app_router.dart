@@ -8,6 +8,7 @@ import '../../features/auth/presentation/bloc/register_bloc.dart';
 import '../../features/auth/presentation/pages/forgot_password_page.dart';
 import '../../features/auth/presentation/pages/login_page.dart';
 import '../../features/auth/presentation/pages/register_page.dart';
+import '../../features/for_me/presentation/pages/for_me_page.dart';
 import '../../features/home/presentation/pages/home_page.dart';
 import '../../features/onboarding/presentation/pages/onboarding_page.dart';
 import '../../features/preferences/presentation/bloc/preferences_bloc.dart';
@@ -16,16 +17,18 @@ import '../../features/preferences/presentation/pages/notifications_page.dart';
 import '../../features/preferences/presentation/pages/privacy_page.dart';
 import '../../features/profile/presentation/bloc/avatar_bloc.dart';
 import '../../features/profile/presentation/bloc/edit_profile_bloc.dart';
-import '../../features/wellbeing/presentation/bloc/mood_checkin_bloc.dart';
-import '../../features/wellbeing/presentation/pages/mood_checkin_page.dart';
 import '../../features/profile/presentation/bloc/profile_bloc.dart';
 import '../../features/profile/presentation/bloc/profile_event.dart';
 import '../../features/profile/presentation/pages/edit_profile_page.dart';
 import '../../features/profile/presentation/pages/profile_page.dart';
 import '../../features/splash/presentation/pages/splash_page.dart';
+import '../../features/support/presentation/pages/support_page.dart';
+import '../../features/wellbeing/presentation/bloc/mood_checkin_bloc.dart';
+import '../../features/wellbeing/presentation/pages/mood_checkin_page.dart';
 import '../../injection_container.dart';
 import '../widgets/app_shell.dart';
 import '../widgets/coming_soon.dart';
+import '../widgets/placeholder_page.dart';
 import 'session_notifier.dart';
 
 class AppRoutes {
@@ -40,10 +43,20 @@ class AppRoutes {
   static const forMe = '/for-me';
   static const support = '/support';
   static const moodCheckin = '/wellbeing/checkin';
+  static const moodHistory = '/wellbeing/history';
+  static const needs = '/wellbeing/needs';
+  static const recommendations = '/wellbeing/recommendations';
+  static const activities = '/activities';
+  static const activityDetail = '/activities/:id';
+  static const activitySession = '/activities/:id/session';
+  static const savedActivities = '/activities/saved';
   static const profile = '/profile';
   static const editProfile = '/profile/edit';
   static const notifications = '/profile/notifications';
   static const privacy = '/profile/privacy';
+
+  static String activityDetailPath(String id) => '/activities/$id';
+  static String activitySessionPath(String id) => '/activities/$id/session';
 
   /// A dónde llega la usuaria después de iniciar sesión o terminar el
   /// onboarding. En el Sprint 1 es el resumen del perfil; cambiar a [home]
@@ -119,6 +132,75 @@ class AppRouter {
             child: const MoodCheckinPage(),
           ),
         ),
+        GoRoute(
+          path: AppRoutes.moodHistory,
+          builder: (context, state) => const FeaturePlaceholderPage(
+            title: 'Mis check-ins',
+            subtitle:
+                'Aquí podrás consultar tus registros previos y ver cómo te has sentido a lo largo de los días.',
+            icon: Icons.history_rounded,
+          ),
+        ),
+        GoRoute(
+          path: AppRoutes.needs,
+          builder: (context, state) => const FeaturePlaceholderPage(
+            title: '«No sé qué necesito»',
+            subtitle:
+                'Elige cómo te sientes ahora para recibir recomendaciones que te acompañen con cariño.',
+            icon: Icons.lightbulb_outline_rounded,
+          ),
+        ),
+        GoRoute(
+          path: AppRoutes.recommendations,
+          builder: (context, state) => const FeaturePlaceholderPage(
+            title: 'Recomendaciones',
+            subtitle:
+                'Sugerencias de pausas y apoyo pensadas para lo que necesitas hoy.',
+            icon: Icons.recommend_outlined,
+          ),
+        ),
+        GoRoute(
+          path: AppRoutes.activities,
+          builder: (context, state) => const FeaturePlaceholderPage(
+            title: 'Microdescansos',
+            subtitle:
+                'Pausas breves ordenadas por categoría: respiración, descanso, movimiento y mente amable.',
+            icon: Icons.spa_outlined,
+          ),
+        ),
+        GoRoute(
+          path: AppRoutes.savedActivities,
+          builder: (context, state) => const FeaturePlaceholderPage(
+            title: 'Actividades guardadas',
+            subtitle:
+                'Tus pausas favoritas guardadas para acceder a ellas rápidamente.',
+            icon: Icons.bookmark_border_rounded,
+          ),
+        ),
+        GoRoute(
+          path: AppRoutes.activityDetail,
+          builder: (context, state) {
+            final id = state.pathParameters['id'] ?? '';
+            return FeaturePlaceholderPage(
+              title: 'Detalle de la pausa',
+              subtitle:
+                  'Instrucciones paso a paso y duración de la actividad ($id).',
+              icon: Icons.menu_book_outlined,
+            );
+          },
+        ),
+        GoRoute(
+          path: AppRoutes.activitySession,
+          builder: (context, state) {
+            final id = state.pathParameters['id'] ?? '';
+            return FeaturePlaceholderPage(
+              title: 'Pausa en curso',
+              subtitle:
+                  'Temporizador y guía tranquila para completar tu descanso ($id).',
+              icon: Icons.timer_outlined,
+            );
+          },
+        ),
         // Pantallas principales: comparten el ProfileBloc (saludo e información
         // del perfil) y la navegación inferior.
         StatefulShellRoute.indexedStack(
@@ -139,8 +221,7 @@ class AppRouter {
               routes: [
                 GoRoute(
                   path: AppRoutes.forMe,
-                  builder: (context, state) =>
-                      const ComingSoonPage(title: 'Para mí'),
+                  builder: (context, state) => const ForMePage(),
                 ),
               ],
             ),
@@ -148,8 +229,7 @@ class AppRouter {
               routes: [
                 GoRoute(
                   path: AppRoutes.support,
-                  builder: (context, state) =>
-                      const ComingSoonPage(title: 'Red de apoyo'),
+                  builder: (context, state) => const SupportPage(),
                 ),
               ],
             ),

@@ -1,5 +1,6 @@
 import 'package:bloc_test/bloc_test.dart';
 import 'package:doulapp/core/widgets/coming_soon.dart';
+import 'package:doulapp/core/widgets/placeholder_page.dart';
 import 'package:doulapp/features/auth/presentation/bloc/forgot_password_bloc.dart';
 import 'package:doulapp/features/auth/presentation/bloc/forgot_password_event.dart';
 import 'package:doulapp/features/auth/presentation/bloc/forgot_password_state.dart';
@@ -12,6 +13,7 @@ import 'package:doulapp/features/auth/presentation/bloc/register_state.dart';
 import 'package:doulapp/features/auth/presentation/pages/forgot_password_page.dart';
 import 'package:doulapp/features/auth/presentation/pages/login_page.dart';
 import 'package:doulapp/features/auth/presentation/pages/register_page.dart';
+import 'package:doulapp/features/for_me/presentation/pages/for_me_page.dart';
 import 'package:doulapp/features/home/presentation/pages/home_page.dart';
 import 'package:doulapp/features/onboarding/presentation/pages/onboarding_page.dart';
 import 'package:doulapp/features/profile/domain/entities/account_status.dart';
@@ -29,6 +31,7 @@ import 'package:doulapp/features/profile/presentation/bloc/profile_state.dart';
 import 'package:doulapp/features/profile/presentation/pages/edit_profile_page.dart';
 import 'package:doulapp/features/profile/presentation/pages/profile_page.dart';
 import 'package:doulapp/features/splash/presentation/pages/splash_page.dart';
+import 'package:doulapp/features/support/presentation/pages/support_page.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -178,6 +181,27 @@ void main() {
 
   testWidgets('pestaña sin módulo', (tester) async {
     await pumpOnPhone(tester, const ComingSoonPage(title: 'Para mí'));
+    expect(tester.takeException(), isNull);
+  });
+
+  testWidgets('pestaña Para mí', (tester) async {
+    await pumpOnPhone(tester, const ForMePage());
+    expect(tester.takeException(), isNull);
+  });
+
+  testWidgets('pestaña Red de apoyo', (tester) async {
+    await pumpOnPhone(tester, const SupportPage());
+    expect(tester.takeException(), isNull);
+  });
+
+  testWidgets('pantalla de placeholder de función', (tester) async {
+    await pumpOnPhone(
+      tester,
+      const FeaturePlaceholderPage(
+        title: 'Microdescansos',
+        subtitle: 'Pausas breves para respirar y descansar.',
+      ),
+    );
     expect(tester.takeException(), isNull);
   });
 }
