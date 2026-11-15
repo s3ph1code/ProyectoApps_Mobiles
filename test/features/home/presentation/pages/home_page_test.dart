@@ -58,6 +58,11 @@ void main() {
           builder: (_, _) => const Scaffold(body: Text('Pantalla Apoyo')),
         ),
         GoRoute(
+          path: AppRoutes.notifications,
+          builder: (_, _) =>
+              const Scaffold(body: Text('Pantalla Notificaciones')),
+        ),
+        GoRoute(
           path: AppRoutes.activities,
           builder: (_, _) =>
               const Scaffold(body: Text('Pantalla Microdescansos')),
@@ -169,5 +174,18 @@ void main() {
 
     expect(find.text('Estamos preparando esto'), findsNothing);
     expect(find.text('Hola'), findsOneWidget);
+  });
+
+  testWidgets('el botón de notificaciones abre la pantalla de notificaciones', (
+    tester,
+  ) async {
+    useTallScreen(tester);
+    when(() => bloc.state).thenReturn(const ProfileLoading());
+
+    await tester.pumpWidget(buildPage());
+    await tester.tap(find.byKey(const Key('home_notifications_button')));
+    await tester.pumpAndSettle();
+
+    expect(find.text('Pantalla Notificaciones'), findsOneWidget);
   });
 }

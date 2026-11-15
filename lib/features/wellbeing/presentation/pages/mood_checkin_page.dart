@@ -46,6 +46,8 @@ class _MoodCheckinPageState extends State<MoodCheckinPage> {
     }
   }
 
+  void _openHistory() => context.push(AppRoutes.moodHistory);
+
   void _submit() {
     FocusScope.of(context).unfocus();
     context.read<MoodCheckinBloc>().add(
@@ -158,6 +160,12 @@ class _MoodCheckinPageState extends State<MoodCheckinPage> {
                     child: CircularProgressIndicator(strokeWidth: 2),
                   )
                 : const Text('Guardar'),
+          ),
+          const SizedBox(height: 4),
+          TextButton(
+            key: const Key('mood_history_link'),
+            onPressed: isSaving ? null : _openHistory,
+            child: const Text('Ver mis registros'),
           ),
         ],
       ),

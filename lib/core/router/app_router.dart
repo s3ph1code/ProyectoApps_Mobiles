@@ -1,4 +1,4 @@
-import 'package:flutter/foundation.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 
@@ -23,16 +23,20 @@ import '../../features/preferences/presentation/pages/notifications_page.dart';
 import '../../features/preferences/presentation/pages/privacy_page.dart';
 import '../../features/profile/presentation/bloc/avatar_bloc.dart';
 import '../../features/profile/presentation/bloc/edit_profile_bloc.dart';
-import '../../features/wellbeing/presentation/bloc/mood_checkin_bloc.dart';
-import '../../features/wellbeing/presentation/pages/mood_checkin_page.dart';
 import '../../features/profile/presentation/bloc/profile_bloc.dart';
 import '../../features/profile/presentation/bloc/profile_event.dart';
 import '../../features/profile/presentation/pages/edit_profile_page.dart';
 import '../../features/profile/presentation/pages/profile_page.dart';
 import '../../features/splash/presentation/pages/splash_page.dart';
+import '../../features/support/presentation/pages/support_page.dart';
+import '../../features/wellbeing/presentation/bloc/mood_checkin_bloc.dart';
+import '../../features/wellbeing/presentation/bloc/mood_history_bloc.dart';
+import '../../features/wellbeing/presentation/bloc/mood_history_event.dart';
+import '../../features/wellbeing/presentation/pages/mood_checkin_page.dart';
+import '../../features/wellbeing/presentation/pages/mood_history_page.dart';
 import '../../injection_container.dart';
 import '../widgets/app_shell.dart';
-import '../widgets/coming_soon.dart';
+import '../widgets/placeholder_page.dart';
 import 'session_notifier.dart';
 
 class AppRoutes {
@@ -48,15 +52,19 @@ class AppRoutes {
   static const support = '/support';
   static const activities = '/activities';
   static const moodCheckin = '/wellbeing/checkin';
+  static const moodHistory = '/wellbeing/history';
+  static const needs = '/wellbeing/needs';
+  static const recommendations = '/wellbeing/recommendations';
+  static const activityDetail = '/activities/:id';
+  static const activitySession = '/activities/:id/session';
+  static const savedActivities = '/activities/saved';
   static const profile = '/profile';
   static const editProfile = '/profile/edit';
   static const notifications = '/profile/notifications';
   static const privacy = '/profile/privacy';
 
-  /// Detalle de una actividad. La ruta lleva el id como parámetro y la usa
-  /// también S2-06, cuando una recomendación apunta a una actividad.
-  static String activityDetail(String activityId) =>
-      '$activities/$activityId';
+  static String activityDetailPath(String id) => '/activities/$id';
+  static String activitySessionPath(String id) => '/activities/$id/session';
 
   /// A dónde llega la usuaria después de iniciar sesión o terminar el
   /// onboarding. En el Sprint 1 es el resumen del perfil; cambiar a [home]
@@ -132,22 +140,6 @@ class AppRouter {
                 sl<ActivitiesBloc>()..add(const ActivitiesRequested()),
             child: const ActivitiesPage(),
           ),
-          routes: [
-            GoRoute(
-              path: ':activityId',
-              builder: (context, state) {
-                final activityId = state.pathParameters['activityId'] ?? '';
-                return BlocProvider(
-                  create: (_) => sl<ActivityDetailBloc>()
-                    ..add(ActivityDetailRequested(activityId)),
-                  child: ActivityDetailPage(
-                    activityId: activityId,
-                    linkOpener: sl<LinkOpener>(),
-                  ),
-                );
-              },
-            ),
-          ],
         ),
         GoRoute(
           path: AppRoutes.moodCheckin,
@@ -155,6 +147,67 @@ class AppRouter {
             create: (_) => sl<MoodCheckinBloc>(),
             child: const MoodCheckinPage(),
           ),
+        ),
+        GoRoute(
+          path: AppRoutes.moodHistory,
+          builder: (context, state) => BlocProvider(
+            create: (_) =>
+                sl<MoodHistoryBloc>()..add(const MoodHistoryRequested()),
+            child: const MoodHistoryPage(),
+          ),
+        ),
+        GoRoute(
+          path: AppRoutes.needs,
+          builder: (context, state) => const FeaturePlaceholderPage(
+            title: '«No sé qué necesito»',
+            subtitle:
+                'Elige cómo te sientes ahora para recibir recomendaciones que te acompañen con cariño.',
+            icon: Icons.lightbulb_outline_rounded,
+          ),
+        ),
+        GoRoute(
+          path: AppRoutes.recommendations,
+          builder: (context, state) => const FeaturePlaceholderPage(
+            title: 'Recomendaciones',
+            subtitle:
+                'Sugerencias de pausas y apoyo pensadas para lo que necesitas hoy.',
+            icon: Icons.recommend_outlined,
+          ),
+        ),
+        GoRoute(
+          path: AppRoutes.savedActivities,
+          builder: (context, state) => const FeaturePlaceholderPage(
+            title: 'Actividades guardadas',
+            subtitle:
+                'Tus pausas favoritas guardadas para acceder a ellas rápidamente.',
+            icon: Icons.bookmark_border_rounded,
+          ),
+        ),
+        GoRoute(
+          path: AppRoutes.activityDetail,
+          builder: (context, state) {
+            final activityId = state.pathParameters['id'] ?? '';
+            return BlocProvider(
+              create: (_) => sl<ActivityDetailBloc>()
+                ..add(ActivityDetailRequested(activityId)),
+              child: ActivityDetailPage(
+                activityId: activityId,
+                linkOpener: sl<LinkOpener>(),
+              ),
+            );
+          },
+        ),
+        GoRoute(
+          path: AppRoutes.activitySession,
+          builder: (context, state) {
+            final id = state.pathParameters['id'] ?? '';
+            return FeaturePlaceholderPage(
+              title: 'Pausa en curso',
+              subtitle:
+                  'Temporizador y guía tranquila para completar tu descanso ($id).',
+              icon: Icons.timer_outlined,
+            );
+          },
         ),
         // Pantallas principales: comparten el ProfileBloc (saludo e información
         // del perfil) y la navegación inferior.
@@ -188,8 +241,7 @@ class AppRouter {
               routes: [
                 GoRoute(
                   path: AppRoutes.support,
-                  builder: (context, state) =>
-                      const ComingSoonPage(title: 'Red de apoyo'),
+                  builder: (context, state) => const SupportPage(),
                 ),
               ],
             ),

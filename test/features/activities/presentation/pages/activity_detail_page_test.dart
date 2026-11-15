@@ -70,7 +70,7 @@ void main() {
 
   Widget buildPage({String activityId = 'act-1'}) {
     final router = GoRouter(
-      initialLocation: AppRoutes.activityDetail(activityId),
+      initialLocation: AppRoutes.activityDetailPath(activityId),
       routes: [
         GoRoute(
           path: AppRoutes.activities,
@@ -78,11 +78,11 @@ void main() {
               const Scaffold(body: Text('Pantalla Microdescansos')),
           routes: [
             GoRoute(
-              path: ':activityId',
+              path: ':id',
               builder: (_, state) => BlocProvider<ActivityDetailBloc>.value(
                 value: bloc,
                 child: ActivityDetailPage(
-                  activityId: state.pathParameters['activityId']!,
+                  activityId: state.pathParameters['id']!,
                   linkOpener: linkOpener,
                 ),
               ),

@@ -64,11 +64,11 @@ void main() {
           ),
           routes: [
             GoRoute(
-              path: ':activityId',
+              path: ':id',
               builder: (_, state) => Scaffold(
                 appBar: AppBar(title: const Text('Microdescanso')),
                 body: Text(
-                  'Pantalla Detalle ${state.pathParameters['activityId']}',
+                  'Pantalla Detalle ${state.pathParameters['id']}',
                 ),
               ),
             ),
