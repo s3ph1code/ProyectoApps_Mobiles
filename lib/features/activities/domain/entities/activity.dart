@@ -10,6 +10,8 @@ class Activity extends Equatable {
   final String description;
   final ActivityModality modality;
   final int durationMinutes;
+  final String? contentText;
+  final String? externalUrl;
 
   const Activity({
     required this.id,
@@ -18,6 +20,8 @@ class Activity extends Equatable {
     required this.description,
     required this.modality,
     required this.durationMinutes,
+    this.contentText,
+    this.externalUrl,
   });
 
   @override
@@ -28,5 +32,7 @@ class Activity extends Equatable {
     description,
     modality,
     durationMinutes,
+    contentText,
+    externalUrl,
   ];
 }

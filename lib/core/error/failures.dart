@@ -98,6 +98,12 @@ class ServerFailure extends Failure {
     : super('El servicio no respondió. Inténtalo en un momento.');
 }
 
+class InvalidSessionFailure extends Failure {
+  const InvalidSessionFailure()
+    : super('No se encontró la sesión de la actividad.');
+}
+
+
 class UnexpectedFailure extends Failure {
   const UnexpectedFailure()
     : super('Algo no funcionó como esperábamos. Inténtalo de nuevo.');
