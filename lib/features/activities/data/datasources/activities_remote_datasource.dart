@@ -6,11 +6,24 @@ import 'package:supabase_flutter/supabase_flutter.dart' as supabase;
 import '../../../../core/error/exceptions.dart';
 import '../models/activity_category_model.dart';
 import '../models/activity_model.dart';
+import '../models/activity_session_model.dart';
 
 abstract class ActivitiesRemoteDataSource {
   Future<List<ActivityCategoryModel>> fetchCategories();
 
   Future<List<ActivityModel>> fetchActivities({String? categoryId});
+
+  Future<ActivitySessionModel> insertSession({
+    required String userId,
+    required String activityId,
+  });
+
+  Future<ActivitySessionModel> updateSessionStatus({
+    required String sessionId,
+    required String status,
+    required int elapsedSeconds,
+    DateTime? completedAt,
+  });
 }
 
 class ActivitiesRemoteDataSourceImpl implements ActivitiesRemoteDataSource {
@@ -45,6 +58,53 @@ class ActivitiesRemoteDataSourceImpl implements ActivitiesRemoteDataSource {
       final rows = await query.order('title', ascending: true);
 
       return rows.map(ActivityModel.fromJson).toList();
+    });
+  }
+
+  @override
+  Future<ActivitySessionModel> insertSession({
+    required String userId,
+    required String activityId,
+  }) {
+    return _guard(() async {
+      final json = await client
+          .from('activity_sessions')
+          .insert({
+            'user_id': userId,
+            'activity_id': activityId,
+            'status': 'in_progress',
+          })
+          .select()
+          .single();
+
+      return ActivitySessionModel.fromJson(json);
+    });
+  }
+
+  @override
+  Future<ActivitySessionModel> updateSessionStatus({
+    required String sessionId,
+    required String status,
+    required int elapsedSeconds,
+    DateTime? completedAt,
+  }) {
+    return _guard(() async {
+      final data = <String, dynamic>{
+        'status': status,
+        'elapsed_seconds': elapsedSeconds,
+      };
+      if (completedAt != null) {
+        data['completed_at'] = completedAt.toIso8601String();
+      }
+
+      final json = await client
+          .from('activity_sessions')
+          .update(data)
+          .eq('id', sessionId)
+          .select()
+          .single();
+
+      return ActivitySessionModel.fromJson(json);
     });
   }
 
