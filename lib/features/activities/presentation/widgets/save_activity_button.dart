@@ -43,7 +43,7 @@ class SaveActivityButton extends StatelessWidget {
       iconSize: iconSize,
       icon: Icon(
         isSaved ? Icons.bookmark_rounded : Icons.bookmark_border_rounded,
-        color: isSaved ? AppColors.terracotta : AppColors.inkMuted,
+        color: isSaved ? AppColors.sageDeep : AppColors.inkMuted,
       ),
       onPressed: bloc == null
           ? null
