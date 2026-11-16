@@ -93,6 +93,29 @@ class NeedSelectionRequiredFailure extends Failure {
     : super('Elige al menos una opción para ver sugerencias.');
 }
 
+class PostNotFoundFailure extends Failure {
+  const PostNotFoundFailure()
+    : super('Esa publicación ya no está disponible. Vuelve a la comunidad.');
+}
+
+class EmptyPostBodyFailure extends Failure {
+  const EmptyPostBodyFailure() : super('Escribe algo antes de publicar.');
+}
+
+class PostBodyTooLongFailure extends Failure {
+  const PostBodyTooLongFailure()
+    : super(
+        'La publicación puede tener hasta 2000 caracteres. Acórtala un poco.',
+      );
+}
+
+class PostCategoryRequiredFailure extends Failure {
+  const PostCategoryRequiredFailure()
+    : super(
+        'Elige al menos una categoría para que otras madres te encuentren.',
+      );
+}
+
 class UnauthenticatedFailure extends Failure {
   const UnauthenticatedFailure()
     : super('Tu sesión terminó. Inicia sesión para continuar.');
@@ -112,7 +135,6 @@ class InvalidSessionFailure extends Failure {
   const InvalidSessionFailure()
     : super('No se encontró la sesión de la actividad.');
 }
-
 
 class UnexpectedFailure extends Failure {
   const UnexpectedFailure()

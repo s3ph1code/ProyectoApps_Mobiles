@@ -50,16 +50,29 @@ flutter run
    [`supabase/migrations/0002_wellbeing_activities_rls.sql`](supabase/migrations/0002_wellbeing_activities_rls.sql)
    (microdescansos y bienestar, con sus políticas de RLS) y, si se quieren datos
    de prueba, [`supabase/seed_demo_content.sql`](supabase/seed_demo_content.sql).
-4. En **Authentication → Providers**, dejar *Email* habilitado.
-5. Para probar el registro sin revisar el correo, desactivar **Confirm email**
+4. Ejecutar [`supabase/migrations/0003_avatars.sql`](supabase/migrations/0003_avatars.sql)
+   (bucket de fotos de perfil).
+5. Para el Sprint 3, ejecutar
+   [`supabase/migrations/0004_community_moderation.sql`](supabase/migrations/0004_community_moderation.sql):
+   tablas de comunidad, moderación y notificaciones, sus políticas de RLS, la
+   vista `post_feed`, la función `create_post` y las categorías de la
+   comunidad. Se puede ejecutar más de una vez.
+6. Crear las cuentas de demostración desde la app y ejecutar
+   [`supabase/seed_demo_roles.sql`](supabase/seed_demo_roles.sql) (ver
+   [Roles](#roles)). Después, si se quieren publicaciones de ejemplo,
+   [`supabase/seed_demo_community.sql`](supabase/seed_demo_community.sql), que
+   reparte seis publicaciones con comentarios entre las tres cuentas más
+   antiguas.
+7. En **Authentication → Providers**, dejar *Email* habilitado.
+8. Para probar el registro sin revisar el correo, desactivar **Confirm email**
    en **Authentication → Sign In / Providers → Email**. Si se deja activo, el
    inicio de sesión responderá «Falta confirmar tu correo» hasta que la usuaria
    abra el enlace.
 
 [`supabase/schema.sql`](supabase/schema.sql) contiene el esquema completo de la
 app (25 tablas en 5 módulos). Las migraciones de `supabase/migrations` se aplican
-en orden y cubren identidad (0001) y microdescansos y bienestar (0002); comunidad
-y notificaciones llegan después.
+en orden: identidad (0001), microdescansos y bienestar (0002), fotos de perfil
+(0003) y comunidad, moderación y notificaciones (0004).
 
 La identidad la gestiona **Supabase Auth**: no hay tablas de contraseñas ni de
 identidades de proveedor. `public.profiles` cuelga de `auth.users` y comparte su

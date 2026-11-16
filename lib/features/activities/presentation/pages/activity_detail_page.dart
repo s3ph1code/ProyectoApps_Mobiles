@@ -5,7 +5,6 @@ import 'package:go_router/go_router.dart';
 import '../../../../core/router/app_router.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_radii.dart';
-import '../../../../core/widgets/coming_soon.dart';
 import '../bloc/activity_detail_bloc.dart';
 import '../bloc/activity_detail_event.dart';
 import '../bloc/activity_detail_state.dart';

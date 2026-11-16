@@ -72,6 +72,10 @@ void main() {
           builder: (_, _) =>
               const Scaffold(body: Text('Pantalla Microdescansos')),
         ),
+        GoRoute(
+          path: AppRoutes.community,
+          builder: (_, _) => const Scaffold(body: Text('Pantalla Comunidad')),
+        ),
       ],
     );
     return MaterialApp.router(routerConfig: router);
@@ -113,13 +117,13 @@ void main() {
       'Para mí',
       'Red de apoyo',
       'Aprende sobre ti',
-      'Historias reales',
+      'Comunidad',
       'Mi bienestar',
       'Recursos cerca de ti',
     ]) {
       expect(find.text(title), findsOneWidget, reason: title);
     }
-    expect(find.text('Próximamente'), findsNWidgets(3));
+    expect(find.text('Próximamente'), findsNWidgets(2));
   });
 
   testWidgets('Para mí y Red de apoyo abren sus pestañas', (tester) async {
@@ -146,6 +150,17 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.text('Pantalla Check-in'), findsOneWidget);
+  });
+
+  testWidgets('Comunidad abre el feed de la comunidad', (tester) async {
+    useTallScreen(tester);
+    when(() => bloc.state).thenReturn(const ProfileLoading());
+
+    await tester.pumpWidget(buildPage());
+    await tester.tap(find.byKey(const Key('home_card_community')));
+    await tester.pumpAndSettle();
+
+    expect(find.text('Pantalla Comunidad'), findsOneWidget);
   });
 
   testWidgets('la tarjeta destacada abre los microdescansos', (tester) async {

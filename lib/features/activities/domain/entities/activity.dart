@@ -10,8 +10,6 @@ class Activity extends Equatable {
   final String description;
   final ActivityModality modality;
   final int durationMinutes;
-  final String? contentText;
-  final String? externalUrl;
 
   /// Los pasos de la actividad (`content_text`). La lista no los trae; el
   /// detalle sí.

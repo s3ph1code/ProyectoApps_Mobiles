@@ -23,6 +23,15 @@ import '../../features/auth/presentation/bloc/register_bloc.dart';
 import '../../features/auth/presentation/pages/forgot_password_page.dart';
 import '../../features/auth/presentation/pages/login_page.dart';
 import '../../features/auth/presentation/pages/register_page.dart';
+import '../../features/community/presentation/bloc/create_post_bloc.dart';
+import '../../features/community/presentation/bloc/create_post_event.dart';
+import '../../features/community/presentation/bloc/feed_bloc.dart';
+import '../../features/community/presentation/bloc/feed_event.dart';
+import '../../features/community/presentation/bloc/post_detail_bloc.dart';
+import '../../features/community/presentation/bloc/post_detail_event.dart';
+import '../../features/community/presentation/pages/create_post_page.dart';
+import '../../features/community/presentation/pages/feed_page.dart';
+import '../../features/community/presentation/pages/post_detail_page.dart';
 import '../../features/home/presentation/pages/home_page.dart';
 import '../../features/onboarding/presentation/pages/onboarding_page.dart';
 import '../../features/preferences/presentation/bloc/preferences_bloc.dart';
@@ -48,7 +57,6 @@ import '../../features/wellbeing/presentation/pages/recommendations_page.dart';
 import '../../features/wellbeing/presentation/pages/mood_history_page.dart';
 import '../../injection_container.dart';
 import '../widgets/app_shell.dart';
-import '../widgets/placeholder_page.dart';
 import 'session_notifier.dart';
 
 class AppRoutes {
@@ -71,6 +79,8 @@ class AppRoutes {
   static const activitySession = '/activities/:id/session';
   static const savedActivities = '/activities/saved';
   static const community = '/community';
+  static const createPost = '/community/new';
+  static const postDetail = '/community/posts/:id';
   static const profile = '/profile';
   static const editProfile = '/profile/edit';
   static const notifications = '/profile/notifications';
@@ -78,6 +88,7 @@ class AppRoutes {
 
   static String activityDetailPath(String id) => '/activities/$id';
   static String activitySessionPath(String id) => '/activities/$id/session';
+  static String postDetailPath(String id) => '/community/posts/$id';
 
   /// A dónde llega la usuaria después de iniciar sesión o terminar el
   /// onboarding. En el Sprint 1 es el resumen del perfil; cambiar a [home]
@@ -155,8 +166,9 @@ class AppRouter {
                     sl<ActivitiesBloc>()..add(const ActivitiesRequested()),
               ),
               BlocProvider(
-                create: (_) => sl<SavedActivitiesBloc>()
-                  ..add(const SavedActivitiesRequested()),
+                create: (_) =>
+                    sl<SavedActivitiesBloc>()
+                      ..add(const SavedActivitiesRequested()),
               ),
             ],
             child: const ActivitiesPage(),
@@ -199,20 +211,35 @@ class AppRouter {
           path: AppRoutes.savedActivities,
           builder: (context, state) => BlocProvider(
             create: (_) =>
-                sl<SavedActivitiesBloc>()..add(const SavedActivitiesRequested()),
+                sl<SavedActivitiesBloc>()
+                  ..add(const SavedActivitiesRequested()),
             child: const SavedActivitiesPage(),
           ),
         ),
-        // La comunidad llega en el Sprint 3. El placeholder vuelve a donde
-        // estaba la usuaria, que es lo que pide el AC-5 de S2-06.
         GoRoute(
           path: AppRoutes.community,
-          builder: (context, state) => const FeaturePlaceholderPage(
-            title: 'Comunidad de madres',
-            subtitle:
-                'Un espacio sin juicios para leer a otras madres y compartir lo que estás viviendo.',
-            icon: Icons.forum_outlined,
+          builder: (context, state) => BlocProvider(
+            create: (_) => sl<FeedBloc>()..add(const FeedRequested()),
+            child: const FeedPage(),
           ),
+        ),
+        GoRoute(
+          path: AppRoutes.createPost,
+          builder: (context, state) => BlocProvider(
+            create: (_) => sl<CreatePostBloc>()..add(const CreatePostStarted()),
+            child: const CreatePostPage(),
+          ),
+        ),
+        GoRoute(
+          path: AppRoutes.postDetail,
+          builder: (context, state) {
+            final postId = state.pathParameters['id'] ?? '';
+            return BlocProvider(
+              create: (_) =>
+                  sl<PostDetailBloc>()..add(PostDetailRequested(postId)),
+              child: PostDetailPage(postId: postId),
+            );
+          },
         ),
         GoRoute(
           path: AppRoutes.activityDetail,
@@ -221,12 +248,14 @@ class AppRouter {
             return MultiBlocProvider(
               providers: [
                 BlocProvider(
-                  create: (_) => sl<ActivityDetailBloc>()
-                    ..add(ActivityDetailRequested(activityId)),
+                  create: (_) =>
+                      sl<ActivityDetailBloc>()
+                        ..add(ActivityDetailRequested(activityId)),
                 ),
                 BlocProvider(
-                  create: (_) => sl<SavedActivitiesBloc>()
-                    ..add(const SavedActivitiesRequested()),
+                  create: (_) =>
+                      sl<SavedActivitiesBloc>()
+                        ..add(const SavedActivitiesRequested()),
                 ),
               ],
               child: ActivityDetailPage(
@@ -252,8 +281,9 @@ class AppRouter {
                   );
 
             return BlocProvider(
-              create: (_) => sl<ActivitySessionBloc>()
-                ..add(ActivitySessionStarted(activity)),
+              create: (_) =>
+                  sl<ActivitySessionBloc>()
+                    ..add(ActivitySessionStarted(activity)),
               child: ActivitySessionPage(activity: activity),
             );
           },

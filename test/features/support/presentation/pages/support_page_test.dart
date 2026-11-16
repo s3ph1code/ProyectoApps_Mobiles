@@ -22,6 +22,10 @@ void main() {
           path: AppRoutes.support,
           builder: (_, _) => const SupportPage(),
         ),
+        GoRoute(
+          path: AppRoutes.community,
+          builder: (_, _) => const Scaffold(body: Text('Pantalla Comunidad')),
+        ),
       ],
     );
     return MaterialApp.router(routerConfig: router);
@@ -39,10 +43,10 @@ void main() {
     expect(find.text('Líneas de orientación y apoyo'), findsOneWidget);
     expect(find.text('Comunidad de madres'), findsOneWidget);
     expect(find.text('Tus personas de confianza'), findsOneWidget);
-    expect(find.text('Próximamente'), findsOneWidget);
+    expect(find.text('Próximamente'), findsNothing);
   });
 
-  testWidgets('comunidad abre el modal de Próximamente', (tester) async {
+  testWidgets('comunidad abre el feed de la comunidad', (tester) async {
     useSmallPhone(tester);
     await tester.pumpWidget(buildPage());
     await tester.pumpAndSettle();
@@ -50,12 +54,7 @@ void main() {
     await tester.tap(find.byKey(const Key('support_card_community')));
     await tester.pumpAndSettle();
 
-    expect(find.text('Estamos preparando esto'), findsOneWidget);
-    expect(find.byKey(const Key('coming_soon_ok_button')), findsOneWidget);
-
-    await tester.tap(find.byKey(const Key('coming_soon_ok_button')));
-    await tester.pumpAndSettle();
-    expect(find.text('Estamos preparando esto'), findsNothing);
+    expect(find.text('Pantalla Comunidad'), findsOneWidget);
   });
 
   testWidgets('líneas de apoyo abre la información de orientación', (
@@ -69,7 +68,10 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.text('Líneas de orientación y escucha'), findsOneWidget);
-    expect(find.text('Línea 106 (Colombia) — Salud mental y apoyo emocional'), findsOneWidget);
+    expect(
+      find.text('Línea 106 (Colombia) — Salud mental y apoyo emocional'),
+      findsOneWidget,
+    );
     expect(find.byKey(const Key('support_modal_ok_button')), findsOneWidget);
 
     // La hoja es más alta que la pantalla: hay que desplazarla.

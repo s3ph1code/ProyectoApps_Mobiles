@@ -118,12 +118,11 @@ class HomePage extends StatelessWidget {
                             onTap: () => showComingSoon(context),
                           ),
                           _MenuCardData(
-                            key: 'stories',
+                            key: 'community',
                             icon: Icons.forum_outlined,
-                            title: 'Historias reales',
+                            title: 'Comunidad',
                             subtitle: 'Experiencias de otras madres.',
-                            soon: true,
-                            onTap: () => showComingSoon(context),
+                            onTap: () => context.push(AppRoutes.community),
                           ),
                           _MenuCardData(
                             key: 'wellbeing',

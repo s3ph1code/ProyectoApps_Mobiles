@@ -1,12 +1,13 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 
+import '../../../../core/router/app_router.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_radii.dart';
-import '../../../../core/widgets/coming_soon.dart';
 import '../../../../core/widgets/soft_orb.dart';
 
 /// Pestaña «Red de apoyo». Recursos de ayuda, orientación emocional
-/// y espacio para la futura comunidad (Sprint 3).
+/// y la entrada a la comunidad.
 class SupportPage extends StatelessWidget {
   const SupportPage({super.key});
 
@@ -57,8 +58,7 @@ class SupportPage extends StatelessWidget {
                   title: 'Comunidad de madres',
                   subtitle:
                       'Un espacio seguro para compartir y escuchar experiencias.',
-                  soon: true,
-                  onTap: () => showComingSoon(context),
+                  onTap: () => context.push(AppRoutes.community),
                 ),
                 const SizedBox(height: 14),
                 _SupportCard(
@@ -96,9 +96,9 @@ class SupportPage extends StatelessWidget {
             children: [
               Text(
                 'Líneas de orientación y escucha',
-                style: Theme.of(ctx).textTheme.titleLarge?.copyWith(
-                  fontWeight: FontWeight.w600,
-                ),
+                style: Theme.of(
+                  ctx,
+                ).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w600),
               ),
               const SizedBox(height: 10),
               Text(
@@ -165,9 +165,9 @@ class SupportPage extends StatelessWidget {
             children: [
               Text(
                 'Pedir ayuda es un acto de amor',
-                style: Theme.of(ctx).textTheme.titleLarge?.copyWith(
-                  fontWeight: FontWeight.w600,
-                ),
+                style: Theme.of(
+                  ctx,
+                ).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w600),
               ),
               const SizedBox(height: 10),
               Text(
@@ -195,7 +195,6 @@ class _SupportCard extends StatelessWidget {
   final String title;
   final String subtitle;
   final VoidCallback onTap;
-  final bool soon;
 
   const _SupportCard({
     super.key,
@@ -203,7 +202,6 @@ class _SupportCard extends StatelessWidget {
     required this.title,
     required this.subtitle,
     required this.onTap,
-    this.soon = false,
   });
 
   @override
@@ -218,18 +216,15 @@ class _SupportCard extends StatelessWidget {
         child: Ink(
           padding: const EdgeInsets.all(18),
           decoration: BoxDecoration(
-            color: soon ? const Color(0x9EFFFFFF) : AppColors.surface,
+            color: AppColors.surface,
             borderRadius: BorderRadius.circular(AppRadii.lg),
-            border: Border.all(
-              color: soon ? const Color(0x1F26382D) : AppColors.lineSoft,
-            ),
-            boxShadow: [
-              if (!soon)
-                const BoxShadow(
-                  color: Color(0x0826382D),
-                  blurRadius: 16,
-                  offset: Offset(0, 4),
-                ),
+            border: Border.all(color: AppColors.lineSoft),
+            boxShadow: const [
+              BoxShadow(
+                color: Color(0x0826382D),
+                blurRadius: 16,
+                offset: Offset(0, 4),
+              ),
             ],
           ),
           child: Row(
@@ -249,38 +244,12 @@ class _SupportCard extends StatelessWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Row(
-                      children: [
-                        Expanded(
-                          child: Text(
-                            title,
-                            style: textTheme.titleMedium?.copyWith(
-                              fontSize: 15.5,
-                              fontWeight: FontWeight.w600,
-                            ),
-                          ),
-                        ),
-                        if (soon)
-                          Container(
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 8,
-                              vertical: 3,
-                            ),
-                            decoration: BoxDecoration(
-                              color: AppColors.beige,
-                              borderRadius:
-                                  BorderRadius.circular(AppRadii.full),
-                            ),
-                            child: const Text(
-                              'Próximamente',
-                              style: TextStyle(
-                                fontSize: 11,
-                                fontWeight: FontWeight.w600,
-                                color: Color(0xFF8E978F),
-                              ),
-                            ),
-                          ),
-                      ],
+                    Text(
+                      title,
+                      style: textTheme.titleMedium?.copyWith(
+                        fontSize: 15.5,
+                        fontWeight: FontWeight.w600,
+                      ),
                     ),
                     const SizedBox(height: 4),
                     Text(
@@ -294,17 +263,15 @@ class _SupportCard extends StatelessWidget {
                   ],
                 ),
               ),
-              if (!soon) ...[
-                const SizedBox(width: 8),
-                const Padding(
-                  padding: EdgeInsets.only(top: 10),
-                  child: Icon(
-                    Icons.arrow_forward_ios_rounded,
-                    size: 16,
-                    color: AppColors.inkMuted,
-                  ),
+              const SizedBox(width: 8),
+              const Padding(
+                padding: EdgeInsets.only(top: 10),
+                child: Icon(
+                  Icons.arrow_forward_ios_rounded,
+                  size: 16,
+                  color: AppColors.inkMuted,
                 ),
-              ],
+              ),
             ],
           ),
         ),
