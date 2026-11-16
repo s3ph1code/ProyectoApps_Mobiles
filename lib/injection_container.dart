@@ -31,10 +31,14 @@ import 'features/activities/domain/usecases/finish_activity_session.dart';
 import 'features/activities/domain/usecases/get_activities.dart';
 import 'features/activities/domain/usecases/get_activity_by_id.dart';
 import 'features/activities/domain/usecases/get_activity_categories.dart';
+import 'features/activities/domain/usecases/get_saved_activities.dart';
+import 'features/activities/domain/usecases/save_activity.dart';
 import 'features/activities/domain/usecases/start_activity_session.dart';
+import 'features/activities/domain/usecases/unsave_activity.dart';
 import 'features/activities/presentation/bloc/activities_bloc.dart';
 import 'features/activities/presentation/bloc/activity_detail_bloc.dart';
 import 'features/activities/presentation/bloc/activity_session_bloc.dart';
+import 'features/activities/presentation/bloc/saved_activities_bloc.dart';
 import 'features/activities/presentation/services/link_opener.dart';
 import 'features/wellbeing/data/datasources/mood_remote_datasource.dart';
 import 'features/wellbeing/data/datasources/needs_remote_datasource.dart';
@@ -204,6 +208,9 @@ void _registerActivities() {
   sl.registerLazySingleton(() => StartActivitySession(sl()));
   sl.registerLazySingleton(() => FinishActivitySession(sl()));
   sl.registerLazySingleton(() => AbandonActivitySession(sl()));
+  sl.registerLazySingleton(() => GetSavedActivities(sl()));
+  sl.registerLazySingleton(() => SaveActivity(sl()));
+  sl.registerLazySingleton(() => UnsaveActivity(sl()));
 
   sl.registerFactory(
     () => ActivitiesBloc(getActivityCategories: sl(), getActivities: sl()),
@@ -215,6 +222,14 @@ void _registerActivities() {
       startActivitySession: sl(),
       finishActivitySession: sl(),
       abandonActivitySession: sl(),
+    ),
+  );
+  sl.registerLazySingleton(
+    () => SavedActivitiesBloc(
+      getCurrentUser: sl(),
+      getSavedActivities: sl(),
+      saveActivity: sl(),
+      unsaveActivity: sl(),
     ),
   );
 }

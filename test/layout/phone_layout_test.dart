@@ -6,7 +6,11 @@ import 'package:doulapp/features/activities/domain/entities/activity_modality.da
 import 'package:doulapp/features/activities/presentation/bloc/activity_session_bloc.dart';
 import 'package:doulapp/features/activities/presentation/bloc/activity_session_event.dart';
 import 'package:doulapp/features/activities/presentation/bloc/activity_session_state.dart';
+import 'package:doulapp/features/activities/presentation/bloc/saved_activities_bloc.dart';
+import 'package:doulapp/features/activities/presentation/bloc/saved_activities_event.dart';
+import 'package:doulapp/features/activities/presentation/bloc/saved_activities_state.dart';
 import 'package:doulapp/features/activities/presentation/pages/activity_session_page.dart';
+import 'package:doulapp/features/activities/presentation/pages/saved_activities_page.dart';
 import 'package:doulapp/features/auth/presentation/bloc/forgot_password_bloc.dart';
 import 'package:doulapp/features/auth/presentation/bloc/forgot_password_event.dart';
 import 'package:doulapp/features/auth/presentation/bloc/forgot_password_state.dart';
@@ -64,6 +68,10 @@ class MockEditProfileBloc extends MockBloc<EditProfileEvent, EditProfileState>
 class MockActivitySessionBloc
     extends MockBloc<ActivitySessionEvent, ActivitySessionState>
     implements ActivitySessionBloc {}
+
+class MockSavedActivitiesBloc
+    extends MockBloc<SavedActivitiesEvent, SavedActivitiesState>
+    implements SavedActivitiesBloc {}
 
 /// Pinta cada pantalla en un teléfono de 390 × 844 y falla si algo se
 /// desborda. La fuente de pruebas es más ancha que Inter, así que si cabe
@@ -234,6 +242,32 @@ void main() {
       BlocProvider<ActivitySessionBloc>.value(
         value: bloc,
         child: const ActivitySessionPage(activity: activity),
+      ),
+    );
+    expect(tester.takeException(), isNull);
+  });
+
+  testWidgets('actividades guardadas (390×844)', (tester) async {
+    final bloc = MockSavedActivitiesBloc();
+    const activity = Activity(
+      id: 'act-1',
+      categoryId: 'cat-1',
+      title: 'Respiración diafragmática',
+      description: 'Una pausa para conectar con tu respiración.',
+      modality: ActivityModality.practice,
+      durationMinutes: 5,
+    );
+    when(() => bloc.state).thenReturn(
+      const SavedActivitiesLoaded(
+        activities: [activity],
+        savedIds: {'act-1'},
+      ),
+    );
+    await pumpOnPhone(
+      tester,
+      BlocProvider<SavedActivitiesBloc>.value(
+        value: bloc,
+        child: const SavedActivitiesPage(),
       ),
     );
     expect(tester.takeException(), isNull);

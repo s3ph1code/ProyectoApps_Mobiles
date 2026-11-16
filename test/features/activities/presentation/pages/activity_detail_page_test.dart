@@ -247,4 +247,19 @@ void main() {
 
     expect(t.takeException(), isNull);
   });
+
+  testWidgets(
+    'muestra el botón de guardado en el AppBar cuando la actividad carga',
+    (t) async {
+      useSmallPhone(t);
+      when(() => bloc.state).thenReturn(
+        const ActivityDetailLoaded(withEverything),
+      );
+
+      await t.pumpWidget(buildPage());
+
+      expect(find.byKey(const Key('activity_save_act-1')), findsOneWidget);
+      expect(t.takeException(), isNull);
+    },
+  );
 }

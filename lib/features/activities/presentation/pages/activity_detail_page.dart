@@ -9,7 +9,11 @@ import '../../../../core/widgets/coming_soon.dart';
 import '../bloc/activity_detail_bloc.dart';
 import '../bloc/activity_detail_event.dart';
 import '../bloc/activity_detail_state.dart';
+import '../bloc/saved_activities_bloc.dart';
+import '../bloc/saved_activities_event.dart';
+import '../bloc/saved_activities_state.dart';
 import '../services/link_opener.dart';
+import '../widgets/save_activity_button.dart';
 
 /// Detalle de un microdescanso: qué es, cuánto dura, cómo se hace y, si lo
 /// tiene, un enlace para ampliar. [activityId] viene de la ruta y sirve para
@@ -24,31 +28,74 @@ class ActivityDetailPage extends StatelessWidget {
     required this.linkOpener,
   });
 
+  SavedActivitiesBloc? _findSavedBloc(BuildContext context) {
+    try {
+      return context.read<SavedActivitiesBloc>();
+    } catch (_) {
+      return null;
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: const Text('Microdescanso')),
-      body: SafeArea(
-        child: BlocBuilder<ActivityDetailBloc, ActivityDetailState>(
-          builder: (context, state) => switch (state) {
-            ActivityDetailInitial() || ActivityDetailLoading() => const Center(
-              key: Key('activity_detail_loading'),
-              child: CircularProgressIndicator(),
-            ),
-            ActivityDetailNotFound(:final message) => _NotFoundView(
-              message: message,
-            ),
-            ActivityDetailFailure(:final message) => _ErrorView(
-              message: message,
-              activityId: activityId,
-            ),
-            ActivityDetailLoaded() => _DetailView(
-              state: state,
-              linkOpener: linkOpener,
-            ),
-          },
-        ),
+    final body = SafeArea(
+      child: BlocBuilder<ActivityDetailBloc, ActivityDetailState>(
+        builder: (context, state) => switch (state) {
+          ActivityDetailInitial() || ActivityDetailLoading() => const Center(
+            key: Key('activity_detail_loading'),
+            child: CircularProgressIndicator(),
+          ),
+          ActivityDetailNotFound(:final message) => _NotFoundView(
+            message: message,
+          ),
+          ActivityDetailFailure(:final message) => _ErrorView(
+            message: message,
+            activityId: activityId,
+          ),
+          ActivityDetailLoaded() => _DetailView(
+            state: state,
+            linkOpener: linkOpener,
+          ),
+        },
       ),
+    );
+
+    final savedBloc = _findSavedBloc(context);
+
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('Microdescanso'),
+        actions: [
+          BlocBuilder<ActivityDetailBloc, ActivityDetailState>(
+            builder: (context, state) {
+              if (state is ActivityDetailLoaded) {
+                return SaveActivityButton(activity: state.activity);
+              }
+              return const SizedBox.shrink();
+            },
+          ),
+        ],
+      ),
+      body: savedBloc != null
+          ? BlocListener<SavedActivitiesBloc, SavedActivitiesState>(
+              listenWhen: (previous, current) =>
+                  current is SavedActivitiesLoaded && current.noticeMessage != null,
+              listener: (context, state) {
+                if (state is SavedActivitiesLoaded && state.noticeMessage != null) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content: Text(state.noticeMessage!),
+                      duration: const Duration(seconds: 3),
+                    ),
+                  );
+                  context
+                      .read<SavedActivitiesBloc>()
+                      .add(const SavedActivitiesNoticeDismissed());
+                }
+              },
+              child: body,
+            )
+          : body,
     );
   }
 }

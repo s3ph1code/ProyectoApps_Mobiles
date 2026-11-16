@@ -10,28 +10,73 @@ import '../../domain/entities/activity_category.dart';
 import '../bloc/activities_bloc.dart';
 import '../bloc/activities_event.dart';
 import '../bloc/activities_state.dart';
+import '../bloc/saved_activities_bloc.dart';
+import '../bloc/saved_activities_event.dart';
+import '../bloc/saved_activities_state.dart';
+import '../widgets/save_activity_button.dart';
 
 /// «Microdescansos»: las pausas breves de autocuidado publicadas, filtrables
 /// por categoría. Solo muestra lo que el BLoC le entrega.
 class ActivitiesPage extends StatelessWidget {
   const ActivitiesPage({super.key});
 
+  SavedActivitiesBloc? _findSavedBloc(BuildContext context) {
+    try {
+      return context.read<SavedActivitiesBloc>();
+    } catch (_) {
+      return null;
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: const Text('Microdescansos')),
-      body: SafeArea(
-        child: BlocBuilder<ActivitiesBloc, ActivitiesState>(
-          builder: (context, state) => switch (state) {
-            ActivitiesInitial() || ActivitiesLoading() => const Center(
-              key: Key('activities_loading'),
-              child: CircularProgressIndicator(),
-            ),
-            ActivitiesFailure(:final message) => _ErrorView(message: message),
-            ActivitiesLoaded() => _CatalogView(state: state),
-          },
-        ),
+    final body = SafeArea(
+      child: BlocBuilder<ActivitiesBloc, ActivitiesState>(
+        builder: (context, state) => switch (state) {
+          ActivitiesInitial() || ActivitiesLoading() => const Center(
+            key: Key('activities_loading'),
+            child: CircularProgressIndicator(),
+          ),
+          ActivitiesFailure(:final message) => _ErrorView(message: message),
+          ActivitiesLoaded() => _CatalogView(state: state),
+        },
       ),
+    );
+
+    final savedBloc = _findSavedBloc(context);
+
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('Microdescansos'),
+        actions: [
+          IconButton(
+            key: const Key('activities_saved_button'),
+            tooltip: 'Actividades guardadas',
+            icon: const Icon(Icons.bookmark_border_rounded),
+            onPressed: () => context.push(AppRoutes.savedActivities),
+          ),
+        ],
+      ),
+      body: savedBloc != null
+          ? BlocListener<SavedActivitiesBloc, SavedActivitiesState>(
+              listenWhen: (previous, current) =>
+                  current is SavedActivitiesLoaded && current.noticeMessage != null,
+              listener: (context, state) {
+                if (state is SavedActivitiesLoaded && state.noticeMessage != null) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content: Text(state.noticeMessage!),
+                      duration: const Duration(seconds: 3),
+                    ),
+                  );
+                  context
+                      .read<SavedActivitiesBloc>()
+                      .add(const SavedActivitiesNoticeDismissed());
+                }
+              },
+              child: body,
+            )
+          : body,
     );
   }
 }
@@ -193,7 +238,8 @@ class _ActivityCard extends StatelessWidget {
                   Expanded(
                     child: Text(activity.title, style: textTheme.titleMedium),
                   ),
-                  const SizedBox(width: 8),
+                  const SizedBox(width: 4),
+                  SaveActivityButton(activity: activity),
                   const Icon(
                     Icons.chevron_right_rounded,
                     size: 22,

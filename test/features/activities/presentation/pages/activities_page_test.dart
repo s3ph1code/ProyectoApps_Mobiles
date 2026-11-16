@@ -64,6 +64,12 @@ void main() {
           ),
           routes: [
             GoRoute(
+              path: 'saved',
+              builder: (_, _) => const Scaffold(
+                body: Text('Pantalla Actividades Guardadas'),
+              ),
+            ),
+            GoRoute(
               path: ':id',
               builder: (_, state) => Scaffold(
                 appBar: AppBar(title: const Text('Microdescanso')),
@@ -263,5 +269,20 @@ void main() {
     await t.pumpWidget(buildPage());
 
     expect(t.takeException(), isNull);
+  });
+
+  testWidgets('el botón de guardadas en el AppBar abre las actividades guardadas', (
+    t,
+  ) async {
+    useSmallPhone(t);
+    when(() => bloc.state).thenReturn(
+      const ActivitiesLoaded(categories: categories, activities: [breathing]),
+    );
+
+    await t.pumpWidget(buildPage());
+    await t.tap(find.byKey(const Key('activities_saved_button')));
+    await t.pumpAndSettle();
+
+    expect(find.text('Pantalla Actividades Guardadas'), findsOneWidget);
   });
 }

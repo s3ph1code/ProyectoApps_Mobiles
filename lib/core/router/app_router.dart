@@ -10,9 +10,12 @@ import '../../features/activities/presentation/bloc/activity_detail_bloc.dart';
 import '../../features/activities/presentation/bloc/activity_detail_event.dart';
 import '../../features/activities/presentation/bloc/activity_session_bloc.dart';
 import '../../features/activities/presentation/bloc/activity_session_event.dart';
+import '../../features/activities/presentation/bloc/saved_activities_bloc.dart';
+import '../../features/activities/presentation/bloc/saved_activities_event.dart';
 import '../../features/activities/presentation/pages/activities_page.dart';
 import '../../features/activities/presentation/pages/activity_detail_page.dart';
 import '../../features/activities/presentation/pages/activity_session_page.dart';
+import '../../features/activities/presentation/pages/saved_activities_page.dart';
 import '../../features/activities/presentation/services/link_opener.dart';
 import '../../features/auth/presentation/bloc/forgot_password_bloc.dart';
 import '../../features/auth/presentation/bloc/login_bloc.dart';
@@ -145,9 +148,17 @@ class AppRouter {
         ),
         GoRoute(
           path: AppRoutes.activities,
-          builder: (context, state) => BlocProvider(
-            create: (_) =>
-                sl<ActivitiesBloc>()..add(const ActivitiesRequested()),
+          builder: (context, state) => MultiBlocProvider(
+            providers: [
+              BlocProvider(
+                create: (_) =>
+                    sl<ActivitiesBloc>()..add(const ActivitiesRequested()),
+              ),
+              BlocProvider(
+                create: (_) => sl<SavedActivitiesBloc>()
+                  ..add(const SavedActivitiesRequested()),
+              ),
+            ],
             child: const ActivitiesPage(),
           ),
         ),
@@ -186,11 +197,10 @@ class AppRouter {
         ),
         GoRoute(
           path: AppRoutes.savedActivities,
-          builder: (context, state) => const FeaturePlaceholderPage(
-            title: 'Actividades guardadas',
-            subtitle:
-                'Tus pausas favoritas guardadas para acceder a ellas rápidamente.',
-            icon: Icons.bookmark_border_rounded,
+          builder: (context, state) => BlocProvider(
+            create: (_) =>
+                sl<SavedActivitiesBloc>()..add(const SavedActivitiesRequested()),
+            child: const SavedActivitiesPage(),
           ),
         ),
         // La comunidad llega en el Sprint 3. El placeholder vuelve a donde
@@ -208,9 +218,17 @@ class AppRouter {
           path: AppRoutes.activityDetail,
           builder: (context, state) {
             final activityId = state.pathParameters['id'] ?? '';
-            return BlocProvider(
-              create: (_) => sl<ActivityDetailBloc>()
-                ..add(ActivityDetailRequested(activityId)),
+            return MultiBlocProvider(
+              providers: [
+                BlocProvider(
+                  create: (_) => sl<ActivityDetailBloc>()
+                    ..add(ActivityDetailRequested(activityId)),
+                ),
+                BlocProvider(
+                  create: (_) => sl<SavedActivitiesBloc>()
+                    ..add(const SavedActivitiesRequested()),
+                ),
+              ],
               child: ActivityDetailPage(
                 activityId: activityId,
                 linkOpener: sl<LinkOpener>(),
