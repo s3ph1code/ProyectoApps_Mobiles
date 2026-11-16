@@ -27,6 +27,18 @@ abstract class ActivitiesRemoteDataSource {
     required int elapsedSeconds,
     DateTime? completedAt,
   });
+
+  Future<List<ActivityModel>> fetchSavedActivities({required String userId});
+
+  Future<void> insertSavedActivity({
+    required String userId,
+    required String activityId,
+  });
+
+  Future<void> deleteSavedActivity({
+    required String userId,
+    required String activityId,
+  });
 }
 
 class ActivitiesRemoteDataSourceImpl implements ActivitiesRemoteDataSource {
@@ -126,6 +138,55 @@ class ActivitiesRemoteDataSourceImpl implements ActivitiesRemoteDataSource {
           .single();
 
       return ActivitySessionModel.fromJson(json);
+    });
+  }
+
+  @override
+  Future<List<ActivityModel>> fetchSavedActivities({required String userId}) {
+    return _guard(() async {
+      final rows = await client
+          .from('saved_activities')
+          .select('created_at, activities(*)')
+          .eq('user_id', userId)
+          .order('created_at', ascending: false);
+
+      final List<ActivityModel> activities = [];
+      for (final row in rows) {
+        final activityData = row['activities'];
+        if (activityData is Map<String, dynamic>) {
+          if (activityData['is_published'] == true) {
+            activities.add(ActivityModel.fromJson(activityData));
+          }
+        }
+      }
+      return activities;
+    });
+  }
+
+  @override
+  Future<void> insertSavedActivity({
+    required String userId,
+    required String activityId,
+  }) {
+    return _guard(() async {
+      await client.from('saved_activities').upsert({
+        'user_id': userId,
+        'activity_id': activityId,
+      });
+    });
+  }
+
+  @override
+  Future<void> deleteSavedActivity({
+    required String userId,
+    required String activityId,
+  }) {
+    return _guard(() async {
+      await client
+          .from('saved_activities')
+          .delete()
+          .eq('user_id', userId)
+          .eq('activity_id', activityId);
     });
   }
 

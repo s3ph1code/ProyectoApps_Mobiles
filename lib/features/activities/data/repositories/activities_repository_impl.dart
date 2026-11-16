@@ -72,6 +72,39 @@ class ActivitiesRepositoryImpl implements ActivitiesRepository {
     );
   }
 
+  @override
+  Future<Either<Failure, List<Activity>>> getSavedActivities({
+    required String userId,
+  }) {
+    return _guard(() => remoteDataSource.fetchSavedActivities(userId: userId));
+  }
+
+  @override
+  Future<Either<Failure, void>> saveActivity({
+    required String userId,
+    required String activityId,
+  }) {
+    return _guard(
+      () => remoteDataSource.insertSavedActivity(
+        userId: userId,
+        activityId: activityId,
+      ),
+    );
+  }
+
+  @override
+  Future<Either<Failure, void>> unsaveActivity({
+    required String userId,
+    required String activityId,
+  }) {
+    return _guard(
+      () => remoteDataSource.deleteSavedActivity(
+        userId: userId,
+        activityId: activityId,
+      ),
+    );
+  }
+
   Future<Either<Failure, T>> _guard<T>(Future<T> Function() run) async {
     try {
       return Right(await run());
