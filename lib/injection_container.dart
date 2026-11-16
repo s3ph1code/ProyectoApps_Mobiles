@@ -16,6 +16,17 @@ import 'features/auth/domain/usecases/watch_auth_state.dart';
 import 'features/auth/presentation/bloc/forgot_password_bloc.dart';
 import 'features/auth/presentation/bloc/login_bloc.dart';
 import 'features/auth/presentation/bloc/register_bloc.dart';
+import 'features/community/data/datasources/community_remote_datasource.dart';
+import 'features/community/data/repositories/community_repository_impl.dart';
+import 'features/community/domain/repositories/community_repository.dart';
+import 'features/community/domain/usecases/create_post.dart';
+import 'features/community/domain/usecases/get_community_categories.dart';
+import 'features/community/domain/usecases/get_post_by_id.dart';
+import 'features/community/domain/usecases/get_post_comments.dart';
+import 'features/community/domain/usecases/get_posts.dart';
+import 'features/community/presentation/bloc/create_post_bloc.dart';
+import 'features/community/presentation/bloc/feed_bloc.dart';
+import 'features/community/presentation/bloc/post_detail_bloc.dart';
 import 'features/preferences/data/datasources/preferences_remote_datasource.dart';
 import 'features/preferences/data/repositories/preferences_repository_impl.dart';
 import 'features/preferences/domain/repositories/preferences_repository.dart';
@@ -76,6 +87,7 @@ Future<void> initDependencies() async {
   _registerPreferences();
   _registerWellbeing();
   _registerActivities();
+  _registerCommunity();
 
   // La sesión que Supabase restauró al arrancar decide la primera pantalla.
   final current = await sl<GetCurrentUser>()(const NoParams());
@@ -231,5 +243,30 @@ void _registerActivities() {
       saveActivity: sl(),
       unsaveActivity: sl(),
     ),
+  );
+}
+
+void _registerCommunity() {
+  sl.registerLazySingleton<CommunityRemoteDataSource>(
+    () => CommunityRemoteDataSourceImpl(client: sl()),
+  );
+  sl.registerLazySingleton<CommunityRepository>(
+    () => CommunityRepositoryImpl(remoteDataSource: sl()),
+  );
+
+  sl.registerLazySingleton(() => GetCommunityCategories(sl()));
+  sl.registerLazySingleton(() => GetPosts(sl()));
+  sl.registerLazySingleton(() => GetPostById(sl()));
+  sl.registerLazySingleton(() => GetPostComments(sl()));
+  sl.registerLazySingleton(() => CreatePost(sl()));
+
+  sl.registerFactory(
+    () => FeedBloc(getCommunityCategories: sl(), getPosts: sl()),
+  );
+  sl.registerFactory(
+    () => PostDetailBloc(getPostById: sl(), getPostComments: sl()),
+  );
+  sl.registerFactory(
+    () => CreatePostBloc(getCommunityCategories: sl(), createPost: sl()),
   );
 }

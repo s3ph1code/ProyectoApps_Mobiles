@@ -23,6 +23,23 @@ import 'package:doulapp/features/auth/presentation/bloc/register_state.dart';
 import 'package:doulapp/features/auth/presentation/pages/forgot_password_page.dart';
 import 'package:doulapp/features/auth/presentation/pages/login_page.dart';
 import 'package:doulapp/features/auth/presentation/pages/register_page.dart';
+import 'package:doulapp/features/community/domain/entities/community_category.dart';
+import 'package:doulapp/features/community/domain/entities/post.dart';
+import 'package:doulapp/features/community/domain/entities/post_comment.dart';
+import 'package:doulapp/features/community/domain/entities/post_type.dart';
+import 'package:doulapp/features/community/domain/entities/post_visibility.dart';
+import 'package:doulapp/features/community/presentation/bloc/create_post_bloc.dart';
+import 'package:doulapp/features/community/presentation/bloc/create_post_event.dart';
+import 'package:doulapp/features/community/presentation/bloc/create_post_state.dart';
+import 'package:doulapp/features/community/presentation/bloc/feed_bloc.dart';
+import 'package:doulapp/features/community/presentation/bloc/feed_event.dart';
+import 'package:doulapp/features/community/presentation/bloc/feed_state.dart';
+import 'package:doulapp/features/community/presentation/bloc/post_detail_bloc.dart';
+import 'package:doulapp/features/community/presentation/bloc/post_detail_event.dart';
+import 'package:doulapp/features/community/presentation/bloc/post_detail_state.dart';
+import 'package:doulapp/features/community/presentation/pages/create_post_page.dart';
+import 'package:doulapp/features/community/presentation/pages/feed_page.dart';
+import 'package:doulapp/features/community/presentation/pages/post_detail_page.dart';
 import 'package:doulapp/features/for_me/presentation/pages/for_me_page.dart';
 import 'package:doulapp/features/home/presentation/pages/home_page.dart';
 import 'package:doulapp/features/onboarding/presentation/pages/onboarding_page.dart';
@@ -73,6 +90,14 @@ class MockSavedActivitiesBloc
     extends MockBloc<SavedActivitiesEvent, SavedActivitiesState>
     implements SavedActivitiesBloc {}
 
+class MockFeedBloc extends MockBloc<FeedEvent, FeedState> implements FeedBloc {}
+
+class MockPostDetailBloc extends MockBloc<PostDetailEvent, PostDetailState>
+    implements PostDetailBloc {}
+
+class MockCreatePostBloc extends MockBloc<CreatePostEvent, CreatePostState>
+    implements CreatePostBloc {}
+
 /// Pinta cada pantalla en un teléfono de 390 × 844 y falla si algo se
 /// desborda. La fuente de pruebas es más ancha que Inter, así que si cabe
 /// aquí, cabe en el dispositivo.
@@ -120,15 +145,19 @@ void main() {
     );
     await pumpOnPhone(
       tester,
-      BlocProvider<RegisterBloc>.value(value: bloc, child: const RegisterPage()),
+      BlocProvider<RegisterBloc>.value(
+        value: bloc,
+        child: const RegisterPage(),
+      ),
     );
     expect(tester.takeException(), isNull);
   });
 
   testWidgets('recuperar acceso', (tester) async {
     final bloc = MockForgotBloc();
-    when(() => bloc.state)
-        .thenReturn(const ForgotPasswordSuccess('ana@icesi.edu.co'));
+    when(
+      () => bloc.state,
+    ).thenReturn(const ForgotPasswordSuccess('ana@icesi.edu.co'));
     await pumpOnPhone(
       tester,
       BlocProvider<ForgotPasswordBloc>.value(
@@ -146,9 +175,9 @@ void main() {
 
   testWidgets('inicio', (tester) async {
     final bloc = MockProfileBloc();
-    when(() => bloc.state).thenReturn(
-      ProfileLoaded(profile: profile, email: 'karla@icesi.edu.co'),
-    );
+    when(
+      () => bloc.state,
+    ).thenReturn(ProfileLoaded(profile: profile, email: 'karla@icesi.edu.co'));
     await pumpOnPhone(
       tester,
       BlocProvider<ProfileBloc>.value(value: bloc, child: const HomePage()),
@@ -177,9 +206,9 @@ void main() {
     final editBloc = MockEditProfileBloc();
     final avatarBloc = MockAvatarBloc();
     when(() => avatarBloc.state).thenReturn(const AvatarInitial());
-    when(() => profileBloc.state).thenReturn(
-      ProfileLoaded(profile: profile, email: 'karla@icesi.edu.co'),
-    );
+    when(
+      () => profileBloc.state,
+    ).thenReturn(ProfileLoaded(profile: profile, email: 'karla@icesi.edu.co'));
     when(() => editBloc.state).thenReturn(
       const EditProfileFailure('El nombre puede tener hasta 100 caracteres.'),
     );
@@ -258,10 +287,7 @@ void main() {
       durationMinutes: 5,
     );
     when(() => bloc.state).thenReturn(
-      const SavedActivitiesLoaded(
-        activities: [activity],
-        savedIds: {'act-1'},
-      ),
+      const SavedActivitiesLoaded(activities: [activity], savedIds: {'act-1'}),
     );
     await pumpOnPhone(
       tester,
@@ -271,5 +297,107 @@ void main() {
       ),
     );
     expect(tester.takeException(), isNull);
+  });
+
+  group('comunidad', () {
+    const categories = [
+      CommunityCategory(
+        id: 'c1',
+        name: 'Primeras semanas',
+        slug: 'primeras-semanas',
+      ),
+      CommunityCategory(
+        id: 'c2',
+        name: 'Cuerpo y recuperación',
+        slug: 'cuerpo',
+      ),
+      CommunityCategory(id: 'c3', name: 'Sueño y cansancio', slug: 'sueno'),
+    ];
+    final post = Post(
+      id: 'p1',
+      authorId: 'a1',
+      authorName: 'María Fernanda de los Ángeles Rodríguez',
+      type: PostType.experience,
+      body: 'Le pedí a mi hermana que viniera dos tardes por semana. ' * 6,
+      visibility: PostVisibility.community,
+      createdAt: DateTime.utc(2026, 3, 3),
+      categories: categories,
+      reactionCount: 1280,
+      commentCount: 342,
+    );
+
+    testWidgets('feed (390×844)', (tester) async {
+      final bloc = MockFeedBloc();
+      when(() => bloc.state).thenReturn(
+        FeedLoaded(
+          categories: categories,
+          posts: [post, post],
+          hasMore: true,
+          isLoadingMore: true,
+        ),
+      );
+      await pumpOnPhone(
+        tester,
+        BlocProvider<FeedBloc>.value(value: bloc, child: const FeedPage()),
+      );
+      expect(tester.takeException(), isNull);
+    });
+
+    testWidgets('detalle de publicación (390×844)', (tester) async {
+      final bloc = MockPostDetailBloc();
+      when(() => bloc.state).thenReturn(
+        PostDetailLoaded(
+          post: post,
+          comments: [
+            PostComment(
+              id: 'k1',
+              postId: 'p1',
+              authorId: 'a2',
+              authorName: 'Alejandra Valentina Gómez Restrepo',
+              body: 'Qué bueno que te diste ese espacio.',
+              createdAt: DateTime.utc(2026, 3, 4),
+            ),
+            PostComment(
+              id: 'k2',
+              postId: 'p1',
+              authorId: 'a3',
+              parentCommentId: 'k1',
+              body: 'Igual yo.',
+              createdAt: DateTime.utc(2026, 3, 5),
+            ),
+          ],
+        ),
+      );
+      await pumpOnPhone(
+        tester,
+        BlocProvider<PostDetailBloc>.value(
+          value: bloc,
+          child: const PostDetailPage(postId: 'p1'),
+        ),
+      );
+      expect(tester.takeException(), isNull);
+    });
+
+    testWidgets('escribir con un error visible (390×844)', (tester) async {
+      final bloc = MockCreatePostBloc();
+      when(() => bloc.state).thenReturn(
+        const CreatePostState(
+          status: CreatePostStatus.editing,
+          categories: categories,
+          selectedCategoryIds: {'c1', 'c3'},
+          body: 'Hola',
+          errorMessage:
+              'Elige al menos una categoría para que otras madres te encuentren.',
+        ),
+      );
+      await pumpOnPhone(
+        tester,
+        BlocProvider<CreatePostBloc>.value(
+          value: bloc,
+          child: const CreatePostPage(),
+        ),
+      );
+      expect(tester.takeException(), isNull);
+    });
   });
 }
