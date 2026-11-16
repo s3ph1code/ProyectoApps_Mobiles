@@ -236,7 +236,7 @@ void _registerActivities() {
       abandonActivitySession: sl(),
     ),
   );
-  sl.registerLazySingleton(
+  sl.registerFactory(
     () => SavedActivitiesBloc(
       getCurrentUser: sl(),
       getSavedActivities: sl(),

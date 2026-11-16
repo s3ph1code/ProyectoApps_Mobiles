@@ -266,11 +266,13 @@ class _ActiveSessionView extends StatelessWidget {
                                   color: AppColors.sage,
                                 ),
                                 const SizedBox(width: 8),
-                                Text(
-                                  'Guía de la actividad',
-                                  style: textTheme.labelLarge?.copyWith(
-                                    fontWeight: FontWeight.w600,
-                                    color: AppColors.sageDark,
+                                Expanded(
+                                  child: Text(
+                                    'Guía de la actividad',
+                                    style: textTheme.labelLarge?.copyWith(
+                                      fontWeight: FontWeight.w600,
+                                      color: AppColors.sageDark,
+                                    ),
                                   ),
                                 ),
                               ],

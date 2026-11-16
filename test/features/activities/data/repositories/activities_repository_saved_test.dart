@@ -37,7 +37,10 @@ void main() {
 
       final result = await repository.getSavedActivities(userId: 'usr-1');
 
-      expect(result, const Right([activityModel]));
+      result.fold(
+        (_) => fail('Se esperaba Right'),
+        (activities) => expect(activities, [activityModel]),
+      );
       verify(() => dataSource.fetchSavedActivities(userId: 'usr-1')).called(1);
     });
 
