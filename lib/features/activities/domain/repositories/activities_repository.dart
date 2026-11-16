@@ -32,4 +32,21 @@ abstract class ActivitiesRepository {
     required String sessionId,
     required int elapsedSeconds,
   });
+
+  /// Las actividades guardadas por la usuaria [userId], de la más reciente a la más antigua.
+  Future<Either<Failure, List<Activity>>> getSavedActivities({
+    required String userId,
+  });
+
+  /// Guarda una actividad en la lista personal de [userId].
+  Future<Either<Failure, void>> saveActivity({
+    required String userId,
+    required String activityId,
+  });
+
+  /// Quita una actividad de la lista personal de [userId].
+  Future<Either<Failure, void>> unsaveActivity({
+    required String userId,
+    required String activityId,
+  });
 }
