@@ -2,15 +2,25 @@ import 'package:bloc_test/bloc_test.dart';
 import 'package:doulapp/core/widgets/coming_soon.dart';
 import 'package:doulapp/core/widgets/placeholder_page.dart';
 import 'package:doulapp/features/activities/domain/entities/activity.dart';
+import 'package:doulapp/features/activities/domain/entities/activity_category.dart';
 import 'package:doulapp/features/activities/domain/entities/activity_modality.dart';
+import 'package:doulapp/features/activities/presentation/bloc/activities_bloc.dart';
+import 'package:doulapp/features/activities/presentation/bloc/activities_event.dart';
+import 'package:doulapp/features/activities/presentation/bloc/activities_state.dart';
+import 'package:doulapp/features/activities/presentation/bloc/activity_detail_bloc.dart';
+import 'package:doulapp/features/activities/presentation/bloc/activity_detail_event.dart';
+import 'package:doulapp/features/activities/presentation/bloc/activity_detail_state.dart';
 import 'package:doulapp/features/activities/presentation/bloc/activity_session_bloc.dart';
 import 'package:doulapp/features/activities/presentation/bloc/activity_session_event.dart';
 import 'package:doulapp/features/activities/presentation/bloc/activity_session_state.dart';
 import 'package:doulapp/features/activities/presentation/bloc/saved_activities_bloc.dart';
 import 'package:doulapp/features/activities/presentation/bloc/saved_activities_event.dart';
 import 'package:doulapp/features/activities/presentation/bloc/saved_activities_state.dart';
+import 'package:doulapp/features/activities/presentation/pages/activities_page.dart';
+import 'package:doulapp/features/activities/presentation/pages/activity_detail_page.dart';
 import 'package:doulapp/features/activities/presentation/pages/activity_session_page.dart';
 import 'package:doulapp/features/activities/presentation/pages/saved_activities_page.dart';
+import 'package:doulapp/features/activities/presentation/services/link_opener.dart';
 import 'package:doulapp/features/auth/presentation/bloc/forgot_password_bloc.dart';
 import 'package:doulapp/features/auth/presentation/bloc/forgot_password_event.dart';
 import 'package:doulapp/features/auth/presentation/bloc/forgot_password_state.dart';
@@ -43,6 +53,13 @@ import 'package:doulapp/features/community/presentation/pages/post_detail_page.d
 import 'package:doulapp/features/for_me/presentation/pages/for_me_page.dart';
 import 'package:doulapp/features/home/presentation/pages/home_page.dart';
 import 'package:doulapp/features/onboarding/presentation/pages/onboarding_page.dart';
+import 'package:doulapp/features/preferences/domain/entities/profile_visibility.dart';
+import 'package:doulapp/features/preferences/domain/entities/user_preferences.dart';
+import 'package:doulapp/features/preferences/presentation/bloc/preferences_bloc.dart';
+import 'package:doulapp/features/preferences/presentation/bloc/preferences_event.dart';
+import 'package:doulapp/features/preferences/presentation/bloc/preferences_state.dart';
+import 'package:doulapp/features/preferences/presentation/pages/notifications_page.dart';
+import 'package:doulapp/features/preferences/presentation/pages/privacy_page.dart';
 import 'package:doulapp/features/profile/domain/entities/account_status.dart';
 import 'package:doulapp/features/profile/domain/entities/app_role.dart';
 import 'package:doulapp/features/profile/domain/entities/profile.dart';
@@ -59,6 +76,22 @@ import 'package:doulapp/features/profile/presentation/pages/edit_profile_page.da
 import 'package:doulapp/features/profile/presentation/pages/profile_page.dart';
 import 'package:doulapp/features/splash/presentation/pages/splash_page.dart';
 import 'package:doulapp/features/support/presentation/pages/support_page.dart';
+import 'package:doulapp/features/wellbeing/domain/entities/mood_checkin.dart';
+import 'package:doulapp/features/wellbeing/domain/entities/need_option.dart';
+import 'package:doulapp/features/wellbeing/domain/entities/recommendation.dart';
+import 'package:doulapp/features/wellbeing/presentation/bloc/mood_checkin_bloc.dart';
+import 'package:doulapp/features/wellbeing/presentation/bloc/mood_checkin_event.dart';
+import 'package:doulapp/features/wellbeing/presentation/bloc/mood_checkin_state.dart';
+import 'package:doulapp/features/wellbeing/presentation/bloc/mood_history_bloc.dart';
+import 'package:doulapp/features/wellbeing/presentation/bloc/mood_history_event.dart';
+import 'package:doulapp/features/wellbeing/presentation/bloc/mood_history_state.dart';
+import 'package:doulapp/features/wellbeing/presentation/bloc/needs_bloc.dart';
+import 'package:doulapp/features/wellbeing/presentation/bloc/needs_event.dart';
+import 'package:doulapp/features/wellbeing/presentation/bloc/needs_state.dart';
+import 'package:doulapp/features/wellbeing/presentation/pages/mood_checkin_page.dart';
+import 'package:doulapp/features/wellbeing/presentation/pages/mood_history_page.dart';
+import 'package:doulapp/features/wellbeing/presentation/pages/needs_selection_page.dart';
+import 'package:doulapp/features/wellbeing/presentation/pages/recommendations_page.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -82,6 +115,25 @@ class MockAvatarBloc extends MockBloc<AvatarEvent, AvatarState>
 class MockEditProfileBloc extends MockBloc<EditProfileEvent, EditProfileState>
     implements EditProfileBloc {}
 
+class MockPreferencesBloc extends MockBloc<PreferencesEvent, PreferencesState>
+    implements PreferencesBloc {}
+
+class MockMoodCheckinBloc extends MockBloc<MoodCheckinEvent, MoodCheckinState>
+    implements MoodCheckinBloc {}
+
+class MockMoodHistoryBloc extends MockBloc<MoodHistoryEvent, MoodHistoryState>
+    implements MoodHistoryBloc {}
+
+class MockNeedsBloc extends MockBloc<NeedsEvent, NeedsState>
+    implements NeedsBloc {}
+
+class MockActivitiesBloc extends MockBloc<ActivitiesEvent, ActivitiesState>
+    implements ActivitiesBloc {}
+
+class MockActivityDetailBloc
+    extends MockBloc<ActivityDetailEvent, ActivityDetailState>
+    implements ActivityDetailBloc {}
+
 class MockActivitySessionBloc
     extends MockBloc<ActivitySessionEvent, ActivitySessionState>
     implements ActivitySessionBloc {}
@@ -97,6 +149,13 @@ class MockPostDetailBloc extends MockBloc<PostDetailEvent, PostDetailState>
 
 class MockCreatePostBloc extends MockBloc<CreatePostEvent, CreatePostState>
     implements CreatePostBloc {}
+
+class _FakeLinkOpener implements LinkOpener {
+  const _FakeLinkOpener();
+
+  @override
+  Future<bool> open(String url) async => true;
+}
 
 /// Pinta cada pantalla en un teléfono de 390 × 844 y falla si algo se
 /// desborda. La fuente de pruebas es más ancha que Inter, así que si cabe
@@ -294,6 +353,183 @@ void main() {
       BlocProvider<SavedActivitiesBloc>.value(
         value: bloc,
         child: const SavedActivitiesPage(),
+      ),
+    );
+    expect(tester.takeException(), isNull);
+  });
+
+  testWidgets('notificaciones (390×844)', (tester) async {
+    final bloc = MockPreferencesBloc();
+    when(() => bloc.state).thenReturn(
+      const PreferencesLoaded(
+        preferences: UserPreferences(
+          profileVisibility: ProfileVisibility.community,
+          allowNotifications: true,
+          wellbeingReminders: true,
+          languageCode: 'es',
+        ),
+      ),
+    );
+    await pumpOnPhone(
+      tester,
+      BlocProvider<PreferencesBloc>.value(
+        value: bloc,
+        child: const NotificationsPage(),
+      ),
+    );
+    expect(tester.takeException(), isNull);
+  });
+
+  testWidgets('privacidad (390×844)', (tester) async {
+    final bloc = MockPreferencesBloc();
+    when(() => bloc.state).thenReturn(
+      const PreferencesLoaded(
+        preferences: UserPreferences(
+          profileVisibility: ProfileVisibility.community,
+          allowNotifications: true,
+          wellbeingReminders: true,
+          languageCode: 'es',
+        ),
+      ),
+    );
+    await pumpOnPhone(
+      tester,
+      BlocProvider<PreferencesBloc>.value(
+        value: bloc,
+        child: const PrivacyPage(),
+      ),
+    );
+    expect(tester.takeException(), isNull);
+  });
+
+  testWidgets('check-in de ánimo (390×844)', (tester) async {
+    final bloc = MockMoodCheckinBloc();
+    when(() => bloc.state).thenReturn(const MoodCheckinInitial());
+    await pumpOnPhone(
+      tester,
+      BlocProvider<MoodCheckinBloc>.value(
+        value: bloc,
+        child: const MoodCheckinPage(),
+      ),
+    );
+    expect(tester.takeException(), isNull);
+  });
+
+  testWidgets('historial de check-ins (390×844)', (tester) async {
+    final bloc = MockMoodHistoryBloc();
+    when(() => bloc.state).thenReturn(
+      MoodHistoryLoaded([
+        MoodCheckin(
+          id: 'mc-1',
+          moodScore: 4,
+          note: 'Dormí un poco mejor hoy.',
+          recordedAt: DateTime.utc(2026, 3, 1, 14, 30),
+        ),
+      ]),
+    );
+    await pumpOnPhone(
+      tester,
+      BlocProvider<MoodHistoryBloc>.value(
+        value: bloc,
+        child: const MoodHistoryPage(),
+      ),
+    );
+    expect(tester.takeException(), isNull);
+  });
+
+  testWidgets('selección de necesidades (390×844)', (tester) async {
+    final bloc = MockNeedsBloc();
+    when(() => bloc.state).thenReturn(
+      const NeedsOptionsReady(
+        options: [
+          NeedOption(id: 'n1', code: 'rest', label: 'Necesito descansar'),
+          NeedOption(id: 'n2', code: 'calm', label: 'Bajar la ansiedad'),
+        ],
+        selectedIds: {'n1'},
+      ),
+    );
+    await pumpOnPhone(
+      tester,
+      BlocProvider<NeedsBloc>.value(
+        value: bloc,
+        child: const NeedsSelectionPage(),
+      ),
+    );
+    expect(tester.takeException(), isNull);
+  });
+
+  testWidgets('recomendaciones (390×844)', (tester) async {
+    final bloc = MockNeedsBloc();
+    when(() => bloc.state).thenReturn(
+      const NeedsRecommendationsReady([
+        Recommendation(
+          id: 'r1',
+          message: 'Haz una pausa de tres minutos para respirar despacio.',
+          priority: 1,
+          activityId: 'act-1',
+          destinationCode: 'activities',
+        ),
+      ]),
+    );
+    await pumpOnPhone(
+      tester,
+      BlocProvider<NeedsBloc>.value(
+        value: bloc,
+        child: const RecommendationsPage(),
+      ),
+    );
+    expect(tester.takeException(), isNull);
+  });
+
+  testWidgets('catálogo de microdescansos (390×844)', (tester) async {
+    final bloc = MockActivitiesBloc();
+    const activity = Activity(
+      id: 'act-1',
+      categoryId: 'cat-1',
+      title: 'Respiración 4-7-8',
+      description: 'Una pausa para bajar el ritmo.',
+      modality: ActivityModality.practice,
+      durationMinutes: 3,
+    );
+    when(() => bloc.state).thenReturn(
+      const ActivitiesLoaded(
+        categories: [
+          ActivityCategory(id: 'cat-1', name: 'Respiración', slug: 'resp'),
+        ],
+        activities: [activity],
+      ),
+    );
+    await pumpOnPhone(
+      tester,
+      BlocProvider<ActivitiesBloc>.value(
+        value: bloc,
+        child: const ActivitiesPage(),
+      ),
+    );
+    expect(tester.takeException(), isNull);
+  });
+
+  testWidgets('detalle de microdescanso (390×844)', (tester) async {
+    final bloc = MockActivityDetailBloc();
+    const activity = Activity(
+      id: 'act-1',
+      categoryId: 'cat-1',
+      title: 'Respiración 4-7-8',
+      description: 'Una pausa para bajar el ritmo.',
+      contentText: 'Inhala en 4, sostén en 7 y exhala en 8.',
+      externalUrl: 'https://ejemplo.org/guia',
+      modality: ActivityModality.practice,
+      durationMinutes: 3,
+    );
+    when(() => bloc.state).thenReturn(const ActivityDetailLoaded(activity));
+    await pumpOnPhone(
+      tester,
+      BlocProvider<ActivityDetailBloc>.value(
+        value: bloc,
+        child: const ActivityDetailPage(
+          activityId: 'act-1',
+          linkOpener: _FakeLinkOpener(),
+        ),
       ),
     );
     expect(tester.takeException(), isNull);

@@ -98,9 +98,15 @@ lib/
 │
 └── features/
     ├── auth/                         # registro, login, logout, recuperar acceso, sesión
-    ├── profile/                      # entidad Profile, repositorio, ProfileBloc y ProfilePage
+    ├── profile/                      # resumen del perfil, edición de nombre/bio y foto de perfil
+    ├── preferences/                  # preferencias de notificaciones, recordatorios y privacidad
+    ├── wellbeing/                    # check-in de ánimo, historial, necesidades y recomendaciones
+    ├── activities/                   # catálogo de microdescansos, detalle, sesión y guardadas
+    ├── community/                    # publicaciones, categorías, comentarios y creación de post
+    ├── for_me/                       # pestaña «Para mí» con accesos a autocuidado y bienestar
+    ├── support/                      # pestaña «Red de apoyo» y acceso a la comunidad
     ├── onboarding/                   # carrusel de bienvenida
-    ├── home/                         # inicio
+    ├── home/                         # pantalla de inicio con saludo y accesos rápidos
     └── splash/                       # pantalla de bienvenida
 ```
 
@@ -129,6 +135,9 @@ redirige: sin sesión solo se ven las rutas públicas; con sesión, entrar a
 | `/activities/:id` | privado | Detalle de una actividad |
 | `/activities/:id/session` | privado | Realizar actividad con temporizador |
 | `/activities/saved` | privado | Actividades favoritas guardadas |
+| `/community` | privado | Comunidad de madres: publicaciones filtrables por categoría |
+| `/community/new` | privado | Crear una nueva publicación en la comunidad |
+| `/community/:id` | privado | Detalle de una publicación y sus comentarios |
 | `/profile` | privado | Resumen del perfil: nombre, rol, correo, privacidad y cierre de sesión |
 | `/profile/edit` | privado | Editar nombre, bio y foto de perfil |
 | `/profile/notifications` | privado | Preferencias de recordatorios y notificaciones |
@@ -138,6 +147,7 @@ La barra inferior tiene cuatro pestañas: Inicio, Para mí, Apoyo y Perfil.
 
 ### Recorrido para probar el flujo
 
+#### 1. Identidad y acceso (Sprint 1)
 1. Abrir la app y pulsar **Crear cuenta**. Escribir nombre, correo, contraseña
    (dos veces) y aceptar los términos.
 2. Pasar el carrusel de bienvenida (o **Omitir**). Se llega al **resumen del
@@ -146,6 +156,28 @@ La barra inferior tiene cuatro pestañas: Inicio, Para mí, Apoyo y Perfil.
 4. Iniciar sesión con la misma cuenta: se llega de nuevo al resumen del perfil.
 5. En el inicio de sesión, **¿Olvidaste tu contraseña?** abre la pantalla de
    recuperación.
+
+#### 2. Bienestar, microdescansos y perfil (Sprint 2)
+1. **Check-in de ánimo e historial:** Desde **Inicio** o **Para mí**, entrar al
+   check-in de estado de ánimo (`/wellbeing/checkin`), elegir un puntaje de 1 a
+   5 con una nota opcional (o pulsar **Ahora no** para omitir) y consultar los
+   registros anteriores en **Mis registros** (`/wellbeing/history`).
+2. **Necesidades y recomendaciones:** Entrar a **«No sé qué necesito»**
+   (`/wellbeing/needs`), seleccionar una o más opciones y recibir sugerencias
+   personalizadas (`/wellbeing/recommendations`) que enlazan al microdescanso o
+   a la sección sugerida.
+3. **Catálogo, detalle y sesión de microdescansos:** En **Microdescansos**
+   (`/activities`), filtrar por categoría, abrir el detalle de una actividad
+   (`/activities/:id`) para leer sus pasos y enlace externo, y pulsar
+   **Comenzar** para iniciar la sesión con temporizador
+   (`/activities/:id/session`), finalizándola o saliendo sin mensajes de culpa.
+4. **Actividades guardadas:** Marcar o desmarcar actividades desde la tarjeta o
+   el detalle y consultar la lista personal en **Actividades guardadas**
+   (`/activities/saved`).
+5. **Edición de perfil y preferencias:** En **Perfil** (`/profile`), abrir
+   **Editar perfil** (`/profile/edit`) para actualizar nombre, biografía y foto
+   de perfil, y configurar **Notificaciones** (`/profile/notifications`) y
+   **Privacidad** (`/profile/privacy`).
 
 ### Roles
 
