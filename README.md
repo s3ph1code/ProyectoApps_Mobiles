@@ -8,6 +8,14 @@ La app acompaña a la persona que cuida, no al bebé. El tono del producto es pa
 del requisito: lenguaje sin culpa, sin metas ni rachas, una sola decisión por
 pantalla y acciones principales en el tercio inferior, para usarla con una mano.
 
+## Entrega del Sprint 2
+
+- **Versión evaluada:** tag [`v1.1.2`](https://github.com/s3ph1code/ProyectoApps_Mobiles/releases/tag/v1.1.2)
+  (commit [`4927e59`](https://github.com/s3ph1code/ProyectoApps_Mobiles/commit/4927e590f9637e92c0428e9a88e125e26a19f193))
+- **Video demo:** https://youtu.be/0TY4fv81n6Q
+- **Cómo navegar los flujos:** [Recorrido para probar el flujo](#recorrido-para-probar-el-flujo)
+  y [Cuentas de demostración](#cuentas-de-demostración).
+
 ## Requisitos
 
 - Flutter 3.44 o superior (Dart 3.12)
