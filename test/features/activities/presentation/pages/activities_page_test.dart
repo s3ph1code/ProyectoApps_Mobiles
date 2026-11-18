@@ -7,6 +7,7 @@ import 'package:doulapp/features/activities/presentation/bloc/activities_event.d
 import 'package:doulapp/features/activities/presentation/bloc/activities_state.dart';
 import 'package:doulapp/features/activities/presentation/pages/activities_page.dart';
 import 'package:doulapp/core/router/app_router.dart';
+import 'package:doulapp/core/theme/app_theme.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -82,7 +83,8 @@ void main() {
         ),
       ],
     );
-    return MaterialApp.router(routerConfig: router);
+    // Con el tema real, que es el que define el tamaño mínimo de los botones.
+    return MaterialApp.router(theme: AppTheme.light, routerConfig: router);
   }
 
   testWidgets('mientras carga muestra el indicador', (t) async {

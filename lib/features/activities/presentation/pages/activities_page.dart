@@ -276,6 +276,9 @@ class _ActivityCard extends StatelessWidget {
                       AppRoutes.activitySessionPath(activity.id),
                       extra: activity,
                     ),
+                    // El tema da ancho infinito a los TextButton; dentro de
+                    // un Row eso rompe el layout.
+                    style: TextButton.styleFrom(minimumSize: const Size(0, 48)),
                     icon: const Icon(Icons.play_arrow_rounded, size: 18),
                     label: const Text('Comenzar'),
                   ),
