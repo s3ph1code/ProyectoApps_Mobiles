@@ -137,7 +137,7 @@ redirige: sin sesión solo se ven las rutas públicas; con sesión, entrar a
 | `/activities/saved` | privado | Actividades favoritas guardadas |
 | `/community` | privado | Comunidad de madres: publicaciones filtrables por categoría |
 | `/community/new` | privado | Crear una nueva publicación en la comunidad |
-| `/community/:id` | privado | Detalle de una publicación y sus comentarios |
+| `/community/posts/:id` | privado | Detalle de una publicación y sus comentarios |
 | `/profile` | privado | Resumen del perfil: nombre, rol, correo, privacidad y cierre de sesión |
 | `/profile/edit` | privado | Editar nombre, bio y foto de perfil |
 | `/profile/notifications` | privado | Preferencias de recordatorios y notificaciones |
@@ -178,6 +178,38 @@ La barra inferior tiene cuatro pestañas: Inicio, Para mí, Apoyo y Perfil.
    **Editar perfil** (`/profile/edit`) para actualizar nombre, biografía y foto
    de perfil, y configurar **Notificaciones** (`/profile/notifications`) y
    **Privacidad** (`/profile/privacy`).
+6. **Comunidad: consultar publicaciones:** Desde **Inicio** (tarjeta
+   **Comunidad**) o desde **Apoyo**, entrar a `/community`. Se ven las
+   publicaciones más recientes; los chips de arriba filtran por categoría
+   («Todas», Lactancia, Emociones…), al deslizar hacia abajo se actualiza y al
+   llegar al final se cargan más. Tocar una publicación abre su detalle con los
+   comentarios (`/community/posts/:id`).
+7. **Comunidad: crear una publicación:** En la comunidad, pulsar **Escribir**
+   (`/community/new`), elegir el tipo (Experiencia, Pregunta o Mensaje), una o
+   más categorías, la visibilidad y escribir el texto (máximo 2000
+   caracteres). Al pulsar **Publicar** se vuelve a la comunidad y la
+   publicación aparece de primera. Sin texto o sin categoría, la app explica qué
+   falta y no publica.
+
+Para que la comunidad tenga contenido desde el primer momento, ejecutar
+`0004_community_moderation.sql` y luego `seed_demo_community.sql` (ver
+[Configuración de Supabase](#configuración-de-supabase)).
+
+### Cuentas de demostración
+
+Las cuentas se crean desde la app con **Crear cuenta** (no hay cuentas
+precargadas en el código). Para la demo se usan estas, todas con la misma
+contraseña de prueba:
+
+| Rol | Correo | Contraseña |
+|---|---|---|
+| Usuaria | `usuaria@doulapp.test` | `Doulapp2026*` |
+| Moderadora | `moderadora@doulapp.test` | `Doulapp2026*` |
+| Administradora | `admin@doulapp.test` | `Doulapp2026*` |
+
+La contraseña debe tener al menos 8 caracteres. Son cuentas de prueba del
+proyecto académico: no reutilizar esa contraseña en ninguna cuenta real.
+Después de crearlas, ejecutar `seed_demo_roles.sql` para darles su rol.
 
 ### Roles
 
@@ -197,7 +229,7 @@ El rol aparece como una etiqueta en el resumen del perfil.
 
 | Cuenta | Cómo se obtiene | Qué se ve al iniciar sesión |
 |---|---|---|
-| Usuaria (cualquier correo) | Registro normal desde la app | Resumen del perfil con la etiqueta «Usuaria» |
+| `usuaria@doulapp.test` (o cualquier correo) | Registro normal desde la app | Resumen del perfil con la etiqueta «Usuaria» |
 | `moderadora@doulapp.test` | Registro + `seed_demo_roles.sql` | Resumen del perfil con la etiqueta «Moderadora» |
 | `admin@doulapp.test` | Registro + `seed_demo_roles.sql` | Resumen del perfil con la etiqueta «Administradora» |
 
