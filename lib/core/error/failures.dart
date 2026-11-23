@@ -144,3 +144,7 @@ class UnexpectedFailure extends Failure {
 class CannotBlockSelfFailure extends Failure {
   const CannotBlockSelfFailure() : super('No puedes bloquearte a ti misma.');
 }
+
+class ForbiddenFailure extends Failure {
+  const ForbiddenFailure() : super('No tienes permiso para moderar contenido.');
+}
