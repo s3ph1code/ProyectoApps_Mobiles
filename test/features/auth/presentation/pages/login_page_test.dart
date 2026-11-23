@@ -134,6 +134,9 @@ void main() {
 
       await tester.pumpWidget(buildTestablePage(bloc));
 
+      await tester.ensureVisible(
+        find.byKey(const Key('login_to_register_button')),
+      );
       await tester.tap(find.byKey(const Key('login_to_register_button')));
       await tester.pumpAndSettle();
 
