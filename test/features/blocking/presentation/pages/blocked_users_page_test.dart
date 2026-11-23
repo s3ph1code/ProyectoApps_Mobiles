@@ -1,5 +1,6 @@
 import 'package:dartz/dartz.dart';
 import 'package:doulapp/core/error/failures.dart';
+import 'package:doulapp/core/theme/app_theme.dart';
 import 'package:doulapp/core/usecase/usecase.dart';
 import 'package:doulapp/features/auth/domain/entities/auth_user.dart';
 import 'package:doulapp/features/auth/domain/usecases/get_current_user.dart';
@@ -63,6 +64,8 @@ void main() {
     )..add(const BlockedUsersRequested());
     await t.pumpWidget(
       MaterialApp(
+        // El tema real: sus botones piden ancho mínimo infinito si no se acotan.
+        theme: AppTheme.light,
         home: BlocProvider.value(value: bloc, child: const BlockedUsersPage()),
       ),
     );

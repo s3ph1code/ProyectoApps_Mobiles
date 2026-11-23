@@ -125,6 +125,9 @@ class _BlockedTile extends StatelessWidget {
           ),
           TextButton(
             key: Key('unblock_${user.userId}'),
+            // El tema pide ancho mínimo infinito; dentro de una fila rompe el
+            // layout y deja la pantalla en blanco.
+            style: TextButton.styleFrom(minimumSize: const Size(0, 48)),
             onPressed: () => context.read<BlockedUsersBloc>().add(
               BlockedUserUnblocked(user),
             ),
