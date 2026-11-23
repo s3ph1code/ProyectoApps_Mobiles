@@ -80,7 +80,8 @@ class PostCard extends StatelessWidget {
           children: [
             _Counter(
               key: Key('post_reactions_${post.id}'),
-              icon: Icons.favorite_border_rounded,
+              icon: Icons.favorite_rounded,
+              iconColor: AppColors.blush,
               count: post.reactionCount,
               label: post.reactionCount == 1 ? 'reacción' : 'reacciones',
             ),
@@ -184,12 +185,14 @@ class _Counter extends StatelessWidget {
   final IconData icon;
   final int count;
   final String label;
+  final Color iconColor;
 
   const _Counter({
     super.key,
     required this.icon,
     required this.count,
     required this.label,
+    this.iconColor = AppColors.inkSoft,
   });
 
   @override
@@ -200,7 +203,7 @@ class _Counter extends StatelessWidget {
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Icon(icon, size: 18, color: AppColors.inkSoft),
+          Icon(icon, size: 18, color: iconColor),
           const SizedBox(width: 4),
           Text(
             '$count',
