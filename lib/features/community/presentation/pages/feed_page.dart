@@ -5,6 +5,7 @@ import 'package:go_router/go_router.dart';
 import '../../../../core/router/app_router.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../domain/entities/community_category.dart';
+import '../../domain/entities/post.dart';
 import '../bloc/feed_bloc.dart';
 import '../bloc/feed_event.dart';
 import '../bloc/feed_state.dart';
@@ -13,7 +14,10 @@ import '../widgets/post_card.dart';
 
 /// «Comunidad»: lo que comparten otras madres, filtrable por categoría.
 class FeedPage extends StatelessWidget {
-  const FeedPage({super.key});
+  /// Arma el menú «⋯» de cada publicación; `null` en el menú no lo muestra.
+  final Widget? Function(BuildContext context, Post post)? postMenuBuilder;
+
+  const FeedPage({super.key, this.postMenuBuilder});
 
   Future<void> _openComposer(BuildContext context) async {
     final bloc = context.read<FeedBloc>();
@@ -49,7 +53,10 @@ class FeedPage extends StatelessWidget {
               onAction: () =>
                   context.read<FeedBloc>().add(const FeedRequested()),
             ),
-            FeedLoaded() => _FeedView(state: state),
+            FeedLoaded() => _FeedView(
+              state: state,
+              postMenuBuilder: postMenuBuilder,
+            ),
           },
         ),
       ),
@@ -59,8 +66,9 @@ class FeedPage extends StatelessWidget {
 
 class _FeedView extends StatelessWidget {
   final FeedLoaded state;
+  final Widget? Function(BuildContext context, Post post)? postMenuBuilder;
 
-  const _FeedView({required this.state});
+  const _FeedView({required this.state, this.postMenuBuilder});
 
   @override
   Widget build(BuildContext context) {
@@ -110,6 +118,7 @@ class _FeedView extends StatelessWidget {
                         return PostCard(
                           key: Key('feed_post_${post.id}'),
                           post: post,
+                          menu: postMenuBuilder?.call(context, post),
                           onTap: () =>
                               context.push(AppRoutes.postDetailPath(post.id)),
                         );

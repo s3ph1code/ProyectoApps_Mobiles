@@ -12,11 +12,15 @@ class PostCard extends StatelessWidget {
   final VoidCallback? onTap;
   final bool expanded;
 
+  /// Menú «⋯» de la esquina (por ejemplo, bloquear a la autora). Opcional.
+  final Widget? menu;
+
   const PostCard({
     super.key,
     required this.post,
     this.onTap,
     this.expanded = false,
+    this.menu,
   });
 
   @override
@@ -50,6 +54,7 @@ class PostCard extends StatelessWidget {
               ),
             ),
             _Pill(label: post.type.label, strong: true),
+            if (menu != null) menu!,
           ],
         ),
         const SizedBox(height: 12),

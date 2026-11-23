@@ -16,6 +16,14 @@ import 'features/auth/domain/usecases/watch_auth_state.dart';
 import 'features/auth/presentation/bloc/forgot_password_bloc.dart';
 import 'features/auth/presentation/bloc/login_bloc.dart';
 import 'features/auth/presentation/bloc/register_bloc.dart';
+import 'features/blocking/data/datasources/block_remote_datasource.dart';
+import 'features/blocking/data/repositories/block_repository_impl.dart';
+import 'features/blocking/domain/repositories/block_repository.dart';
+import 'features/blocking/domain/usecases/block_user.dart';
+import 'features/blocking/domain/usecases/get_blocked_users.dart';
+import 'features/blocking/domain/usecases/unblock_user.dart';
+import 'features/blocking/presentation/bloc/block_user_bloc.dart';
+import 'features/blocking/presentation/bloc/blocked_users_bloc.dart';
 import 'features/community/data/datasources/community_remote_datasource.dart';
 import 'features/community/data/repositories/community_repository_impl.dart';
 import 'features/community/domain/repositories/community_repository.dart';
@@ -88,6 +96,7 @@ Future<void> initDependencies() async {
   _registerWellbeing();
   _registerActivities();
   _registerCommunity();
+  _registerBlocking();
 
   // La sesión que Supabase restauró al arrancar decide la primera pantalla.
   final current = await sl<GetCurrentUser>()(const NoParams());
@@ -268,5 +277,31 @@ void _registerCommunity() {
   );
   sl.registerFactory(
     () => CreatePostBloc(getCommunityCategories: sl(), createPost: sl()),
+  );
+}
+
+void _registerBlocking() {
+  sl.registerLazySingleton<BlockRemoteDataSource>(
+    () => BlockRemoteDataSourceImpl(client: sl()),
+  );
+  sl.registerLazySingleton<BlockRepository>(
+    () => BlockRepositoryImpl(remoteDataSource: sl()),
+  );
+
+  sl.registerLazySingleton(() => GetBlockedUsers(sl()));
+  sl.registerLazySingleton(() => BlockUser(sl()));
+  sl.registerLazySingleton(() => UnblockUser(sl()));
+
+  sl.registerFactory(
+    () =>
+        BlockUserBloc(getCurrentUser: sl(), blockUser: sl(), unblockUser: sl()),
+  );
+  sl.registerFactory(
+    () => BlockedUsersBloc(
+      getCurrentUser: sl(),
+      getBlockedUsers: sl(),
+      blockUser: sl(),
+      unblockUser: sl(),
+    ),
   );
 }

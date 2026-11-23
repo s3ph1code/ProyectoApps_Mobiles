@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../../core/theme/app_colors.dart';
+import '../../domain/entities/post.dart';
 import '../../domain/entities/post_comment.dart';
 import '../bloc/post_detail_bloc.dart';
 import '../bloc/post_detail_event.dart';
@@ -14,7 +15,10 @@ import '../widgets/post_card.dart';
 class PostDetailPage extends StatelessWidget {
   final String postId;
 
-  const PostDetailPage({super.key, required this.postId});
+  /// Arma el menú «⋯» de la publicación; `null` no lo muestra.
+  final Widget? Function(BuildContext context, Post post)? postMenuBuilder;
+
+  const PostDetailPage({super.key, required this.postId, this.postMenuBuilder});
 
   @override
   Widget build(BuildContext context) {
@@ -41,7 +45,11 @@ class PostDetailPage extends StatelessWidget {
               key: const Key('post_detail_list'),
               padding: const EdgeInsets.fromLTRB(20, 16, 20, 32),
               children: [
-                PostCard(post: post, expanded: true),
+                PostCard(
+                  post: post,
+                  expanded: true,
+                  menu: postMenuBuilder?.call(context, post),
+                ),
                 const SizedBox(height: 24),
                 Text(
                   comments.isEmpty

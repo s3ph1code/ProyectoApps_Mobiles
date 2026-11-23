@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:go_router/go_router.dart';
 
+import '../../../../core/router/app_router.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_radii.dart';
 import '../../domain/entities/profile_visibility.dart';
@@ -70,6 +72,25 @@ class PrivacyPage extends StatelessWidget {
               ),
               const SizedBox(height: 10),
             ],
+            const SizedBox(height: 14),
+            Text('Convivencia', style: textTheme.titleLarge),
+            const SizedBox(height: 12),
+            Material(
+              color: AppColors.surface,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(AppRadii.lg),
+                side: const BorderSide(color: AppColors.lineSoft),
+              ),
+              clipBehavior: Clip.antiAlias,
+              child: ListTile(
+                key: const Key('privacy_blocked_users'),
+                leading: const Icon(Icons.block_rounded),
+                title: const Text('Usuarias bloqueadas'),
+                subtitle: const Text('Ver y desbloquear'),
+                trailing: const Icon(Icons.chevron_right_rounded),
+                onTap: () => context.push(AppRoutes.blockedUsers),
+              ),
+            ),
             const SizedBox(height: 14),
             Text('Cómo usamos tus datos', style: textTheme.titleLarge),
             const SizedBox(height: 12),

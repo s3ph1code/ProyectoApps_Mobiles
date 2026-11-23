@@ -23,6 +23,13 @@ import '../../features/auth/presentation/bloc/register_bloc.dart';
 import '../../features/auth/presentation/pages/forgot_password_page.dart';
 import '../../features/auth/presentation/pages/login_page.dart';
 import '../../features/auth/presentation/pages/register_page.dart';
+import '../../features/blocking/presentation/bloc/block_user_bloc.dart';
+import '../../features/blocking/presentation/bloc/block_user_state.dart';
+import '../../features/blocking/presentation/bloc/blocked_users_bloc.dart';
+import '../../features/blocking/presentation/bloc/blocked_users_event.dart';
+import '../../features/blocking/presentation/pages/blocked_users_page.dart';
+import '../../features/blocking/presentation/widgets/block_user_menu.dart';
+import '../../features/community/domain/entities/post.dart';
 import '../../features/community/presentation/bloc/create_post_bloc.dart';
 import '../../features/community/presentation/bloc/create_post_event.dart';
 import '../../features/community/presentation/bloc/feed_bloc.dart';
@@ -85,6 +92,7 @@ class AppRoutes {
   static const editProfile = '/profile/edit';
   static const notifications = '/profile/notifications';
   static const privacy = '/profile/privacy';
+  static const blockedUsers = '/profile/privacy/blocked';
 
   static String activityDetailPath(String id) => '/activities/$id';
   static String activitySessionPath(String id) => '/activities/$id/session';
@@ -114,6 +122,18 @@ class AppRouter {
     String initialLocation = AppRoutes.login,
     SessionNotifier? session,
   }) {
+    // Un solo bloc de bloqueos para toda la comunidad: así el «Deshacer»
+    // sigue funcionando aunque la pantalla donde se bloqueó ya se cerró.
+    late final blockUserBloc = sl<BlockUserBloc>();
+
+    Widget? blockMenu(Post post) {
+      if (post.authorId == session?.user?.id) return null;
+      return BlockUserMenu(
+        authorId: post.authorId,
+        authorName: post.authorName,
+      );
+    }
+
     return GoRouter(
       initialLocation: initialLocation,
       refreshListenable: session,
@@ -218,9 +238,21 @@ class AppRouter {
         ),
         GoRoute(
           path: AppRoutes.community,
-          builder: (context, state) => BlocProvider(
-            create: (_) => sl<FeedBloc>()..add(const FeedRequested()),
-            child: const FeedPage(),
+          builder: (context, state) => MultiBlocProvider(
+            providers: [
+              BlocProvider(
+                create: (_) => sl<FeedBloc>()..add(const FeedRequested()),
+              ),
+              BlocProvider.value(value: blockUserBloc),
+            ],
+            // Al bloquear (o deshacer) el feed se actualiza solo.
+            child: BlocListener<BlockUserBloc, BlockUserState>(
+              listenWhen: (_, current) =>
+                  current is BlockUserBlocked || current is BlockUserUnblocked,
+              listener: (context, _) =>
+                  context.read<FeedBloc>().add(const FeedRefreshed()),
+              child: FeedPage(postMenuBuilder: (_, post) => blockMenu(post)),
+            ),
           ),
         ),
         GoRoute(
@@ -234,10 +266,25 @@ class AppRouter {
           path: AppRoutes.postDetail,
           builder: (context, state) {
             final postId = state.pathParameters['id'] ?? '';
-            return BlocProvider(
-              create: (_) =>
-                  sl<PostDetailBloc>()..add(PostDetailRequested(postId)),
-              child: PostDetailPage(postId: postId),
+            return MultiBlocProvider(
+              providers: [
+                BlocProvider(
+                  create: (_) =>
+                      sl<PostDetailBloc>()..add(PostDetailRequested(postId)),
+                ),
+                BlocProvider.value(value: blockUserBloc),
+              ],
+              // Al bloquear a la autora se vuelve al feed, como en Instagram.
+              child: BlocListener<BlockUserBloc, BlockUserState>(
+                listenWhen: (_, current) => current is BlockUserBlocked,
+                listener: (context, _) {
+                  if (context.canPop()) context.pop();
+                },
+                child: PostDetailPage(
+                  postId: postId,
+                  postMenuBuilder: (_, post) => blockMenu(post),
+                ),
+              ),
             );
           },
         ),
@@ -358,6 +405,17 @@ class AppRouter {
                               ..add(const PreferencesLoadRequested()),
                         child: const PrivacyPage(),
                       ),
+                      routes: [
+                        GoRoute(
+                          path: 'blocked',
+                          builder: (context, state) => BlocProvider(
+                            create: (_) =>
+                                sl<BlockedUsersBloc>()
+                                  ..add(const BlockedUsersRequested()),
+                            child: const BlockedUsersPage(),
+                          ),
+                        ),
+                      ],
                     ),
                   ],
                 ),

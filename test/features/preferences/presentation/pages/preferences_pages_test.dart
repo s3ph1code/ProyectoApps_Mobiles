@@ -153,6 +153,19 @@ void main() {
       expect(t.takeException(), isNull);
     });
 
+    testWidgets('ofrece entrar a las usuarias bloqueadas', (t) async {
+      useSmallPhone(t);
+      when(
+        () => bloc.state,
+      ).thenReturn(const PreferencesLoaded(preferences: prefs));
+
+      await t.pumpWidget(wrap(const PrivacyPage()));
+
+      expect(find.byKey(const Key('privacy_blocked_users')), findsOneWidget);
+      expect(find.text('Usuarias bloqueadas'), findsOneWidget);
+      expect(t.takeException(), isNull);
+    });
+
     testWidgets('elegir otra opción envía el cambio de visibilidad', (t) async {
       useSmallPhone(t);
       when(
