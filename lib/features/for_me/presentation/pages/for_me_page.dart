@@ -117,7 +117,7 @@ class _ForMeCard extends StatelessWidget {
             border: Border.all(color: AppColors.lineSoft),
             boxShadow: const [
               BoxShadow(
-                color: Color(0x0826382D),
+                color: Color(0x14514599),
                 blurRadius: 16,
                 offset: Offset(0, 4),
               ),

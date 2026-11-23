@@ -214,13 +214,13 @@ class _FeatureCard extends StatelessWidget {
               colors: [
                 AppColors.sageMid,
                 AppColors.sageDeep,
-                Color(0xFF3F6547),
+                Color(0xFF473B8C),
               ],
               stops: [0, 0.62, 1],
             ),
             boxShadow: const [
               BoxShadow(
-                color: Color(0x4D4A7350),
+                color: Color(0x3A5A49A6),
                 blurRadius: 30,
                 offset: Offset(0, 10),
               ),
@@ -375,7 +375,7 @@ class _MenuCard extends StatelessWidget {
             color: data.soon ? const Color(0x8CFFFFFF) : AppColors.surface,
             borderRadius: BorderRadius.circular(AppRadii.lg),
             border: Border.all(
-              color: data.soon ? const Color(0x2426382D) : AppColors.lineSoft,
+              color: data.soon ? AppColors.line : AppColors.lineSoft,
             ),
           ),
           child: Column(
@@ -412,7 +412,7 @@ class _MenuCard extends StatelessWidget {
                           style: TextStyle(
                             fontSize: 11,
                             fontWeight: FontWeight.w600,
-                            color: Color(0xFF8E978F),
+                            color: AppColors.inkMuted,
                           ),
                         ),
                       ),
