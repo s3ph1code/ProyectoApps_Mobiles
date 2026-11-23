@@ -235,7 +235,7 @@ class _PrivacyPanel extends StatelessWidget {
         gradient: const LinearGradient(
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
-          colors: [Colors.white, Color(0xFFF4F6F0)],
+          colors: [Colors.white, Color(0xFFF4F1FB)],
         ),
         border: Border.all(
           color: AppColors.sage.withValues(alpha: 0.18),
@@ -404,7 +404,7 @@ class _SettingsList extends StatelessWidget {
                     ),
                     const Icon(
                       Icons.chevron_right_rounded,
-                      color: Color(0xFFB4BBB5),
+                      color: AppColors.inkMuted,
                     ),
                   ],
                 ),
