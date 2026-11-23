@@ -140,3 +140,7 @@ class UnexpectedFailure extends Failure {
   const UnexpectedFailure()
     : super('Algo no funcionó como esperábamos. Inténtalo de nuevo.');
 }
+
+class CannotBlockSelfFailure extends Failure {
+  const CannotBlockSelfFailure() : super('No puedes bloquearte a ti misma.');
+}
