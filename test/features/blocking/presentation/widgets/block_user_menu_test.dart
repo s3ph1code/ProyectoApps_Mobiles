@@ -1,3 +1,4 @@
+import 'package:doulapp/core/theme/app_theme.dart';
 import 'package:dartz/dartz.dart';
 import 'package:doulapp/core/error/failures.dart';
 import 'package:doulapp/core/usecase/usecase.dart';
@@ -55,6 +56,7 @@ void main() {
     );
     return t.pumpWidget(
       MaterialApp(
+        theme: AppTheme.light,
         home: Scaffold(
           body: BlocProvider.value(
             value: bloc,

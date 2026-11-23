@@ -1,3 +1,4 @@
+import 'package:doulapp/core/theme/app_theme.dart';
 import 'package:bloc_test/bloc_test.dart';
 import 'package:doulapp/features/community/domain/entities/post.dart';
 import 'package:doulapp/features/community/presentation/bloc/feed_bloc.dart';
@@ -38,6 +39,7 @@ void main() {
     usePhone(t);
     await t.pumpWidget(
       MaterialApp(
+        theme: AppTheme.light,
         home: Scaffold(body: PostCard(post: makePost('p1'))),
       ),
     );
@@ -49,6 +51,7 @@ void main() {
     usePhone(t);
     await t.pumpWidget(
       MaterialApp(
+        theme: AppTheme.light,
         home: Scaffold(
           body: PostCard(
             post: makePost('p1'),
@@ -66,6 +69,7 @@ void main() {
     usePhone(t);
     await t.pumpWidget(
       MaterialApp(
+        theme: AppTheme.light,
         home: Scaffold(
           body: PostCard(
             post: makePost(
@@ -99,6 +103,7 @@ void main() {
 
     await t.pumpWidget(
       MaterialApp(
+        theme: AppTheme.light,
         home: BlocProvider<FeedBloc>.value(
           value: bloc,
           child: FeedPage(postMenuBuilder: menuFor),
@@ -120,6 +125,7 @@ void main() {
 
     await t.pumpWidget(
       MaterialApp(
+        theme: AppTheme.light,
         home: BlocProvider<PostDetailBloc>.value(
           value: bloc,
           child: PostDetailPage(postId: 'p2', postMenuBuilder: menuFor),
