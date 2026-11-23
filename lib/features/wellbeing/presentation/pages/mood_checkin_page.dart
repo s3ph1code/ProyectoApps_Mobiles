@@ -191,6 +191,8 @@ class _MoodOption extends StatelessWidget {
   Widget build(BuildContext context) {
     final textTheme = Theme.of(context).textTheme;
 
+    final motion = MediaQuery.maybeDisableAnimationsOf(context) ?? false;
+
     return Semantics(
       button: true,
       selected: selected,
@@ -198,13 +200,13 @@ class _MoodOption extends StatelessWidget {
       child: InkWell(
         onTap: onTap,
         borderRadius: BorderRadius.circular(AppRadii.md),
-        child: Container(
+        child: AnimatedContainer(
+          duration: motion ? Duration.zero : const Duration(milliseconds: 180),
+          curve: Curves.easeOut,
           margin: const EdgeInsets.symmetric(horizontal: 3),
           padding: const EdgeInsets.symmetric(vertical: 12),
           decoration: BoxDecoration(
-            color: selected
-                ? AppColors.sage.withValues(alpha: 0.1)
-                : AppColors.surface,
+            color: selected ? AppColors.primaryContainer : AppColors.surface,
             borderRadius: BorderRadius.circular(AppRadii.md),
             border: Border.all(
               color: selected ? AppColors.sage : AppColors.lineSoft,
