@@ -122,6 +122,14 @@ class _ProfileContentView extends StatelessWidget {
                 subtitle: 'Reportes de la comunidad',
                 onTap: () => context.push(AppRoutes.moderation),
               ),
+            if (role?.canAdminister ?? false)
+              _SettingsRow(
+                key: 'administration',
+                icon: Icons.admin_panel_settings_outlined,
+                title: 'Administración',
+                subtitle: 'Roles del equipo de moderación',
+                onTap: () => context.push(AppRoutes.administration),
+              ),
             _SettingsRow(
               key: 'help',
               icon: Icons.help_outline_rounded,

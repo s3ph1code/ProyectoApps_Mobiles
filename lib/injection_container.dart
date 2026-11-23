@@ -73,6 +73,14 @@ import 'features/wellbeing/domain/usecases/save_need_session.dart';
 import 'features/wellbeing/presentation/bloc/mood_checkin_bloc.dart';
 import 'features/wellbeing/presentation/bloc/mood_history_bloc.dart';
 import 'features/wellbeing/presentation/bloc/needs_bloc.dart';
+import 'features/administration/data/datasources/role_admin_remote_datasource.dart';
+import 'features/administration/data/repositories/role_admin_repository_impl.dart';
+import 'features/administration/domain/repositories/role_admin_repository.dart';
+import 'features/administration/domain/usecases/assign_role.dart';
+import 'features/administration/domain/usecases/remove_role.dart';
+import 'features/administration/domain/usecases/resolve_administrator.dart';
+import 'features/administration/domain/usecases/search_users.dart';
+import 'features/administration/presentation/bloc/role_admin_bloc.dart';
 import 'features/moderation/data/datasources/moderation_remote_datasource.dart';
 import 'features/moderation/data/repositories/moderation_repository_impl.dart';
 import 'features/moderation/domain/entities/content_report.dart';
@@ -108,6 +116,7 @@ Future<void> initDependencies() async {
   _registerCommunity();
   _registerBlocking();
   _registerModeration();
+  _registerAdministration();
 
   // La sesión que Supabase restauró al arrancar decide la primera pantalla.
   final current = await sl<GetCurrentUser>()(const NoParams());
@@ -345,5 +354,31 @@ void _registerModeration() {
       updateReportStatus: sl(),
       moderateContent: sl(),
     ),
+  );
+}
+
+void _registerAdministration() {
+  sl.registerLazySingleton<RoleAdminRemoteDataSource>(
+    () => RoleAdminRemoteDataSourceImpl(client: sl()),
+  );
+  sl.registerLazySingleton<RoleAdminRepository>(
+    () => RoleAdminRepositoryImpl(remoteDataSource: sl()),
+  );
+
+  sl.registerLazySingleton(
+    () => ResolveAdministrator(getCurrentUser: sl(), getUserRoles: sl()),
+  );
+  sl.registerLazySingleton(
+    () => SearchUsers(resolveAdministrator: sl(), repository: sl()),
+  );
+  sl.registerLazySingleton(
+    () => AssignRole(resolveAdministrator: sl(), repository: sl()),
+  );
+  sl.registerLazySingleton(
+    () => RemoveRole(resolveAdministrator: sl(), repository: sl()),
+  );
+
+  sl.registerFactory(
+    () => RoleAdminBloc(searchUsers: sl(), assignRole: sl(), removeRole: sl()),
   );
 }

@@ -58,6 +58,12 @@ void main() {
               ),
             ),
             GoRoute(
+              path: 'administration',
+              builder: (_, _) => const Scaffold(
+                body: Center(child: Text('Pantalla administración')),
+              ),
+            ),
+            GoRoute(
               path: 'moderation',
               builder: (_, _) => const Scaffold(
                 body: Center(child: Text('Pantalla moderación')),
@@ -305,5 +311,42 @@ void main() {
 
     expect(find.byKey(const Key('profile_row_moderation')), findsNothing);
     expect(find.text('Moderación'), findsNothing);
+  });
+
+  testWidgets('la administradora ve «Administración» y también «Moderación»', (
+    tester,
+  ) async {
+    useTallScreen(tester);
+    when(() => bloc.state).thenReturn(
+      ProfileLoaded(
+        profile: sampleProfile,
+        email: 'camila@icesi.edu.co',
+        roles: const [AppRole.user, AppRole.admin],
+      ),
+    );
+
+    await tester.pumpWidget(buildTestablePage(bloc));
+
+    expect(find.byKey(const Key('profile_row_moderation')), findsOneWidget);
+    await tester.tap(find.byKey(const Key('profile_row_administration')));
+    await tester.pumpAndSettle();
+
+    expect(find.text('Pantalla administración'), findsOneWidget);
+  });
+
+  testWidgets('la moderadora no ve «Administración»', (tester) async {
+    useTallScreen(tester);
+    when(() => bloc.state).thenReturn(
+      ProfileLoaded(
+        profile: sampleProfile,
+        email: 'camila@icesi.edu.co',
+        roles: const [AppRole.moderator],
+      ),
+    );
+
+    await tester.pumpWidget(buildTestablePage(bloc));
+
+    expect(find.byKey(const Key('profile_row_administration')), findsNothing);
+    expect(find.byKey(const Key('profile_row_moderation')), findsOneWidget);
   });
 }

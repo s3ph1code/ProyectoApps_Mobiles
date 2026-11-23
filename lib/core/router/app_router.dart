@@ -25,6 +25,10 @@ import '../../features/auth/presentation/bloc/register_bloc.dart';
 import '../../features/auth/presentation/pages/forgot_password_page.dart';
 import '../../features/auth/presentation/pages/login_page.dart';
 import '../../features/auth/presentation/pages/register_page.dart';
+import '../../features/administration/domain/usecases/resolve_administrator.dart';
+import '../../features/administration/presentation/bloc/role_admin_bloc.dart';
+import '../../features/administration/presentation/bloc/role_admin_event.dart';
+import '../../features/administration/presentation/pages/role_admin_page.dart';
 import '../../features/blocking/presentation/bloc/block_user_bloc.dart';
 import '../../features/blocking/presentation/bloc/block_user_state.dart';
 import '../../features/blocking/presentation/bloc/blocked_users_bloc.dart';
@@ -103,6 +107,7 @@ class AppRoutes {
   static const privacy = '/profile/privacy';
   static const blockedUsers = '/profile/privacy/blocked';
   static const moderation = '/profile/moderation';
+  static const administration = '/profile/administration';
   static const reportDetail = '/profile/moderation/report';
 
   static String activityDetailPath(String id) => '/activities/$id';
@@ -436,6 +441,17 @@ class AppRouter {
                       ],
                     ),
                     GoRoute(
+                      path: 'administration',
+                      // Solo la administradora; el resto vuelve al perfil.
+                      redirect: (context, state) =>
+                          administrationRedirect(sl<ResolveAdministrator>()),
+                      builder: (context, state) => BlocProvider(
+                        create: (_) =>
+                            sl<RoleAdminBloc>()..add(const RoleAdminStarted()),
+                        child: const RoleAdminPage(),
+                      ),
+                    ),
+                    GoRoute(
                       path: 'privacy',
                       builder: (context, state) => BlocProvider(
                         create: (_) =>
@@ -472,6 +488,16 @@ class AppRouter {
     ResolveModerator resolveModerator,
   ) async {
     final access = await resolveModerator(const NoParams());
+    return access.isRight() ? null : AppRoutes.profile;
+  }
+
+  /// Guardia de la ruta de administración: `null` deja pasar a la
+  /// administradora y manda al perfil a cualquier otra cuenta.
+  @visibleForTesting
+  static Future<String?> administrationRedirect(
+    ResolveAdministrator resolveAdministrator,
+  ) async {
+    final access = await resolveAdministrator(const NoParams());
     return access.isRight() ? null : AppRoutes.profile;
   }
 
