@@ -148,3 +148,23 @@ class CannotBlockSelfFailure extends Failure {
 class ForbiddenFailure extends Failure {
   const ForbiddenFailure() : super('No tienes permiso para moderar contenido.');
 }
+
+class AdminForbiddenFailure extends Failure {
+  const AdminForbiddenFailure()
+    : super('Solo la administración puede gestionar roles.');
+}
+
+class RoleNotManageableFailure extends Failure {
+  const RoleNotManageableFailure()
+    : super('Desde aquí solo se asigna o quita el rol de moderadora.');
+}
+
+class CannotRemoveOwnAdminFailure extends Failure {
+  const CannotRemoveOwnAdminFailure()
+    : super('No puedes quitarte a ti misma el rol de administradora.');
+}
+
+class SearchTooShortFailure extends Failure {
+  const SearchTooShortFailure()
+    : super('Escribe al menos 2 letras para buscar.');
+}
