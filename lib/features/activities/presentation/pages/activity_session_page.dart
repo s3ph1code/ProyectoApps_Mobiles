@@ -216,7 +216,7 @@ class _ActiveSessionView extends StatelessWidget {
                             ),
                             boxShadow: const [
                               BoxShadow(
-                                color: Color(0x0C26382D),
+                                color: Color(0x1A514599),
                                 blurRadius: 20,
                                 offset: Offset(0, 6),
                               ),
