@@ -219,7 +219,7 @@ class _Dots extends StatelessWidget {
           width: selected ? 26 : 7,
           height: 7,
           decoration: BoxDecoration(
-            color: selected ? AppColors.sage : const Color(0x2926382D),
+            color: selected ? AppColors.sage : AppColors.sageLight,
             borderRadius: BorderRadius.circular(999),
           ),
         );
