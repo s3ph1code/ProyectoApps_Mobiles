@@ -16,11 +16,16 @@ class AppTheme {
     colorScheme: const ColorScheme.light(
       primary: AppColors.sage,
       onPrimary: Colors.white,
-      primaryContainer: AppColors.sageLight,
+      primaryContainer: AppColors.primaryContainer,
+      onPrimaryContainer: AppColors.ink,
       secondary: AppColors.sageDark,
       onSecondary: Colors.white,
+      secondaryContainer: AppColors.blushContainer,
+      onSecondaryContainer: AppColors.ink,
       surface: AppColors.surface,
       onSurface: AppColors.ink,
+      onSurfaceVariant: AppColors.inkSoft,
+      outlineVariant: AppColors.line,
       error: AppColors.error,
       onError: Colors.white,
     ),
@@ -93,6 +98,58 @@ class AppTheme {
       behavior: SnackBarBehavior.floating,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(AppRadii.sm),
+      ),
+    ),
+    chipTheme: ChipThemeData(
+      backgroundColor: AppColors.surface,
+      selectedColor: AppColors.primaryContainer,
+      disabledColor: AppColors.beige,
+      checkmarkColor: AppColors.sageDark,
+      side: const BorderSide(color: AppColors.lineSoft),
+      shape: const StadiumBorder(),
+      labelStyle: AppTypography.textTheme.labelLarge?.copyWith(fontSize: 14),
+      secondaryLabelStyle: AppTypography.textTheme.labelLarge?.copyWith(
+        fontSize: 14,
+        color: AppColors.sageDark,
+      ),
+      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+    ),
+    dialogTheme: DialogThemeData(
+      backgroundColor: AppColors.surface,
+      elevation: 0,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(AppRadii.lg),
+      ),
+      titleTextStyle: AppTypography.textTheme.headlineSmall,
+      contentTextStyle: AppTypography.textTheme.bodyMedium,
+    ),
+    bottomSheetTheme: const BottomSheetThemeData(
+      backgroundColor: AppColors.surface,
+      modalBackgroundColor: AppColors.surface,
+      showDragHandle: true,
+      dragHandleColor: AppColors.inkMuted,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(AppRadii.xl)),
+      ),
+    ),
+    progressIndicatorTheme: const ProgressIndicatorThemeData(
+      color: AppColors.sage,
+    ),
+    switchTheme: SwitchThemeData(
+      thumbColor: WidgetStateProperty.resolveWith(
+        (states) => states.contains(WidgetState.selected)
+            ? Colors.white
+            : AppColors.surface,
+      ),
+      trackColor: WidgetStateProperty.resolveWith(
+        (states) => states.contains(WidgetState.selected)
+            ? AppColors.sage
+            : AppColors.beige,
+      ),
+      trackOutlineColor: WidgetStateProperty.resolveWith(
+        (states) => states.contains(WidgetState.selected)
+            ? AppColors.sage
+            : AppColors.inkMuted,
       ),
     ),
   );
