@@ -114,6 +114,14 @@ class _ProfileContentView extends StatelessWidget {
               subtitle: 'Recordatorios suaves, nunca insistentes',
               onTap: () => context.push(AppRoutes.notifications),
             ),
+            if (role?.canModerate ?? false)
+              _SettingsRow(
+                key: 'moderation',
+                icon: Icons.shield_outlined,
+                title: 'Moderación',
+                subtitle: 'Reportes de la comunidad',
+                onTap: () => context.push(AppRoutes.moderation),
+              ),
             _SettingsRow(
               key: 'help',
               icon: Icons.help_outline_rounded,

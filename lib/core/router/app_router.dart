@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 
+import '../usecase/usecase.dart';
+
 import '../../features/activities/domain/entities/activity.dart';
 import '../../features/activities/domain/entities/activity_modality.dart';
 import '../../features/activities/presentation/bloc/activities_bloc.dart';
@@ -40,6 +42,13 @@ import '../../features/community/presentation/pages/create_post_page.dart';
 import '../../features/community/presentation/pages/feed_page.dart';
 import '../../features/community/presentation/pages/post_detail_page.dart';
 import '../../features/home/presentation/pages/home_page.dart';
+import '../../features/moderation/domain/entities/content_report.dart';
+import '../../features/moderation/domain/usecases/resolve_moderator.dart';
+import '../../features/moderation/presentation/bloc/moderation_bloc.dart';
+import '../../features/moderation/presentation/bloc/moderation_event.dart';
+import '../../features/moderation/presentation/bloc/report_detail_bloc.dart';
+import '../../features/moderation/presentation/pages/moderation_page.dart';
+import '../../features/moderation/presentation/pages/report_detail_page.dart';
 import '../../features/onboarding/presentation/pages/onboarding_page.dart';
 import '../../features/preferences/presentation/bloc/preferences_bloc.dart';
 import '../../features/preferences/presentation/bloc/preferences_event.dart';
@@ -93,6 +102,8 @@ class AppRoutes {
   static const notifications = '/profile/notifications';
   static const privacy = '/profile/privacy';
   static const blockedUsers = '/profile/privacy/blocked';
+  static const moderation = '/profile/moderation';
+  static const reportDetail = '/profile/moderation/report';
 
   static String activityDetailPath(String id) => '/activities/$id';
   static String activitySessionPath(String id) => '/activities/$id/session';
@@ -398,6 +409,33 @@ class AppRouter {
                       ),
                     ),
                     GoRoute(
+                      path: 'moderation',
+                      // Solo moderadoras y administradoras; el resto vuelve al perfil.
+                      redirect: (context, state) =>
+                          moderationRedirect(sl<ResolveModerator>()),
+                      builder: (context, state) => BlocProvider(
+                        create: (_) =>
+                            sl<ModerationBloc>()
+                              ..add(const ModerationStarted()),
+                        child: const ModerationPage(),
+                      ),
+                      routes: [
+                        GoRoute(
+                          path: 'report',
+                          redirect: (context, state) async =>
+                              state.extra is ContentReport
+                              ? moderationRedirect(sl<ResolveModerator>())
+                              : AppRoutes.moderation,
+                          builder: (context, state) => BlocProvider(
+                            create: (_) => sl<ReportDetailBloc>(
+                              param1: state.extra! as ContentReport,
+                            ),
+                            child: const ReportDetailPage(),
+                          ),
+                        ),
+                      ],
+                    ),
+                    GoRoute(
                       path: 'privacy',
                       builder: (context, state) => BlocProvider(
                         create: (_) =>
@@ -425,6 +463,16 @@ class AppRouter {
         ),
       ],
     );
+  }
+
+  /// Guardia de las rutas de moderación: `null` deja pasar a quien puede
+  /// moderar y manda al perfil a cualquier otra cuenta.
+  @visibleForTesting
+  static Future<String?> moderationRedirect(
+    ResolveModerator resolveModerator,
+  ) async {
+    final access = await resolveModerator(const NoParams());
+    return access.isRight() ? null : AppRoutes.profile;
   }
 
   /// Decide a dónde redirigir según la sesión; `null` deja pasar.

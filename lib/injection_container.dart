@@ -73,6 +73,16 @@ import 'features/wellbeing/domain/usecases/save_need_session.dart';
 import 'features/wellbeing/presentation/bloc/mood_checkin_bloc.dart';
 import 'features/wellbeing/presentation/bloc/mood_history_bloc.dart';
 import 'features/wellbeing/presentation/bloc/needs_bloc.dart';
+import 'features/moderation/data/datasources/moderation_remote_datasource.dart';
+import 'features/moderation/data/repositories/moderation_repository_impl.dart';
+import 'features/moderation/domain/entities/content_report.dart';
+import 'features/moderation/domain/repositories/moderation_repository.dart';
+import 'features/moderation/domain/usecases/get_reports.dart';
+import 'features/moderation/domain/usecases/moderate_content.dart';
+import 'features/moderation/domain/usecases/resolve_moderator.dart';
+import 'features/moderation/domain/usecases/update_report_status.dart';
+import 'features/moderation/presentation/bloc/moderation_bloc.dart';
+import 'features/moderation/presentation/bloc/report_detail_bloc.dart';
 import 'features/profile/data/repositories/profile_repository_impl.dart';
 import 'features/profile/domain/repositories/profile_repository.dart';
 import 'features/profile/domain/usecases/create_profile.dart';
@@ -97,6 +107,7 @@ Future<void> initDependencies() async {
   _registerActivities();
   _registerCommunity();
   _registerBlocking();
+  _registerModeration();
 
   // La sesión que Supabase restauró al arrancar decide la primera pantalla.
   final current = await sl<GetCurrentUser>()(const NoParams());
@@ -302,6 +313,37 @@ void _registerBlocking() {
       getBlockedUsers: sl(),
       blockUser: sl(),
       unblockUser: sl(),
+    ),
+  );
+}
+
+void _registerModeration() {
+  sl.registerLazySingleton<ModerationRemoteDataSource>(
+    () => ModerationRemoteDataSourceImpl(client: sl()),
+  );
+  sl.registerLazySingleton<ModerationRepository>(
+    () => ModerationRepositoryImpl(remoteDataSource: sl()),
+  );
+
+  sl.registerLazySingleton(
+    () => ResolveModerator(getCurrentUser: sl(), getUserRoles: sl()),
+  );
+  sl.registerLazySingleton(
+    () => GetReports(resolveModerator: sl(), repository: sl()),
+  );
+  sl.registerLazySingleton(
+    () => UpdateReportStatus(resolveModerator: sl(), repository: sl()),
+  );
+  sl.registerLazySingleton(
+    () => ModerateContent(resolveModerator: sl(), repository: sl()),
+  );
+
+  sl.registerFactory(() => ModerationBloc(getReports: sl()));
+  sl.registerFactoryParam<ReportDetailBloc, ContentReport, void>(
+    (report, _) => ReportDetailBloc(
+      report: report,
+      updateReportStatus: sl(),
+      moderateContent: sl(),
     ),
   );
 }

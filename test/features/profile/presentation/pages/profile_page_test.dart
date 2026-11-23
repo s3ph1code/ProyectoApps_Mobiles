@@ -58,6 +58,12 @@ void main() {
               ),
             ),
             GoRoute(
+              path: 'moderation',
+              builder: (_, _) => const Scaffold(
+                body: Center(child: Text('Pantalla moderación')),
+              ),
+            ),
+            GoRoute(
               path: 'privacy',
               builder: (_, _) => const Scaffold(
                 body: Center(child: Text('Pantalla privacidad')),
@@ -266,5 +272,38 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.text('Pantalla Login'), findsOneWidget);
+  });
+
+  testWidgets('la moderadora ve «Moderación» y entra', (tester) async {
+    useTallScreen(tester);
+    when(() => bloc.state).thenReturn(
+      ProfileLoaded(
+        profile: sampleProfile,
+        email: 'camila@icesi.edu.co',
+        roles: const [AppRole.moderator],
+      ),
+    );
+
+    await tester.pumpWidget(buildTestablePage(bloc));
+    await tester.tap(find.byKey(const Key('profile_row_moderation')));
+    await tester.pumpAndSettle();
+
+    expect(find.text('Pantalla moderación'), findsOneWidget);
+  });
+
+  testWidgets('la usuaria no ve «Moderación»', (tester) async {
+    useTallScreen(tester);
+    when(() => bloc.state).thenReturn(
+      ProfileLoaded(
+        profile: sampleProfile,
+        email: 'camila@icesi.edu.co',
+        roles: const [AppRole.user],
+      ),
+    );
+
+    await tester.pumpWidget(buildTestablePage(bloc));
+
+    expect(find.byKey(const Key('profile_row_moderation')), findsNothing);
+    expect(find.text('Moderación'), findsNothing);
   });
 }
