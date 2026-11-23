@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
 import '../theme/app_colors.dart';
+import '../theme/app_radii.dart';
 
 /// Marco de las pantallas principales: contenido arriba y la navegación
 /// inferior de cuatro pestañas (Inicio, Para mí, Apoyo y Perfil).
@@ -23,7 +24,7 @@ class AppShell extends StatelessWidget {
       body: navigationShell,
       bottomNavigationBar: DecoratedBox(
         decoration: const BoxDecoration(
-          color: Color(0xE6FFFFFF),
+          color: AppColors.surface,
           border: Border(top: BorderSide(color: AppColors.lineSoft)),
         ),
         child: SafeArea(
@@ -73,7 +74,10 @@ class _NavButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final color = selected ? AppColors.sage : AppColors.inkMuted;
+    final color = selected ? AppColors.sageDark : AppColors.inkMuted;
+    // Respeta la preferencia de movimiento reducido del sistema.
+    final motion = MediaQuery.maybeDisableAnimationsOf(context) ?? false;
+    final duration = motion ? Duration.zero : const Duration(milliseconds: 220);
 
     return Semantics(
       button: true,
@@ -81,14 +85,29 @@ class _NavButton extends StatelessWidget {
       label: item.label,
       child: InkWell(
         key: Key('nav_${item.label}'),
-        borderRadius: BorderRadius.circular(14),
+        borderRadius: BorderRadius.circular(18),
         onTap: onTap,
         child: Padding(
           padding: const EdgeInsets.symmetric(vertical: 5),
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              Icon(selected ? item.selectedIcon : item.icon, color: color),
+              AnimatedContainer(
+                duration: duration,
+                curve: Curves.easeOut,
+                padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 4),
+                decoration: BoxDecoration(
+                  color: selected
+                      ? AppColors.primaryContainer
+                      : Colors.transparent,
+                  borderRadius: BorderRadius.circular(AppRadii.full),
+                ),
+                child: Icon(
+                  selected ? item.selectedIcon : item.icon,
+                  color: color,
+                  size: 24,
+                ),
+              ),
               const SizedBox(height: 4),
               Text(
                 item.label,
